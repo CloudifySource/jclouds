@@ -19,7 +19,7 @@ package org.jclouds.softlayer.predicates;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-import org.jclouds.softlayer.domain.ProductPackage;
+import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.testng.annotations.Test;
 
 /**

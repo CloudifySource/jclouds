@@ -16,20 +16,20 @@
  */
 package org.jclouds.softlayer.binders;
 
-import static org.testng.Assert.assertEquals;
-
+import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.json.Json;
 import org.jclouds.json.internal.GsonWrapper;
 import org.jclouds.rest.Binder;
-import org.jclouds.softlayer.domain.ProductItemPrice;
-import org.jclouds.softlayer.domain.ProductOrder;
-import org.jclouds.softlayer.domain.VirtualGuest;
+import org.jclouds.softlayer.domain.guest.VirtualGuest;
+import org.jclouds.softlayer.domain.product.ProductItemPrice;
+import org.jclouds.softlayer.domain.product.ProductOrder;
+import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
+import static org.testng.Assert.assertEquals;
 
 /**
  * Tests behavior of {@code ProductOrderToJsonTest}
@@ -40,11 +40,12 @@ import com.google.gson.Gson;
 public class ProductOrderToJsonTest {
 
    private static final String FORMAT =
-         "{'parameters':[{'complexType':'SoftLayer_Container_Product_Order_Virtual_Guest'," +
+         "{'parameters':[{'complexType':'SoftLayer_Container_Product_Order'," +
                          "'packageId':%d," +
                          "'location':'%s'," +
                          "'prices':[{'id':%d},{'id':%d}]," +
                          "'virtualGuests':[{'hostname':'%s','domain':'%s'}]," +
+                         "'hardware':[{'hostname':'%s','domain':'%s'}]," +
                          "'quantity':%d," +
                          "'useHourlyPricing':%b}" +
                        "]}";
@@ -74,6 +75,10 @@ public class ProductOrderToJsonTest {
                                                  .domain("mydomain")
                                                  .build();
 
+      HardwareServer server = HardwareServer.builder().hostname("myserver")
+                                                  .domain("mydomain")
+                                                  .build();
+
       ProductOrder order = ProductOrder.builder()
                                        .packageId(123)
                                        .location("loc456")
@@ -81,10 +86,11 @@ public class ProductOrderToJsonTest {
                                        .useHourlyPricing(true)
                                        .prices(ImmutableSet.of(price1,price2))
                                        .virtualGuests(guest)
+                                       .hardwareServers(server)
                                        .build();
       
       String expected = String.format(FORMAT.replaceAll("'","\""),
-                                      123,"loc456",100,101,"myhost","mydomain",99,true);
+                                      123,"loc456",100,101,"myhost","mydomain", "myserver", "mydomain",99,true);
 
       HttpRequest req = binder.bindToRequest(request, order);
 

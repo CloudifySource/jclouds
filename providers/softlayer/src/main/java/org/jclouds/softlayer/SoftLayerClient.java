@@ -16,13 +16,14 @@
  */
 package org.jclouds.softlayer;
 
-import java.io.Closeable;
-
 import org.jclouds.rest.annotations.Delegate;
-import org.jclouds.softlayer.features.AccountClient;
-import org.jclouds.softlayer.features.DatacenterClient;
-import org.jclouds.softlayer.features.ProductPackageClient;
-import org.jclouds.softlayer.features.VirtualGuestClient;
+import org.jclouds.softlayer.features.account.AccountClient;
+import org.jclouds.softlayer.features.datacenter.DatacenterClient;
+import org.jclouds.softlayer.features.guest.VirtualGuestClient;
+import org.jclouds.softlayer.features.product.ProductPackageClient;
+import org.jclouds.softlayer.features.server.HardwareServerClient;
+
+import java.io.Closeable;
 
 /**
  * Provides synchronous access to SoftLayer.
@@ -57,4 +58,11 @@ public interface SoftLayerClient extends Closeable {
     */
    @Delegate
    AccountClient getAccountClient();
+
+   /**
+    * Provides synchronous access to Hardware features.
+    */
+   @Delegate
+   HardwareServerClient getHardwareServerClient();
+
 }

@@ -16,19 +16,18 @@
  */
 package org.jclouds.softlayer.compute.options;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.net.InternetDomainName;
+import org.jclouds.compute.options.TemplateOptions;
 
 import java.util.Map;
 
-import org.jclouds.compute.options.TemplateOptions;
-
-import com.google.common.net.InternetDomainName;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Contains options supported by the
- * {@link ComputeService#createNodesInGroup(String, int, TemplateOptions)} and
- * {@link ComputeService#createNodesInGroup(String, int, TemplateOptions)}
+ * {@link org.jclouds.compute.ComputeService#createNodesInGroup(String, int, TemplateOptions)} and
+ * {@link org.jclouds.compute.ComputeService#createNodesInGroup(String, int, TemplateOptions)}
  * operations on the <em>gogrid</em> provider.
  * 
  * <h2>Usage</h2> The recommended way to instantiate a
@@ -70,7 +69,7 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
     * will replace the default domain used when ordering virtual guests. Note
     * this needs to contain a public suffix!
     * 
-    * @see VirtualGuestClient#orderVirtualGuest
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#orderVirtualGuest
     * @see InternetDomainName#hasPublicSuffix
     */
    public TemplateOptions domainName(String domainName) {

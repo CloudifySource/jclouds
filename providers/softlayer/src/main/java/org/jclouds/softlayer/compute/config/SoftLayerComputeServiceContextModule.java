@@ -16,19 +16,13 @@
  */
 package org.jclouds.softlayer.compute.config;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.find;
-import static org.jclouds.Constants.PROPERTY_SESSION_INTERVAL;
-import static org.jclouds.softlayer.predicates.ProductPackagePredicates.named;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_PACKAGE_NAME;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_PRICES;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
-
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Splitter;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Iterables;
+import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
@@ -37,43 +31,49 @@ import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Location;
 import org.jclouds.rest.AuthorizationException;
 import org.jclouds.rest.suppliers.MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier;
+import org.jclouds.softlayer.PropertiesProviderFactory;
 import org.jclouds.softlayer.SoftLayerClient;
-import org.jclouds.softlayer.compute.functions.DatacenterToLocation;
-import org.jclouds.softlayer.compute.functions.ProductItemToImage;
-import org.jclouds.softlayer.compute.functions.ProductItemsToHardware;
-import org.jclouds.softlayer.compute.functions.VirtualGuestToNodeMetadata;
+import org.jclouds.softlayer.compute.functions.SoftLayerNodeToNodeMetaData;
+import org.jclouds.softlayer.compute.functions.datacenter.DatacenterToLocation;
+import org.jclouds.softlayer.compute.functions.product.ProductItemToImage;
+import org.jclouds.softlayer.compute.functions.product.ProductItemsToHardware;
 import org.jclouds.softlayer.compute.options.SoftLayerTemplateOptions;
 import org.jclouds.softlayer.compute.strategy.SoftLayerComputeServiceAdapter;
 import org.jclouds.softlayer.domain.Datacenter;
-import org.jclouds.softlayer.domain.ProductItem;
-import org.jclouds.softlayer.domain.ProductItemPrice;
-import org.jclouds.softlayer.domain.ProductPackage;
-import org.jclouds.softlayer.domain.VirtualGuest;
-import org.jclouds.softlayer.features.AccountClient;
-import org.jclouds.softlayer.features.ProductPackageClient;
+import org.jclouds.softlayer.domain.SoftLayerNode;
+import org.jclouds.softlayer.domain.product.ProductItem;
+import org.jclouds.softlayer.domain.product.ProductItemPrice;
+import org.jclouds.softlayer.domain.product.ProductPackage;
+import org.jclouds.softlayer.features.account.AccountClient;
+import org.jclouds.softlayer.features.product.ProductPackageClient;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Splitter;
-import com.google.common.base.Supplier;
-import com.google.common.collect.Iterables;
-import com.google.inject.Provides;
-import com.google.inject.TypeLiteral;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.find;
+import static org.jclouds.Constants.PROPERTY_SESSION_INTERVAL;
+import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withId;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PRICES;
 
 /**
  * 
  * @author Adrian Cole
  */
 public class SoftLayerComputeServiceContextModule extends
-         ComputeServiceAdapterContextModule<VirtualGuest, Iterable<ProductItem>, ProductItem, Datacenter> {
+         ComputeServiceAdapterContextModule<SoftLayerNode, Iterable<ProductItem>, ProductItem, Datacenter> {
 
    @Override
    protected void configure() {
       super.configure();
-      bind(new TypeLiteral<ComputeServiceAdapter<VirtualGuest, Iterable<ProductItem>, ProductItem, Datacenter>>() {
+      bind(new TypeLiteral<ComputeServiceAdapter<SoftLayerNode, Iterable<ProductItem>, ProductItem, Datacenter>>() {
       }).to(SoftLayerComputeServiceAdapter.class);
-      bind(new TypeLiteral<Function<VirtualGuest, NodeMetadata>>() {
-      }).to(VirtualGuestToNodeMetadata.class);
+      bind(new TypeLiteral<Function<SoftLayerNode, NodeMetadata>>() {
+      }).to(SoftLayerNodeToNodeMetaData.class);
       bind(new TypeLiteral<Function<ProductItem, org.jclouds.compute.domain.Image>>() {
       }).to(ProductItemToImage.class);
       bind(new TypeLiteral<Function<Iterable<ProductItem>, org.jclouds.compute.domain.Hardware>>() {
@@ -82,7 +82,7 @@ public class SoftLayerComputeServiceContextModule extends
       }).to(DatacenterToLocation.class);
       bind(TemplateOptions.class).to(SoftLayerTemplateOptions.class);
       // to have the compute service adapter override default locations
-      install(new LocationsFromComputeServiceAdapterModule<VirtualGuest, Iterable<ProductItem>, ProductItem, Datacenter>(){});
+      install(new LocationsFromComputeServiceAdapterModule<SoftLayerNode, Iterable<ProductItem>, ProductItem, Datacenter>(){});
    }
 
    /**
@@ -94,14 +94,14 @@ public class SoftLayerComputeServiceContextModule extends
    @Memoized
    public Supplier<ProductPackage> getProductPackage(AtomicReference<AuthorizationException> authException,
             @Named(PROPERTY_SESSION_INTERVAL) long seconds, final SoftLayerClient client,
-            @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_PACKAGE_NAME) final String virtualGuestPackageName) {
+            @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
       return MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier.create(authException,
                new Supplier<ProductPackage>() {
                   @Override
                   public ProductPackage get() {
                      AccountClient accountClient = client.getAccountClient();
                      ProductPackageClient productPackageClient = client.getProductPackageClient();
-                     ProductPackage p = find(accountClient.getReducedActivePackages(), named(virtualGuestPackageName));
+                     ProductPackage p = find(accountClient.getReducedActivePackages(), withId(packageId));
                      return productPackageClient.getProductPackage(p.getId());
                   }
                   
@@ -114,9 +114,14 @@ public class SoftLayerComputeServiceContextModule extends
    }
 
    // TODO: check the prices really do exist
+   @Inject
    @Provides
    @Singleton
-   public Iterable<ProductItemPrice> prices(@Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_PRICES) String prices) {
+   public Iterable<ProductItemPrice> prices(PropertiesProviderFactory defaultPropertiesFactory,
+                                            @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
+      String prices =
+              (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_PRICES);
+
       return Iterables.transform(Splitter.on(',').split(checkNotNull(prices, "prices")),
                new Function<String, ProductItemPrice>() {
                   @Override

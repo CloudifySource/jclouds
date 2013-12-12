@@ -16,17 +16,9 @@
  */
 package org.jclouds.softlayer.compute;
 
-import static org.jclouds.compute.util.ComputeServiceUtils.getCores;
-import static org.jclouds.compute.util.ComputeServiceUtils.getSpace;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_DISK0_TYPE;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED;
-import static org.testng.Assert.assertEquals;
-
-import java.io.IOException;
-import java.util.Properties;
-import java.util.Set;
-
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableSet;
 import org.jclouds.compute.ComputeServiceContext;
 import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.compute.domain.OsFamilyVersion64Bit;
@@ -36,9 +28,15 @@ import org.jclouds.compute.internal.BaseTemplateBuilderLiveTest;
 import org.jclouds.softlayer.compute.options.SoftLayerTemplateOptions;
 import org.testng.annotations.Test;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.Set;
+
+import static org.jclouds.compute.util.ComputeServiceUtils.getCores;
+import static org.jclouds.compute.util.ComputeServiceUtils.getSpace;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_DISK0_TYPE;
+import static org.testng.Assert.assertEquals;
 
 /**
  * 
@@ -89,47 +87,11 @@ public class SoftLayerTemplateBuilderLiveTest extends BaseTemplateBuilderLiveTes
       assertEquals(defaultTemplate.getImage().getOperatingSystem().is64Bit(), true);
       assertEquals(defaultTemplate.getImage().getOperatingSystem().getFamily(), OsFamily.UBUNTU);
       assertEquals(getCores(defaultTemplate.getHardware()), 1.0d);
-      assertEquals(defaultTemplate.getHardware().getRam(), 1*1024);
+      assertEquals(defaultTemplate.getHardware().getRam(), 1);
       assertEquals(getSpace(defaultTemplate.getHardware()), 25.0d);
       assertEquals(defaultTemplate.getHardware().getVolumes().get(0).getType(), Volume.Type.LOCAL);
       // test that we bound the correct templateoptions in guice
       assertEquals(defaultTemplate.getOptions().getClass(), SoftLayerTemplateOptions.class);
-   }
-
-   @Test
-   public void testTemplateBuilderFindsGigabitUplink() throws IOException {
-      ComputeServiceContext context = null;
-      try {
-         Properties overrides = setupProperties();
-         overrides.setProperty(PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED, "1000");
-
-         context = createView(overrides, setupModules());
-
-         // TODO add something to the template about port speed?
-         context.getComputeService().templateBuilder().build();
-
-      } finally {
-         if (context != null)
-            context.close();
-      }
-   }
-
-   @Test
-   public void testTemplateBuilderFindsMegabitUplink() throws IOException {
-      ComputeServiceContext context = null;
-      try {
-         Properties overrides = setupProperties();
-         overrides.setProperty(PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED, "100");
-
-         context = createView(overrides, setupModules());
-
-         // TODO add something to the template about port speed?
-         context.getComputeService().templateBuilder().build();
-
-      } finally {
-         if (context != null)
-            context.close();
-      }
    }
 
    @Test
@@ -163,7 +125,7 @@ public class SoftLayerTemplateBuilderLiveTest extends BaseTemplateBuilderLiveTes
 
          Template template = context.getComputeService().templateBuilder().build();
          assertEquals(getCores(template.getHardware()), 1.0d);
-         assertEquals(template.getHardware().getRam(), 1*1024);
+         assertEquals(template.getHardware().getRam(), 1);
          assertEquals(getSpace(template.getHardware()), 25.0d);
          assertEquals(template.getHardware().getVolumes().get(0).getType(), Volume.Type.LOCAL);
       } finally {
@@ -196,7 +158,7 @@ public class SoftLayerTemplateBuilderLiveTest extends BaseTemplateBuilderLiveTes
    public void testFastestTemplateBuilder() throws IOException {
       Template template = view.getComputeService().templateBuilder().fastest().build();
       assertEquals(getCores(template.getHardware()), 16.0d);
-      assertEquals(template.getHardware().getRam(), 1*1024);
+      assertEquals(template.getHardware().getRam(), 1);
       assertEquals(getSpace(template.getHardware()), 25.0d);
       assertEquals(template.getHardware().getVolumes().get(0).getType(), Volume.Type.LOCAL);
    }
