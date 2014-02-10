@@ -10,14 +10,17 @@ import javax.inject.Inject;
 public class PropertiesProviderFactory implements PackageSpecific<PropertiesProvider> {
 
    private SingleXeon3200SeriesProperties singleXeon3200SeriesProperties;
+   private SingleXeon2000SeriesProperties singleXeon2000SeriesProperties;
    private HardwareServerProperties hardwareServerProperties;
    private VirtualGuestProperties virtualGuestProperties;
 
    @Inject
    public PropertiesProviderFactory(SingleXeon3200SeriesProperties singleXeon3200SeriesProperties,
                                     HardwareServerProperties hardwareServerProperties,
-                                    VirtualGuestProperties virtualGuestProperties) {
+                                    VirtualGuestProperties virtualGuestProperties,
+                                    SingleXeon2000SeriesProperties singleXeon2000SeriesProperties) {
       this.singleXeon3200SeriesProperties = singleXeon3200SeriesProperties;
+      this.singleXeon2000SeriesProperties = singleXeon2000SeriesProperties;
       this.hardwareServerProperties = hardwareServerProperties;
       this.virtualGuestProperties = virtualGuestProperties;
    }
@@ -33,6 +36,8 @@ public class PropertiesProviderFactory implements PackageSpecific<PropertiesProv
             return hardwareServerProperties;
          case 46:
             return virtualGuestProperties;
+         case 142:
+        	 return singleXeon2000SeriesProperties;
          default:
             throw new UnsupportedOperationException("cannot find properties provider for package id " + packageId);
       }

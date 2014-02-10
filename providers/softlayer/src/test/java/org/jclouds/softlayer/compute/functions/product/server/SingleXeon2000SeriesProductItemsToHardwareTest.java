@@ -18,6 +18,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
 
+/**
+ * 
+ * @author adaml
+ *
+ */
 public class SingleXeon2000SeriesProductItemsToHardwareTest {
 	
 	   private SingleXeon2000SeriesProductItemsToHardware toHardware;

@@ -77,6 +77,7 @@ public class ProductPackageClientLiveTest extends BaseSoftLayerClientLiveTest {
     */
 
    public static final String SINGLE_XEON_3200_DEDICATED_SERVER_PACKAGE_NAME = "Single Xeon 3200 Series";
+   public static final String SINGLE_XEON_2000_DEDICATED_SERVER_PACKAGE_NAME = "Single Xeon 2000 Series (Sandy Bridge)";
 
 
    @BeforeGroups(groups = { "live" })

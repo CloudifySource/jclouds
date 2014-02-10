@@ -38,7 +38,6 @@ public class SingleXeon3200SeriesClientLiveTest extends HardwareServerClientLive
 
       int pkgId = Iterables.find(api.getAccountClient().getReducedActivePackages(),
               named(ProductPackageClientLiveTest.SINGLE_XEON_3200_DEDICATED_SERVER_PACKAGE_NAME)).getId();
-      ProductPackage productPackage = api.getProductPackageClient().getProductPackage(pkgId);
 
       HardwareServer server = HardwareServer.builder().domain("jclouds.org").hostname(
               TEST_HOSTNAME_PREFIX + new Random().nextInt()).build();
@@ -47,7 +46,7 @@ public class SingleXeon3200SeriesClientLiveTest extends HardwareServerClientLive
       Template template = templateBuilder.build();
 
       ProductOrder order = ProductOrder.builder()
-              .packageId(productPackage.getId())
+              .packageId(pkgId)
               .quantity(1)
               .location(template.getLocation().getId())
               .useHourlyPricing(false)

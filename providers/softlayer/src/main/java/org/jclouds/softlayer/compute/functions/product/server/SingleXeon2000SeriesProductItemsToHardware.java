@@ -22,6 +22,11 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
+/**
+ * 
+ * @author adaml
+ *
+ */
 public class SingleXeon2000SeriesProductItemsToHardware extends HardwareServerProductItemsToHardware {
 
 	private static final String SERVER_DISK_CATEGORY_REGEX = "disk[0-9]";

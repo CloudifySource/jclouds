@@ -21,6 +21,11 @@ import org.jclouds.softlayer.domain.product.ProductPackage;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ * 
+ * @author adaml
+ *
+ */
 public class SoftLayerSingleXeon2000SeriesComputeServiceAdapter extends SoftLayerHardwareServerComputeServiceAdapter {
 
 	@Inject

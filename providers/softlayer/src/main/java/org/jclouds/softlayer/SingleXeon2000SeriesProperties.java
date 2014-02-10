@@ -9,6 +9,11 @@ import java.util.Properties;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ * 
+ * @author adaml
+ *
+ */
 public class SingleXeon2000SeriesProperties implements PropertiesProvider {
 
 	@Override

@@ -10,7 +10,6 @@ import org.jclouds.compute.domain.Template;
 import org.jclouds.softlayer.SingleXeon2000SeriesProperties;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
-import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.features.ProductPackageClientLiveTest;
 import org.testng.annotations.Test;
@@ -18,7 +17,11 @@ import org.testng.annotations.Test;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-
+/**
+ * 
+ * @author adaml
+ *
+ */
 public class SingleXeon2000SeriesClientLiveTest extends HardwareServerClientLiveTest {
 	   private static final String TEST_HOSTNAME_PREFIX = "livetest";
 
