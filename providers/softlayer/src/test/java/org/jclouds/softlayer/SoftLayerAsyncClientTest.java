@@ -16,17 +16,17 @@
  */
 package org.jclouds.softlayer;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
 import org.jclouds.http.HttpRequest;
 import org.jclouds.softlayer.features.BaseSoftLayerAsyncClientTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
 /**
  * Tests behavior of {@code SoftLayerAsyncClient}
- * 
+ *
  * @author Adrian Cole
  */
 // NOTE:without testName, this will not call @Before* and fail w/NPE during surefire
@@ -40,12 +40,14 @@ public class SoftLayerAsyncClientTest extends BaseSoftLayerAsyncClientTest<SoftL
       assert syncClient.getVirtualGuestClient() != null;
       assert syncClient.getDatacenterClient() != null;
       assert syncClient.getProductPackageClient() != null;
+      assert syncClient.getHardwareServerClient() != null;
    }
 
    public void testAsync() throws SecurityException, NoSuchMethodException, InterruptedException, ExecutionException {
       assert asyncClient.getVirtualGuestClient() != null;
       assert asyncClient.getDatacenterClient() != null;
       assert asyncClient.getProductPackageClient() != null;
+      assert asyncClient.getHardwareServerClient() != null;
    }
 
    @BeforeClass

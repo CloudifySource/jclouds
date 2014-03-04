@@ -20,8 +20,8 @@ import static org.testng.Assert.assertFalse;
 
 import java.util.regex.Pattern;
 
-import org.jclouds.softlayer.domain.ProductItem;
-import org.jclouds.softlayer.domain.ProductItemCategory;
+import org.jclouds.softlayer.domain.product.ProductItem;
+import org.jclouds.softlayer.domain.product.ProductItemCategory;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 

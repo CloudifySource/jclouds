@@ -19,9 +19,9 @@ package org.jclouds.softlayer.features;
 import org.jclouds.apis.BaseApiLiveTest;
 import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.softlayer.SoftLayerClient;
-import org.jclouds.softlayer.domain.ProductItem;
-import org.jclouds.softlayer.domain.ProductItemCategory;
-import org.jclouds.softlayer.domain.ProductItemPrice;
+import org.jclouds.softlayer.domain.product.ProductItem;
+import org.jclouds.softlayer.domain.product.ProductItemCategory;
+import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.testng.annotations.Test;
 
 import java.util.Set;
@@ -33,7 +33,6 @@ import static org.testng.Assert.*;
  * 
  * @author Adrian Cole
  */
-@Test(groups = "live")
 public class BaseSoftLayerClientLiveTest extends BaseApiLiveTest<SoftLayerClient> {
 
    public BaseSoftLayerClientLiveTest() {
