@@ -24,19 +24,14 @@ package org.jclouds.softlayer.reference;
 public interface SoftLayerConstants {
 
    /**
-    * Name of the product package corresponding to cloud servers
+    * package id of the requested package to work with.
     */
-   public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_PACKAGE_NAME = "jclouds.softlayer.virtualguest.package-name";
+   public static final String PROPERTY_SOFTLAYER_PACKAGE_ID = "jclouds.softlayer.package-id";
 
    /**
     * pattern where last group matches core speed
     */
    public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX = "jclouds.softlayer.virtualguest.cpu-regex";
-
-   /**
-    * Uplink port speed for new guests (10, 100, 1000)
-    */
-   public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_PORT_SPEED = "jclouds.softlayer.virtualguest.port-speed";
 
    /**
     * Default Boot Disk type (SAN, LOCAL)
@@ -46,11 +41,45 @@ public interface SoftLayerConstants {
    /**
     * number of milliseconds to wait for an order to arrive on the api.
     */
-   public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_LOGIN_DETAILS_DELAY = "jclouds.softlayer.virtualguest.order-delay";
+   public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_LOGIN_DETAILS_DELAY = "jclouds.softlayer.virtualguest.login-delay";
 
    /**
     * standard prices for all new guests.
     */
-   public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_PRICES = "jclouds.softlayer.virtualguest.prices";
+   public static final String PROPERTY_SOFTLAYER_PRICES = "jclouds.softlayer.virtualguest.prices";
 
+   /**
+    * number of milliseconds to wait for an order to be empty of transactions.
+    */
+   public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_ENDED_DELAY = "jclouds.softlayer.virtualguest.active-transactions-ended-delay";
+
+   /**
+    * number of milliseconds to wait for an order to start its transactions.
+    */
+   public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_STARTED_DELAY = "jclouds.softlayer.virtualguest.active-transactions-started-delay";
+
+   /**
+    * number of milliseconds to wait for a server order to accept login credentials.
+    */
+   public static final String PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY = "jclouds.softlayer.server.login-delay";
+
+   /**
+    * number of milliseconds to wait for a server order to finish its transactions.
+    */
+   public static final String PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY = "jclouds.softlayer.server.active-transactions-ended-delay";
+
+   /**
+    * number of milliseconds to wait for a server order to start its transactions.
+    */
+   public static final String PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY = "jclouds.softlayer.server.active-transactions-started-delay";
+
+   /**
+    * number of milliseconds to wait for a server order to be approved.
+    */
+   public static final String PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY = "jclouds.softlayer.server.order-approved-delay";
+
+   /**
+    * Transactions logger for reporting order transactions.
+    */
+   public static final String TRANSACTION_LOGGER = "jclouds.softlayer.transaction";
 }

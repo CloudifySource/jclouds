@@ -1,0 +1,126 @@
+{
+    "accountId": 275920,
+    "bareMetalInstanceFlag": 0,
+    "domain": "me.org",
+    "fullyQualifiedDomainName": "node1234245345.me.org",
+    "hardwareStatusId": 5,
+    "hostname": "node1234245345",
+    "id": 153748,
+    "manufacturerSerialNumber": "C81500B17M10506",
+    "serialNumber": "SL0109016",
+    "serviceProviderId": 1,
+    "serviceProviderResourceId": 153748,
+    "billingItem": {
+        "allowCancellationFlag": 1,
+        "cancellationDate": null,
+        "categoryCode": "server",
+        "createDate": "2013-12-08T05:24:23-06:00",
+        "cycleStartDate": "2013-12-08T05:24:23-06:00",
+        "description": "Single Processor Quad Core Xeon 1270 V2 - 3.50GHz (Ivy Bridge) - 1 x 8MB cache w/HT",
+        "domainName": "me.org",
+        "hostName": "node1234245345",
+        "id": 16996905,
+        "laborFee": "0",
+        "laborFeeTaxRate": "0",
+        "lastBillDate": "2013-12-08T05:24:23-06:00",
+        "modifyDate": "2013-12-08T06:25:04-06:00",
+        "nextBillDate": "2013-12-26T00:00:00-06:00",
+        "oneTimeFee": "0",
+        "oneTimeFeeTaxRate": "0",
+        "orderItemId": 23372709,
+        "parentId": null,
+        "recurringFee": "159",
+        "recurringFeeTaxRate": "0",
+        "recurringMonths": 1,
+        "serviceProviderId": 1,
+        "setupFee": "0",
+        "setupFeeTaxRate": "0",
+        "resourceTableId": 153748
+    },
+    "datacenter": {
+        "id": 168642,
+        "longName": "San Jose 1",
+        "name": "sjc01"
+    },
+    "globalIdentifier": "a002349d-4951-4e37-8209-4ec700e35d2e",
+    "hardwareStatus": {
+        "id": 5,
+        "status": "ACTIVE"
+    },
+    "managedResourceFlag": false,
+    "networkManagementIpAddress": "10.54.220.131",
+    "operatingSystem": {
+        "hardwareId": 153748,
+        "id": 2262966,
+        "manufacturerLicenseInstance": "",
+        "passwords": [
+            {
+                "createDate": "2013-12-08T05:28:36-06:00",
+                "id": 1923044,
+                "modifyDate": "2013-12-08T05:28:36-06:00",
+                "password": "QVNa8GN2",
+                "port": null,
+                "softwareId": 2262966,
+                "username": "root",
+                "software": {
+                    "hardwareId": 153748,
+                    "id": 2262966,
+                    "manufacturerLicenseInstance": "",
+                    "passwords": [
+                        {
+                            "createDate": "2013-12-08T05:28:36-06:00",
+                            "id": 1923044,
+                            "modifyDate": "2013-12-08T05:28:36-06:00",
+                            "password": "QVNa8GN2",
+                            "port": null,
+                            "softwareId": 2262966,
+                            "username": "root",
+                            "software": null
+                        }
+                    ],
+                    "softwareLicense": {
+                        "id": 1494,
+                        "softwareDescriptionId": 1147,
+                        "softwareDescription": {
+                            "controlPanel": 0,
+                            "id": 1147,
+                            "longDescription": "CentOS / CentOS / 6.4-64",
+                            "manufacturer": "CentOS",
+                            "name": "CentOS",
+                            "operatingSystem": 1,
+                            "referenceCode": "CENTOS_6_64",
+                            "upgradeSoftwareDescriptionId": null,
+                            "upgradeSwDescId": null,
+                            "version": "6.4-64",
+                            "virtualLicense": 0,
+                            "virtualizationPlatform": 0,
+                            "requiredUser": "root"
+                        }
+                    }
+                }
+            }
+        ],
+        "softwareLicense": {
+            "id": 1494,
+            "softwareDescriptionId": 1147,
+            "softwareDescription": {
+                "controlPanel": 0,
+                "id": 1147,
+                "longDescription": "CentOS / CentOS / 6.4-64",
+                "manufacturer": "CentOS",
+                "name": "CentOS",
+                "operatingSystem": 1,
+                "referenceCode": "CENTOS_6_64",
+                "upgradeSoftwareDescriptionId": null,
+                "upgradeSwDescId": null,
+                "version": "6.4-64",
+                "virtualLicense": 0,
+                "virtualizationPlatform": 0,
+                "requiredUser": "root"
+            }
+        }
+    },
+    "primaryBackendIpAddress": "10.54.220.130",
+    "primaryIpAddress": "108.168.224.10",
+    "privateIpAddress": "10.54.220.130"
+}

@@ -16,31 +16,29 @@
  */
 package org.jclouds.softlayer.features;
 
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.capacity;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.units;
-import static org.jclouds.softlayer.predicates.ProductPackagePredicates.named;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-
-import java.util.Map;
-import java.util.Set;
-
-import org.jclouds.softlayer.compute.functions.ProductItems;
-import org.jclouds.softlayer.domain.Address;
-import org.jclouds.softlayer.domain.Datacenter;
-import org.jclouds.softlayer.domain.ProductItem;
-import org.jclouds.softlayer.domain.ProductItemCategory;
-import org.jclouds.softlayer.domain.ProductItemPrice;
-import org.jclouds.softlayer.domain.ProductPackage;
-import org.jclouds.softlayer.domain.Region;
-import org.testng.annotations.BeforeGroups;
-import org.testng.annotations.Test;
-
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import org.jclouds.softlayer.compute.functions.product.ProductItems;
+import org.jclouds.softlayer.domain.Address;
+import org.jclouds.softlayer.domain.Datacenter;
+import org.jclouds.softlayer.domain.Region;
+import org.jclouds.softlayer.domain.product.ProductItem;
+import org.jclouds.softlayer.domain.product.ProductItemPrice;
+import org.jclouds.softlayer.domain.product.ProductPackage;
+import org.jclouds.softlayer.features.account.AccountClient;
+import org.jclouds.softlayer.features.product.ProductPackageClient;
+import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.Test;
+
+import java.util.Map;
+import java.util.Set;
+
+import static org.jclouds.softlayer.predicates.ProductItemPredicates.*;
+import static org.jclouds.softlayer.predicates.ProductPackagePredicates.named;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Tests behavior of {@code ProductPackageClient}
@@ -55,9 +53,31 @@ public class ProductPackageClientLiveTest extends BaseSoftLayerClientLiveTest {
     * passed in using the property
     * 
     * @{code org.jclouds.softlayer.reference.SoftLayerConstants.
-    *        PROPERTY_SOFTLAYER_VIRTUALGUEST_PACKAGE_NAME}
+    *        PROPERTY_SOFTLAYER_PACKAGE_ID}
     */
    public static final String CLOUD_SERVER_PACKAGE_NAME = "Cloud Server";
+
+   /**
+    * Name of the package used for ordering hourly pricing bare metal instances. For real this is
+    * passed in using the property
+    *
+    * @{code org.jclouds.softlayer.reference.SoftLayerConstants.
+    *        PROPERTY_SOFTLAYER_PACKAGE_ID}
+    */
+
+   public static final String BARE_METAL_INSTANCE_PACKAGE_NAME = "Bare Metal Instance";
+
+   /**
+    * Name of the package used for ordering dedicated Xeon 3200 series servers. For real
+    * thisis
+    * passed in using the property
+    *
+    * @{code org.jclouds.softlayer.reference.SoftLayerConstants.
+    *        PROPERTY_SOFTLAYER_PACKAGE_ID}
+    */
+
+   public static final String SINGLE_XEON_3200_DEDICATED_SERVER_PACKAGE_NAME = "Single Xeon 3200 Series";
+
 
    @BeforeGroups(groups = { "live" })
    public void setup() {

@@ -16,13 +16,14 @@
  */
 package org.jclouds.softlayer;
 
-import java.io.Closeable;
-
 import org.jclouds.rest.annotations.Delegate;
-import org.jclouds.softlayer.features.AccountAsyncClient;
-import org.jclouds.softlayer.features.DatacenterAsyncClient;
-import org.jclouds.softlayer.features.ProductPackageAsyncClient;
-import org.jclouds.softlayer.features.VirtualGuestAsyncClient;
+import org.jclouds.softlayer.features.account.AccountAsyncClient;
+import org.jclouds.softlayer.features.datacenter.DatacenterAsyncClient;
+import org.jclouds.softlayer.features.guest.VirtualGuestAsyncClient;
+import org.jclouds.softlayer.features.product.ProductPackageAsyncClient;
+import org.jclouds.softlayer.features.server.HardwareServerClient;
+
+import java.io.Closeable;
 
 /**
  * Provides asynchronous access to SoftLayer via their REST API.
@@ -60,4 +61,10 @@ public interface SoftLayerAsyncClient extends Closeable {
     */
    @Delegate
    AccountAsyncClient getAccountClient();
+
+   /**
+    * Provides asynchronous access to Hardware features.
+    */
+   @Delegate
+   HardwareServerClient getHardwareServerClient();
 }

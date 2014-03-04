@@ -60,6 +60,7 @@
       *
     </jclouds.osgi.import>
   </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.jclouds</groupId>
