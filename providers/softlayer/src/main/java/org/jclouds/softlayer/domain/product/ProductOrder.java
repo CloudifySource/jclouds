@@ -55,6 +55,9 @@ public class ProductOrder {
       protected Set<HardwareServer> hardwareServers = ImmutableSet.of();
       protected int quantity;
       protected boolean useHourlyPricing;
+      protected String imageTemplateGlobalIdentifier;
+      protected String imageTemplateId;
+
 
       /**
        * @see ProductOrder#getPackageId()
@@ -97,7 +100,7 @@ public class ProductOrder {
       }
 
       /**
-       * @see org.jclouds.softlayer.domain.server.HardwareProductOrder#getHardware() ()
+       * @see ProductOrder#getHardwareServers() () ()
        */
       public T hardwareServers(Set<org.jclouds.softlayer.domain.server.HardwareServer> hardwareServers) {
          this.hardwareServers = ImmutableSet.copyOf(checkNotNull(hardwareServers, "hardwareServers"));
@@ -124,8 +127,18 @@ public class ProductOrder {
          return self();
       }
 
+      public T imageTemplateGlobalIdentifier(String imageTemplateGlobalIdentifier) {
+         this.imageTemplateGlobalIdentifier = imageTemplateGlobalIdentifier;
+         return self();
+      }
+
+      public T imageTemplateId(String imageTemplateId) {
+         this.imageTemplateId = imageTemplateId;
+         return self();
+      }
+
       public ProductOrder build() {
-         return new ProductOrder(packageId, location, prices, virtualGuests, hardwareServers, quantity, useHourlyPricing);
+         return new ProductOrder(packageId, location, prices, virtualGuests, hardwareServers, quantity, useHourlyPricing, imageTemplateGlobalIdentifier, imageTemplateId);
       }
 
       public T fromProductOrder(ProductOrder in) {
@@ -135,7 +148,9 @@ public class ProductOrder {
                .prices(in.getPrices())
                .virtualGuests(in.getVirtualGuests())
                .quantity(in.getQuantity())
-               .useHourlyPricing(in.getUseHourlyPricing());
+               .useHourlyPricing(in.getUseHourlyPricing())
+               .imageTemplateGlobalIdentifier(in.getImageTemplateGlobalIdentifier())
+               .imageTemplateId(in.getImageTemplateId());
       }
    }
 
@@ -153,13 +168,15 @@ public class ProductOrder {
    private final Set<HardwareServer> hardwareServers;
    private final int quantity;
    private final boolean useHourlyPricing;
+   private final String imageTemplateGlobalIdentifier;
+   private final String imageTemplateId;
 
    @ConstructorProperties({
-      "packageId", "location", "prices", "virtualGuests", "hardware", "quantity", "useHourlyPricing"
+      "packageId", "location", "prices", "virtualGuests", "hardware", "quantity", "useHourlyPricing", "imageTemplateGlobalIdentifier", "imageTemplateId"
    })
    protected ProductOrder(int packageId, @Nullable String location, @Nullable Set<ProductItemPrice> prices, @Nullable Set<VirtualGuest> virtualGuests,
                           @Nullable Set<HardwareServer> hardwareServers,
-                          int quantity, boolean useHourlyPricing) {
+                          int quantity, boolean useHourlyPricing, String imageTemplateGlobalIdentifier, String imageTemplateId) {
       this.packageId = packageId;
       this.location = location;
       this.prices = prices == null ? ImmutableSet.<ProductItemPrice>of() : ImmutableSet.copyOf(prices);
@@ -167,6 +184,8 @@ public class ProductOrder {
       this.hardwareServers = hardwareServers == null ? ImmutableSet.<HardwareServer>of() : ImmutableSet.copyOf(hardwareServers);;
       this.quantity = quantity;
       this.useHourlyPricing = useHourlyPricing;
+      this.imageTemplateGlobalIdentifier = imageTemplateGlobalIdentifier;
+      this.imageTemplateId = imageTemplateId;
    }
 
    /**
@@ -220,6 +239,14 @@ public class ProductOrder {
       return this.useHourlyPricing;
    }
 
+   public String getImageTemplateGlobalIdentifier() {
+      return this.imageTemplateGlobalIdentifier;
+   }
+
+   public String getImageTemplateId() {
+      return this.imageTemplateId;
+   }
+
    @Override
    public int hashCode() {
       return Objects.hashCode(packageId, location, prices, virtualGuests, hardwareServers, quantity, useHourlyPricing);
@@ -236,14 +263,17 @@ public class ProductOrder {
             && Objects.equal(this.virtualGuests, that.virtualGuests)
             && Objects.equal(this.hardwareServers, that.hardwareServers)
             && Objects.equal(this.quantity, that.quantity)
-            && Objects.equal(this.useHourlyPricing, that.useHourlyPricing);
+            && Objects.equal(this.useHourlyPricing, that.useHourlyPricing)
+            && Objects.equal(this.imageTemplateGlobalIdentifier, that.imageTemplateGlobalIdentifier)
+            && Objects.equal(this.imageTemplateId, that.imageTemplateId);
    }
 
    protected ToStringHelper string() {
       return Objects.toStringHelper(this)
             .add("packageId", packageId).add("location", location).add("prices", prices)
             .add("virtualGuests", virtualGuests).add("hardwareServers", hardwareServers)
-            .add("quantity", quantity).add("useHourlyPricing", useHourlyPricing);
+            .add("quantity", quantity).add("useHourlyPricing", useHourlyPricing).add("imageTemplateId", imageTemplateId)
+            .add("imageTemplateGlobalIdentifier", imageTemplateGlobalIdentifier);
    }
 
    @Override
