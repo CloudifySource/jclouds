@@ -89,7 +89,7 @@ public class ProductOrderToJson implements Binder {
               });
 
       OrderData data = new OrderData(order.getPackageId(), order.getLocation(), Sets.newLinkedHashSet(prices), Sets
-               .newLinkedHashSet(virtualHosts), Sets.newLinkedHashSet(hardwareServers), order.getQuantity(), order.getUseHourlyPricing());
+               .newLinkedHashSet(virtualHosts), Sets.newLinkedHashSet(hardwareServers), order.getQuantity(), order.getUseHourlyPricing(), order.getImageTemplateGlobalIdentifier(), order.getImageTemplateId());
 
       return json.toJson(ImmutableMap.of("parameters", ImmutableList.<OrderData> of(data)));
    }
@@ -104,9 +104,11 @@ public class ProductOrderToJson implements Binder {
       private Set<HostnameAndDomain> hardware;
       private long quantity;
       private boolean useHourlyPricing;
+      private String imageTemplateGlobalIdentifier;
+      private String imageTemplateId;
 
       public OrderData(long packageId, String location, Set<Price> prices, Set<HostnameAndDomain> virtualGuests,
-                       Set<HostnameAndDomain> hardwareServers, long quantity, boolean useHourlyPricing) {
+                       Set<HostnameAndDomain> hardwareServers, long quantity, boolean useHourlyPricing, String imageTemplateGlobalIdentifier, String imageTemplateId) {
          this.packageId = packageId;
          this.location = location;
          this.prices = prices;
@@ -114,6 +116,8 @@ public class ProductOrderToJson implements Binder {
          this.hardware = hardwareServers;
          this.quantity = quantity;
          this.useHourlyPricing = useHourlyPricing;
+         this.imageTemplateGlobalIdentifier = imageTemplateGlobalIdentifier;
+         this.imageTemplateId = imageTemplateId;
       }
 
    }
