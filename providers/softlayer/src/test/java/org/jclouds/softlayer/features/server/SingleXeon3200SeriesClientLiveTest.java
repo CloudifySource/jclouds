@@ -51,7 +51,7 @@ public class SingleXeon3200SeriesClientLiveTest extends HardwareServerClientLive
    }
 
    @Test(groups = "live")
-   public void testVerifyOrderDedicated() {
+   public void testVerifyOrder() {
 
       int pkgId = Iterables.find(api.getAccountClient().getReducedActivePackages(),
               named(ProductPackageClientLiveTest.SINGLE_XEON_3200_DEDICATED_SERVER_PACKAGE_NAME)).getId();

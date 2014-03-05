@@ -16,37 +16,25 @@
  */
 package org.jclouds.softlayer.features.server;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import com.google.common.collect.Iterables;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
-import org.jclouds.compute.domain.Template;
 import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.softlayer.HardwareServerProperties;
 import org.jclouds.softlayer.SoftLayerClient;
-import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
-import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.features.BaseSoftLayerClientLiveTest;
-import org.jclouds.softlayer.features.ProductPackageClientLiveTest;
 import org.testng.annotations.Test;
 
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
-import static com.google.common.base.Predicates.and;
-import static com.google.common.collect.Iterables.find;
-import static com.google.common.collect.Iterables.get;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.capacity;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
-import static org.jclouds.softlayer.predicates.ProductPackagePredicates.named;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -83,22 +71,15 @@ public class HardwareServerClientLiveTest extends BaseSoftLayerClientLiveTest {
    @Test(groups = "live")
    public void testVerifyOrder() {
 
-      int pkgId = Iterables.find(api.getAccountClient().getReducedActivePackages(),
-              named(ProductPackageClientLiveTest.BARE_METAL_INSTANCE_PACKAGE_NAME)).getId();
-      ProductPackage productPackage = api.getProductPackageClient().getProductPackage(pkgId);
-
       HardwareServer server = HardwareServer.builder().domain("jclouds.org").hostname(
                TEST_HOSTNAME_PREFIX + new Random().nextInt()).build();
 
-      templateBuilder.locationId("37473");
-      Template template = templateBuilder.build();
-
       ProductOrder order = ProductOrder.builder()
-              .packageId(productPackage.getId())
+              .packageId(50)
               .quantity(1)
-              .location(template.getLocation().getId())
+              .location("37473")
               .useHourlyPricing(true)
-              .prices(getPrices(template, productPackage))
+              .prices(getPrices(1922, 19, 272, 13963))
               .hardwareServers(server).build();
 
       ProductOrder order2 = api().verifyHardwareServerOrder(order);
@@ -133,21 +114,12 @@ public class HardwareServerClientLiveTest extends BaseSoftLayerClientLiveTest {
       assert hs.getPrimaryIpAddress() != null : hs;
    }
 
-   protected Iterable<ProductItemPrice> getPrices(Template template, ProductPackage productPackage) {
+   private Iterable<ProductItemPrice> getPrices(Integer... prices) {
       Builder<ProductItemPrice> result = ImmutableSet.builder();
-
-      int imageId = Integer.parseInt(template.getImage().getId());
-      result.add(ProductItemPrice.builder().id(imageId).build());
-
-      Iterable<String> hardwareIds = Splitter.on(",").split(template.getHardware().getId());
-      for (String hardwareId : hardwareIds) {
-         int id = Integer.parseInt(hardwareId);
-         result.add(ProductItemPrice.builder().id(id).build());
+      for (Integer price : prices) {
+         ProductItemPrice itemPrice = ProductItemPrice.builder().id(price).build();
+         result.add(itemPrice);
       }
-      float portSpeed = 10f;
-      ProductItem uplinkItem = find(productPackage.getItems(),
-              and(capacity(portSpeed), categoryCode("port_speed")));
-      result.add(get(uplinkItem.getPrices(), 0));
       result.addAll(defaultPrices);
       return result.build();
    }
