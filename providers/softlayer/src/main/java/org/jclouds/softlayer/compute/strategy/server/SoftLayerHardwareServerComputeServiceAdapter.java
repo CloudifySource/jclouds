@@ -32,16 +32,8 @@ import org.jclouds.logging.Logger;
 import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.compute.functions.product.ProductItemToImage;
 import org.jclouds.softlayer.compute.options.SoftLayerTemplateOptions;
-import org.jclouds.softlayer.domain.BillingOrder;
-import org.jclouds.softlayer.domain.Datacenter;
-import org.jclouds.softlayer.domain.Password;
-import org.jclouds.softlayer.domain.SoftLayerNode;
-import org.jclouds.softlayer.domain.Transaction;
-import org.jclouds.softlayer.domain.product.ProductItem;
-import org.jclouds.softlayer.domain.product.ProductItemPrice;
-import org.jclouds.softlayer.domain.product.ProductOrder;
-import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
-import org.jclouds.softlayer.domain.product.ProductPackage;
+import org.jclouds.softlayer.domain.*;
+import org.jclouds.softlayer.domain.product.*;
 import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 
@@ -53,19 +45,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Iterables.contains;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.find;
-import static com.google.common.collect.Iterables.get;
-import static com.google.common.collect.Iterables.tryFind;
+import static com.google.common.base.Preconditions.*;
+import static com.google.common.collect.Iterables.*;
 import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.*;
 import static org.jclouds.util.Predicates2.retry;
 
 
@@ -365,16 +348,16 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
          if (activeTransaction != null) {
             Transaction previous = lastTransactionPerServer.get(server);
             if (previous != null && !previous.getName().equals(activeTransaction.getName())) {
-               logger.trace("Successfully completed transaction %s in %s seconds.", previous.getName(),
-                       previous.getElapsedSeconds());
-               logger.trace("Current transaction is %s. Average completion time is %s minutes.",
-                       activeTransaction.getName(), activeTransaction.getAverageDuration());
+               logger.debug("Successfully completed transaction %s in %s seconds.", previous.getName(),
+                     previous.getElapsedSeconds());
+               logger.debug("Current transaction is %s. Average completion time is %s minutes.",
+                     activeTransaction.getName(), activeTransaction.getAverageDuration());
             }
 
             lastTransactionPerServer.put(server, activeTransaction);
             return false;
          }
-         logger.trace("Successfully completed all transactions for server %s", server.getHostname());
+         logger.debug("Successfully completed all transactions for server %s", server.getHostname());
          lastTransactionPerServer.remove(server);
          return true;
       }
@@ -422,7 +405,7 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
       public boolean apply(@Nullable HardwareServer server) {
          boolean result = client.getHardwareServerClient().getActiveTransaction(server.getId()) != null;
          if (!result) {
-            logger.debug(">> server(%s) has not started any transactions yet", server.getHostname());
+            logger.trace(">> server(%s) has not started any transactions yet", server.getHostname());
          }
          return result;
       }

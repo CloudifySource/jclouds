@@ -344,16 +344,16 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
          if (activeTransaction != null) {
             Transaction previous = lastTransactionPerGuest.get(guest);
             if (previous != null && !previous.getName().equals(activeTransaction.getName())) {
-               logger.trace("Successfully completed transaction %s in %s seconds.", previous.getName(),
+               logger.debug("Successfully completed transaction %s in %s seconds.", previous.getName(),
                        previous.getElapsedSeconds());
-               logger.trace("Current transaction is %s. Average completion time is %s minutes.",
+               logger.debug("Current transaction is %s. Average completion time is %s minutes.",
                        activeTransaction.getName(), activeTransaction.getAverageDuration());
             }
 
             lastTransactionPerGuest.put(guest, activeTransaction);
             return false;
          }
-         logger.trace("Successfully completed all transactions for host %s", guest.getHostname());
+         logger.debug("Successfully completed all transactions for host %s", guest.getHostname());
          lastTransactionPerGuest.remove(guest);
          return true;
       }
@@ -376,7 +376,7 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       public boolean apply(@Nullable VirtualGuest guest) {
          boolean result = client.getVirtualGuestClient().getActiveTransaction(guest.getId()) != null;
          if (!result) {
-            logger.debug(">> guest(%s) has not started any transactions yet", guest.getHostname());
+            logger.trace(">> guest(%s) has not started any transactions yet", guest.getHostname());
          }
          return result;
       }
