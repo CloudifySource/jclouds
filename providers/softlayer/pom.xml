@@ -51,6 +51,7 @@
     <test.softlayer.build-version />
     <test.softlayer.identity>FIXME</test.softlayer.identity>
     <test.softlayer.credential>FIXME</test.softlayer.credential>
+    <internal.repo.path>file:///home/elip/dev/maven-repo/</internal.repo.path>
     <test.softlayer.template />
     <jclouds.osgi.export>org.jclouds.softlayer*;version="${project.version}"</jclouds.osgi.export>
     <jclouds.osgi.import>
@@ -60,6 +61,14 @@
       *
     </jclouds.osgi.import>
   </properties>
+
+  <distributionManagement>
+      <repository>
+          <id>internal.repo</id>
+          <name>Internal Repository</name>
+          <url>${internal.repo.path}</url>
+      </repository>
+  </distributionManagement>
 
   <dependencies>
     <dependency>
