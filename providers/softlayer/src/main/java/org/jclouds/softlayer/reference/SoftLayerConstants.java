@@ -29,6 +29,16 @@ public interface SoftLayerConstants {
    public static final String PROPERTY_SOFTLAYER_PACKAGE_ID = "jclouds.softlayer.package-id";
 
    /**
+    * Flex image id.
+    */
+   public static final String PROPERTY_SOFTLAYER_FLEX_IMAGE_ID = "jclouds.softlayer.flex-image-id";
+
+   /**
+    * Flex image global identifier.
+    */
+   public static final String PROPERTY_SOFTLAYER_FLEX_IMAGE_GLOBAL_IDENTIFIER = "jclouds.softlayer.flex-image-global-identifier";
+
+   /**
     * pattern where last group matches core speed
     */
    public static final String PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX = "jclouds.softlayer.virtualguest.cpu-regex";
