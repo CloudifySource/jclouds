@@ -125,7 +125,7 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
       ProductOrderReceipt hardwareProductOrderReceipt = client.getHardwareServerClient().orderHardwareServer(order);
 
       logger.debug(">> awaiting order approval for hardwareServer(%s)", name);
-      logger.info("Waiting for server(%s) order approval", name);
+      logger.info("Waiting for server (%s) order to be approved", name);
       boolean orderApproved = orderApprovedAndServerIsDiscoveredTester.apply(hardwareProductOrderReceipt);
       logger.debug(">> hardwareServer(%s) order approval result(%s)", name, orderApproved);
 
@@ -137,7 +137,7 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
 
       logger.trace("<< hardwareServer(%s)", result.getId());
 
-      logger.info("Waiting for server(%s) transactions to complete", name);
+      logger.info("Waiting for server (%s) transactions to complete", name);
 
       logger.debug(">> waiting for server(%s) transactions to start", result.getHostname());
       boolean serverHasActiveTransactions = serverHasActiveTransactionsTester.apply(result);
@@ -348,16 +348,16 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
          if (activeTransaction != null) {
             Transaction previous = lastTransactionPerServer.get(server);
             if (previous != null && !previous.getName().equals(activeTransaction.getName())) {
-               logger.debug("Successfully completed transaction %s in %s seconds.", previous.getName(),
+               logger.info("Successfully completed transaction %s in %s seconds.", previous.getName(),
                      previous.getElapsedSeconds());
-               logger.debug("Current transaction is %s. Average completion time is %s minutes.",
+               logger.info("Current transaction is %s. Average completion time is %s minutes.",
                      activeTransaction.getName(), activeTransaction.getAverageDuration());
             }
 
             lastTransactionPerServer.put(server, activeTransaction);
             return false;
          }
-         logger.debug("Successfully completed all transactions for server %s", server.getHostname());
+         logger.info("Successfully completed all transactions for server %s", server.getHostname());
          lastTransactionPerServer.remove(server);
          return true;
       }

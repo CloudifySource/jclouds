@@ -339,16 +339,16 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
          if (activeTransaction != null) {
             Transaction previous = lastTransactionPerGuest.get(guest);
             if (previous != null && !previous.getName().equals(activeTransaction.getName())) {
-               logger.debug("Successfully completed transaction %s in %s seconds.", previous.getName(),
+               logger.info("Successfully completed transaction %s in %s seconds.", previous.getName(),
                        previous.getElapsedSeconds());
-               logger.debug("Current transaction is %s. Average completion time is %s minutes.",
+               logger.info("Current transaction is %s. Average completion time is %s minutes.",
                        activeTransaction.getName(), activeTransaction.getAverageDuration());
             }
 
             lastTransactionPerGuest.put(guest, activeTransaction);
             return false;
          }
-         logger.debug("Successfully completed all transactions for host %s", guest.getHostname());
+         logger.info("Successfully completed all transactions for host %s", guest.getHostname());
          lastTransactionPerGuest.remove(guest);
          return true;
       }
