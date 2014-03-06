@@ -39,11 +39,7 @@ import org.jclouds.softlayer.domain.Password;
 import org.jclouds.softlayer.domain.SoftLayerNode;
 import org.jclouds.softlayer.domain.Transaction;
 import org.jclouds.softlayer.domain.guest.VirtualGuest;
-import org.jclouds.softlayer.domain.product.ProductItem;
-import org.jclouds.softlayer.domain.product.ProductItemPrice;
-import org.jclouds.softlayer.domain.product.ProductOrder;
-import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
-import org.jclouds.softlayer.domain.product.ProductPackage;
+import org.jclouds.softlayer.domain.product.*;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 
 import javax.annotation.Resource;
@@ -54,21 +50,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Predicates.and;
-import static com.google.common.collect.Iterables.contains;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.find;
-import static com.google.common.collect.Iterables.get;
+import static com.google.common.collect.Iterables.*;
 import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
 import static org.jclouds.softlayer.predicates.ProductItemPredicates.matches;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_ENDED_DELAY;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_STARTED_DELAY;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_DISK0_TYPE;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_LOGIN_DETAILS_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.*;
 import static org.jclouds.util.Predicates2.retry;
 
 /**
@@ -94,6 +81,8 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
    private final long transactionsStartedDelay;
    private final Pattern disk0Type;
    private final Iterable<ProductItemPrice> prices;
+   private final String imageTemplateId;
+   private final String imageTemplateGlobalIdentifier;
 
    @Inject
    public SoftLayerVirtualGuestComputeServiceAdapter(SoftLayerClient client,
@@ -101,6 +90,8 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
                                          VirtualGuestHasNoRunningTransactions guestHasNoActiveTransactionsTester,
                                          VirtualGuestStartedTransactions guestHasActiveTransactionsTester,
                                          @Memoized Supplier<ProductPackage> productPackageSupplier, Iterable<ProductItemPrice> prices,
+                                         @Named(PROPERTY_SOFTLAYER_FLEX_IMAGE_ID) String imageTemplateId,
+                                         @Named(PROPERTY_SOFTLAYER_FLEX_IMAGE_GLOBAL_IDENTIFIER) String imageTemplateGlobalIdentifier,
                                          @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX) String cpuRegex,
                                          @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_DISK0_TYPE) String disk0Type,
                                          @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_LOGIN_DETAILS_DELAY) long guestLoginDelay,
@@ -118,6 +109,8 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       this.disk0Type = Pattern.compile(".*" + checkNotNull(disk0Type, "disk0Type") + ".*");
       this.guestHasNoActiveTransactionsTester = retry(guestHasNoActiveTransactionsTester, transactionsEndedDelay, 100, 1000);
       this.guestHasActiveTransactionsTester = retry(guestHasActiveTransactionsTester, transactionsStartedDelay, 100, 1000);
+      this.imageTemplateId = imageTemplateId;
+      this.imageTemplateGlobalIdentifier = imageTemplateGlobalIdentifier;
    }
 
    @Override
@@ -135,7 +128,9 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
       ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
               .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template))
-              .virtualGuests(newGuest).build();
+              .virtualGuests(newGuest)
+              .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
+              .imageTemplateId(imageTemplateId).build();
 
       logger.debug(">> ordering new virtualGuest domain(%s) hostname(%s)", domainName, name);
       ProductOrderReceipt productOrderReceipt = client.getVirtualGuestClient().orderVirtualGuest(order);
