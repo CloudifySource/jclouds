@@ -26,7 +26,7 @@
     <relativePath>../../project/pom.xml</relativePath>
   </parent>
   <groupId>org.apache.jclouds.provider</groupId>
-  <artifactId>softlayer-fixed</artifactId>
+  <artifactId>softlayer-cci</artifactId>
   <name>jclouds SoftLayer core</name>
   <description>jclouds components to access SoftLayer</description>
   <packaging>bundle</packaging>
@@ -52,7 +52,7 @@
     <test.softlayer.identity>FIXME</test.softlayer.identity>
     <test.softlayer.credential>FIXME</test.softlayer.credential>
     <test.softlayer.template />
-    <internal.repo.path>file:///home/elip/dev/maven-repo/</internal.repo.path>
+    <internal.repo.path>file:///home/elip/dev/cloudify-maven-repo/maven-repo/</internal.repo.path>
     <jclouds.osgi.export>org.jclouds.softlayer*;version="${project.version}"</jclouds.osgi.export>
     <jclouds.osgi.import>
       org.jclouds.compute.internal;version="${project.version}",
