@@ -26,7 +26,6 @@ import org.jclouds.compute.domain.Volume;
 import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductItemCategory;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -42,36 +41,6 @@ import static org.testng.AssertJUnit.assertEquals;
 @Test(groups = "unit")
 public class HardwareServerProductItemsToHardwareTest {
 
-   private HardwareServerProductItemsToHardware toHardware;
-   private ProductItem cpuAndRamItem;
-   private ProductItem volumeItem;
-   private ProductItem uplinkItem;
-
-
-   @BeforeMethod
-   public void setup() {
-
-      toHardware = Guice.createInjector().getInstance(HardwareServerProductItemsToHardware.class);
-
-      cpuAndRamItem = ProductItem.builder()
-              .id(1156)
-              .description("16 x 2.0 GHz Core Bare Metal Instance - 64 GB Ram")
-              .capacity(16F)
-              .categories(ProductItemCategory.builder().categoryCode("server_core").build())
-              .prices(ProductItemPrice.builder().id(123).build())
-              .build();
-
-      volumeItem = ProductItem.builder().id(13).description("250GB SATA II").capacity(250F).prices(
-              ProductItemPrice.builder().id(19).build()).categories(
-              ProductItemCategory.builder().categoryCode("disk0").build()).build();
-
-      uplinkItem = ProductItem.builder().id(186)
-              .description("10 Mbps Public & Private Networks")
-              .capacity(10F).categories(ProductItemCategory.builder().id(26).categoryCode("port_speed").build())
-              .prices(ProductItemPrice.builder().id(272).build())
-              .build();
-   }
-
    @Test
    public void testHardwareId() {
       ProductItem item1 = ProductItem.builder().prices(ProductItemPrice.builder().id(123).build()).build();
@@ -84,6 +53,27 @@ public class HardwareServerProductItemsToHardwareTest {
 
    @Test
    public void testHardware() {
+
+      HardwareServerProductItemsToHardware toHardware = Guice.createInjector().getInstance(HardwareServerProductItemsToHardware.class);
+
+      ProductItem cpuAndRamItem = ProductItem.builder()
+              .id(1156)
+              .description("16 x 2.0 GHz Core Bare Metal Instance - 64 GB Ram")
+              .capacity(16F)
+              .categories(ProductItemCategory.builder().categoryCode("server_core").build())
+              .prices(ProductItemPrice.builder().id(123).build())
+              .build();
+
+      ProductItem volumeItem = ProductItem.builder().id(13).description("250GB SATA II").capacity(250F).prices(
+              ProductItemPrice.builder().id(19).build()).categories(
+              ProductItemCategory.builder().categoryCode("disk0").build()).build();
+
+      ProductItem uplinkItem = ProductItem.builder().id(186)
+              .description("10 Mbps Public & Private Networks")
+              .capacity(10F).categories(ProductItemCategory.builder().id(26).categoryCode("port_speed").build())
+              .prices(ProductItemPrice.builder().id(272).build())
+              .build();
+
 
       Hardware hardware = toHardware.apply(ImmutableSet.of(cpuAndRamItem, volumeItem, uplinkItem));
 
@@ -107,6 +97,27 @@ public class HardwareServerProductItemsToHardwareTest {
 
    @Test
    public void testHardwareWithTwoDisks() {
+
+      HardwareServerProductItemsToHardware toHardware = Guice.createInjector().getInstance(HardwareServerProductItemsToHardware.class);
+
+      ProductItem cpuAndRamItem = ProductItem.builder()
+              .id(1156)
+              .description("16 x 2.0 GHz Core Bare Metal Instance - 64 GB Ram")
+              .capacity(16F)
+              .categories(ProductItemCategory.builder().categoryCode("server_core").build())
+              .prices(ProductItemPrice.builder().id(123).build())
+              .build();
+
+      ProductItem volumeItem = ProductItem.builder().id(13).description("250GB SATA II").capacity(250F).prices(
+              ProductItemPrice.builder().id(19).build()).categories(
+              ProductItemCategory.builder().categoryCode("disk0").build()).build();
+
+      ProductItem uplinkItem = ProductItem.builder().id(186)
+              .description("10 Mbps Public & Private Networks")
+              .capacity(10F).categories(ProductItemCategory.builder().id(26).categoryCode("port_speed").build())
+              .prices(ProductItemPrice.builder().id(272).build())
+              .build();
+
       ProductItem localVolumeItem = ProductItem.builder().id(4).description("500GB SATA II").capacity(500F).prices(
               ProductItemPrice.builder().id(987).build()).categories(
               ProductItemCategory.builder().categoryCode("disk1").build()).build();
@@ -129,9 +140,24 @@ public class HardwareServerProductItemsToHardwareTest {
    @Test
    public void testHardwareWithBlankSpaceAtTheEndOfDescription() {
 
-      cpuAndRamItem = cpuAndRamItem.toBuilder()
+      HardwareServerProductItemsToHardware toHardware = Guice.createInjector().getInstance(HardwareServerProductItemsToHardware.class);
+
+      ProductItem cpuAndRamItem = ProductItem.builder()
+              .id(1156)
               .description("16 x 2.0 GHz Core Bare Metal Instance - 64 GB Ram ")
-              .capacity(2F)
+              .capacity(16F)
+              .categories(ProductItemCategory.builder().categoryCode("server_core").build())
+              .prices(ProductItemPrice.builder().id(123).build())
+              .build();
+
+      ProductItem volumeItem = ProductItem.builder().id(13).description("250GB SATA II").capacity(250F).prices(
+              ProductItemPrice.builder().id(19).build()).categories(
+              ProductItemCategory.builder().categoryCode("disk0").build()).build();
+
+      ProductItem uplinkItem = ProductItem.builder().id(186)
+              .description("10 Mbps Public & Private Networks")
+              .capacity(10F).categories(ProductItemCategory.builder().id(26).categoryCode("port_speed").build())
+              .prices(ProductItemPrice.builder().id(272).build())
               .build();
 
       Hardware hardware = toHardware.apply(ImmutableSet.of(cpuAndRamItem, volumeItem, uplinkItem));
@@ -140,7 +166,7 @@ public class HardwareServerProductItemsToHardwareTest {
 
       List<? extends Processor> processors = hardware.getProcessors();
       assertEquals(1, processors.size());
-      assertEquals(2.0, processors.get(0).getCores());
+      assertEquals(16.0, processors.get(0).getCores());
 
       assertEquals(64, hardware.getRam());
 
