@@ -47,11 +47,15 @@ import org.jclouds.domain.Location;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
+/**
+ * 
+ * @author adaml
+ *
+ */
 public class SoftLayerTemplateBuilderImpl extends TemplateBuilderImpl {
 
 	@Inject

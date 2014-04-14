@@ -50,7 +50,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableList.Builder;
 
 
-
+/**
+ * 
+ * @author adaml
+ *
+ */
 @Singleton
 public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerHardwareServerComputeServiceAdapter {
 

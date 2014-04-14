@@ -40,6 +40,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Iterables;
 
+/**
+ * 
+ * @author adaml
+ *
+ */
 public class DualXeon5500SeriesProductItemsToHardware extends HardwareServerProductItemsToHardware {
 	   
 	private static final String SERVER_DISK_CATEGORY_REGEX = "disk[0-11]";
@@ -95,11 +100,6 @@ public class DualXeon5500SeriesProductItemsToHardware extends HardwareServerProd
 		Iterable<ProductItem> additionalDisks = creareAdditionalDisksList(items);
 		
 		hardwareItems.addAll(additionalDisks);
-		
-		Iterable<ProductItem> diskController = filter(items, categoryCode("disk_controller"));
-		if (diskController.iterator().hasNext()) {
-			hardwareItems.add(get(diskController, 0));
-		}
 		
 		return hardwareItems.build();
 	}

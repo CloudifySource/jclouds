@@ -37,6 +37,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
+/**
+ * 
+ * @author adaml
+ *
+ */
 @Test(groups = "live", singleThreaded = true, testName = "DualXeon5500SeriesClientWithMultipleDisksLiveTest")
 public class DualXeon5500SeriesClientWithMultipleDisksLiveTest extends HardwareServerClientLiveTest {
 	   private static final String TEST_HOSTNAME_PREFIX = "livetest";
