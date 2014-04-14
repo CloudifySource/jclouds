@@ -16,17 +16,20 @@
  */
 package org.jclouds.softlayer.domain.product;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-import com.google.common.collect.ImmutableSet;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.beans.ConstructorProperties;
+import java.util.List;
+import java.util.Set;
+
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.softlayer.domain.guest.VirtualGuest;
 import org.jclouds.softlayer.domain.server.HardwareServer;
 
-import java.beans.ConstructorProperties;
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Class ProductOrder
@@ -50,7 +53,7 @@ public class ProductOrder {
 
       protected int packageId;
       protected String location;
-      protected Set<ProductItemPrice> prices = ImmutableSet.of();
+      protected List<ProductItemPrice> prices = ImmutableList.of();
       protected Set<VirtualGuest> virtualGuests = ImmutableSet.of();
       protected Set<HardwareServer> hardwareServers = ImmutableSet.of();
       protected int quantity;
@@ -78,13 +81,13 @@ public class ProductOrder {
       /**
        * @see ProductOrder#getPrices()
        */
-      public T prices(Iterable<ProductItemPrice> prices) {
-         this.prices = ImmutableSet.copyOf(checkNotNull(prices, "prices"));
+      public T prices(ImmutableList<ProductItemPrice> immutableList) {
+         this.prices = ImmutableList.copyOf(checkNotNull(immutableList, "prices"));
          return self();
       }
 
       public T prices(ProductItemPrice... in) {
-         return prices(ImmutableSet.copyOf(in));
+         return prices(ImmutableList.copyOf(in));
       }
 
       /**
@@ -163,7 +166,7 @@ public class ProductOrder {
 
    private final int packageId;
    private final String location;
-   private final Set<ProductItemPrice> prices;
+   private final ImmutableList<ProductItemPrice> prices;
    private final Set<VirtualGuest> virtualGuests;
    private final Set<HardwareServer> hardwareServers;
    private final int quantity;
@@ -174,12 +177,12 @@ public class ProductOrder {
    @ConstructorProperties({
       "packageId", "location", "prices", "virtualGuests", "hardware", "quantity", "useHourlyPricing", "imageTemplateGlobalIdentifier", "imageTemplateId"
    })
-   protected ProductOrder(int packageId, @Nullable String location, @Nullable Set<ProductItemPrice> prices, @Nullable Set<VirtualGuest> virtualGuests,
+   protected ProductOrder(int packageId, @Nullable String location, @Nullable List<ProductItemPrice> prices, @Nullable Set<VirtualGuest> virtualGuests,
                           @Nullable Set<HardwareServer> hardwareServers,
                           int quantity, boolean useHourlyPricing, String imageTemplateGlobalIdentifier, String imageTemplateId) {
       this.packageId = packageId;
       this.location = location;
-      this.prices = prices == null ? ImmutableSet.<ProductItemPrice>of() : ImmutableSet.copyOf(prices);
+      this.prices = prices == null ? ImmutableList.<ProductItemPrice>of() : ImmutableList.copyOf(prices);
       this.virtualGuests = virtualGuests == null ? ImmutableSet.<VirtualGuest>of() : ImmutableSet.copyOf(virtualGuests);
       this.hardwareServers = hardwareServers == null ? ImmutableSet.<HardwareServer>of() : ImmutableSet.copyOf(hardwareServers);;
       this.quantity = quantity;
@@ -209,7 +212,7 @@ public class ProductOrder {
     *
     * @return the prices.
     */
-   public Set<ProductItemPrice> getPrices() {
+   public ImmutableList<ProductItemPrice> getPrices() {
       return this.prices;
    }
 

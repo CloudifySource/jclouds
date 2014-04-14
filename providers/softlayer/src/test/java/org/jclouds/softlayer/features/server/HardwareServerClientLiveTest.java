@@ -16,12 +16,13 @@
  */
 package org.jclouds.softlayer.features.server;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
+import java.util.Properties;
+import java.util.Random;
+import java.util.Set;
+
 import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.softlayer.HardwareServerProperties;
 import org.jclouds.softlayer.SoftLayerClient;
@@ -31,12 +32,12 @@ import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.features.BaseSoftLayerClientLiveTest;
 import org.testng.annotations.Test;
 
-import java.util.Properties;
-import java.util.Random;
-import java.util.Set;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Module;
+import com.google.inject.TypeLiteral;
 
 /**
  * Tests behavior of {@code HardwareServerClient}
@@ -114,8 +115,8 @@ public class HardwareServerClientLiveTest extends BaseSoftLayerClientLiveTest {
       assert hs.getPrimaryIpAddress() != null : hs;
    }
 
-   private Iterable<ProductItemPrice> getPrices(Integer... prices) {
-      Builder<ProductItemPrice> result = ImmutableSet.builder();
+   private ImmutableList<ProductItemPrice> getPrices(Integer... prices) {
+      Builder<ProductItemPrice> result = ImmutableList.builder();
       for (Integer price : prices) {
          ProductItemPrice itemPrice = ProductItemPrice.builder().id(price).build();
          result.add(itemPrice);

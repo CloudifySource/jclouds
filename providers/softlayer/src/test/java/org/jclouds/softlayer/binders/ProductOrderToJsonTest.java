@@ -16,8 +16,8 @@
  */
 package org.jclouds.softlayer.binders;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
+import static org.testng.Assert.assertEquals;
+
 import org.jclouds.http.HttpRequest;
 import org.jclouds.json.Json;
 import org.jclouds.json.internal.GsonWrapper;
@@ -29,7 +29,8 @@ import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
+import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
 
 /**
  * Tests behavior of {@code ProductOrderToJsonTest}
@@ -84,7 +85,7 @@ public class ProductOrderToJsonTest {
                                        .location("loc456")
                                        .quantity(99)
                                        .useHourlyPricing(true)
-                                       .prices(ImmutableSet.of(price1,price2))
+                                       .prices(ImmutableList.of(price1,price2))
                                        .virtualGuests(guest)
                                        .hardwareServers(server)
                                        .build();

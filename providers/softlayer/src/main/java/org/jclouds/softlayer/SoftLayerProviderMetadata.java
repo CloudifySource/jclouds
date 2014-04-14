@@ -51,6 +51,8 @@ public class SoftLayerProviderMetadata extends BaseProviderMetadata {
       VirtualGuestProperties virtualGuestDefaultProperties = new VirtualGuestProperties();
       SingleXeon3200SeriesProperties singleXeon3200SeriesDefaultProperties = new
               SingleXeon3200SeriesProperties();
+      DualXeon5500SeriesProperties dualXeon5500SeriesProperties = new 
+    		  DualXeon5500SeriesProperties();
 
       Properties properties = new Properties();
 
@@ -58,6 +60,7 @@ public class SoftLayerProviderMetadata extends BaseProviderMetadata {
       properties.putAll(hardwareServerDefaultProperties.customProperties());
       properties.putAll(virtualGuestDefaultProperties.customProperties());
       properties.putAll(singleXeon3200SeriesDefaultProperties.customProperties());
+      properties.putAll(dualXeon5500SeriesProperties.customProperties());
 
       // use virtual guest as default provisioning.
       properties.putAll(virtualGuestDefaultProperties.sharedProperties());

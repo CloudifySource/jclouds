@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jclouds.softlayer.compute.functions.product;
 
 import com.google.common.base.Function;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.softlayer.PackageSpecific;
 import org.jclouds.softlayer.compute.functions.product.guest.VirtualGuestProductItemsToHardware;
+import org.jclouds.softlayer.compute.functions.product.server.DualXeon5500SeriesProductItemsToHardware;
 import org.jclouds.softlayer.compute.functions.product.server.HardwareServerProductItemsToHardware;
 import org.jclouds.softlayer.compute.functions.product.server.SingleXeon3200SeriesProductItemsToHardware;
 import org.jclouds.softlayer.domain.product.ProductItem;
@@ -40,14 +40,17 @@ public class ProductItemsToHardwareFactory implements PackageSpecific<Function<I
    private VirtualGuestProductItemsToHardware virtualGuestProductItemsToHardware;
    private HardwareServerProductItemsToHardware hardwareServerProductItemsToHardware;
    private SingleXeon3200SeriesProductItemsToHardware singleXeon3200SeriesProductItemsToHardware;
+   private DualXeon5500SeriesProductItemsToHardware dualXeon5500SeriesProductItemsToHardware;
 
    @Inject
    public ProductItemsToHardwareFactory(VirtualGuestProductItemsToHardware virtualGuestProductItemsToHardware,
                                         HardwareServerProductItemsToHardware hardwareServerProductItemsToHardware,
-                                        SingleXeon3200SeriesProductItemsToHardware singleXeon3200SeriesProductItemsToHardware) {
+                                        SingleXeon3200SeriesProductItemsToHardware singleXeon3200SeriesProductItemsToHardware,
+                                        DualXeon5500SeriesProductItemsToHardware dualXeon5500SeriesProductItemsToHardware) {
       this.virtualGuestProductItemsToHardware = virtualGuestProductItemsToHardware;
       this.hardwareServerProductItemsToHardware = hardwareServerProductItemsToHardware;
       this.singleXeon3200SeriesProductItemsToHardware = singleXeon3200SeriesProductItemsToHardware;
+      this.dualXeon5500SeriesProductItemsToHardware = dualXeon5500SeriesProductItemsToHardware;
    }
 
    @Override
@@ -61,6 +64,10 @@ public class ProductItemsToHardwareFactory implements PackageSpecific<Function<I
             return hardwareServerProductItemsToHardware;
          case 23:
             return singleXeon3200SeriesProductItemsToHardware;
+         case 44:
+        	 return dualXeon5500SeriesProductItemsToHardware;
+         case 42:
+        	 return dualXeon5500SeriesProductItemsToHardware;
          default:
             throw new UnsupportedOperationException("cannot find implementation for package id " + packageId);
 

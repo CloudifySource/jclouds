@@ -19,6 +19,7 @@ package org.jclouds.softlayer.compute.strategy.server;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Maps;
@@ -94,7 +95,7 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
       this.serverLoginDelay = serverLoginDelay;
       this.serverTransactionsDelay = activeTransactionsEndedDelay;
       this.productPackageSupplier = checkNotNull(productPackageSupplier, "productPackageSupplier");
-      this.orderApprovedAndServerIsDiscoveredTester = retry(hardwareProductOrderApprovedAndServerIsPresent, hardwareApprovedDelay, 5000, 10000);
+      this.orderApprovedAndServerIsDiscoveredTester = retry(hardwareProductOrderApprovedAndServerIsPresent, hardwareApprovedDelay, 5000, 1000000);
       this.orderApprovedAndServerIsDiscoveredDelay = hardwareApprovedDelay;
       this.activeTransactionsStartedDelay = activeTransactionsStartedDelay;
       this.serverHasActiveTransactionsTester = retry(serverHasActiveTransactionsTester, activeTransactionsStartedDelay, 5000, 10000);
@@ -117,8 +118,10 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
 
       HardwareServer newServer = HardwareServer.builder().domain(domainName).hostname(name).build();
 
+      // TODO(adaml): monthly billing should be injected and set to false by default.
+      // we use monthly pricing for bear metal instances
       ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
-            .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template))
+            .location(template.getLocation().getId()).quantity(1).useHourlyPricing(false).prices(getPrices(template))
             .hardwareServers(newServer).build();
 
       logger.debug(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, name);
@@ -170,8 +173,8 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
               .build());
    }
 
-   private Iterable<ProductItemPrice> getPrices(Template template) {
-      Builder<ProductItemPrice> result = ImmutableSet.builder();
+   private ImmutableList<ProductItemPrice> getPrices(Template template) {
+      com.google.common.collect.ImmutableList.Builder<ProductItemPrice> result = ImmutableList.builder();
 
       int imageId = Integer.parseInt(template.getImage().getId());
       result.add(ProductItemPrice.builder().id(imageId).build());
@@ -212,7 +215,8 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
 
          @Override
          public boolean apply(ProductItem input) {
-            return ProductItemToImage.imageId().apply(input).equals(id);
+            return ProductItemToImage.imageId().apply(input).equals(id)
+            		|| ProductItemToImage.imageItemId().apply(input).equals(id);
          }
          
       }, null);
@@ -318,6 +322,9 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
          checkNotNull(server, "server guest was null");
 
          HardwareServer newServer = client.getHardwareServerClient().getHardwareServer(server.getId());
+         if (newServer == null) {
+        	 return false;
+         }
          boolean hasBackendIp = newServer.getPrimaryBackendIpAddress() != null;
          boolean hasPrimaryIp = newServer.getPrimaryIpAddress() != null;
          boolean hasPasswords = newServer.getOperatingSystem() != null
@@ -365,7 +372,10 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
 
    public static class HardwareProductOrderApprovedAndServerIsPresent implements Predicate<ProductOrderReceipt> {
 
-      private final SoftLayerClient client;
+	   @Resource
+	   @Named(ComputeServiceConstants.COMPUTE_LOGGER)
+	   protected Logger logger = Logger.NULL;
+	private final SoftLayerClient client;
 
       @Inject
       public HardwareProductOrderApprovedAndServerIsPresent(SoftLayerClient client) {
@@ -375,18 +385,18 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
       @Override
       public boolean apply(@Nullable ProductOrderReceipt input) {
 
-         BillingOrder orderStatus = client.getAccountClient()
-                 .getBillingOrder(input.getOrderId());
-         boolean orderApproved = BillingOrder.Status.APPROVED.equals(orderStatus.getStatus());
+    			  BillingOrder orderStatus = client.getAccountClient()
+    					  .getBillingOrder(input.getOrderId());
+    			  boolean orderApproved = BillingOrder.Status.APPROVED.equals(orderStatus.getStatus());
 
-         boolean serverPresent = tryFind(client.getHardwareServerClient().listHardwareServers(),
-                 SoftLayerHardwareServerComputeServiceAdapter
-                         .hostNamePredicate(input.getOrderDetails()
-                                 .getHardwareServers().iterator().next().getHostname())).isPresent();
+    			  boolean serverPresent = tryFind(client.getHardwareServerClient().listHardwareServers(),
+    					  SoftLayerHardwareServerComputeServiceAdapter
+    					  .hostNamePredicate(input.getOrderDetails()
+    							  .getHardwareServers().iterator().next().getHostname())).isPresent();
 
-         return orderApproved && serverPresent;
-      }
-   }
+    			  return orderApproved && serverPresent;
+    		  }
+    	  }
 
    public static class HardwareServerStartedTransactions implements Predicate<HardwareServer> {
 

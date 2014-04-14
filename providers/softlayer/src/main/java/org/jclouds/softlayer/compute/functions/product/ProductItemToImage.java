@@ -16,8 +16,15 @@
  */
 package org.jclouds.softlayer.compute.functions.product;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.jclouds.compute.domain.Image;
 import org.jclouds.compute.domain.ImageBuilder;
 import org.jclouds.compute.domain.OperatingSystem;
@@ -27,13 +34,8 @@ import org.jclouds.logging.Logger;
 import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
 
-import javax.annotation.Resource;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
 
 /**
  * @author Jason King
@@ -83,7 +85,8 @@ public class ProductItemToImage implements Function<ProductItem, Image> {
             .build();
 
       return new ImageBuilder()
-            .ids(imageId().apply(productItem))
+      		.providerId(imageItemId().apply(productItem))
+            .id(imageId().apply(productItem))
             .description(description)
             .operatingSystem(os)
             .status(Image.Status.AVAILABLE)
@@ -166,7 +169,7 @@ public class ProductItemToImage implements Function<ProductItem, Image> {
    }
 
    /**
-    * Generates an id for an Image.
+    * Generates an id for an Image based on prices id.
     *
     * @return the generated id
     */
@@ -177,6 +180,21 @@ public class ProductItemToImage implements Function<ProductItem, Image> {
             checkNotNull(productItem, "productItem");
             ProductItemPrice price = ProductItems.price().apply(productItem);
             return String.valueOf(checkNotNull(price, "price").getId());
+         }
+      };
+   }
+   
+   /**
+    * Generates an id for an Image based on item.
+    *
+    * @return the generated id
+    */
+   public static Function<ProductItem, String> imageItemId() {
+      return new Function<ProductItem, String>() {
+         @Override
+         public String apply(ProductItem productItem) {
+            checkNotNull(productItem, "productItem");
+            return String.valueOf(productItem.getId());
          }
       };
    }

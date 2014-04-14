@@ -67,4 +67,22 @@ public class ProductItemsToHardware implements Function<Iterable<ProductItem>, H
          }
       };
    }
+   
+   /**
+    * Generates a hardwareId based on the itemIds
+    *
+    * @return comma separated list of item ids
+    */
+   public static Function<List<ProductItem>, String> providerHardwareId() {
+      return new Function<List<ProductItem>, String>() {
+         @Override
+         public String apply(List<ProductItem> productItems) {
+            StringBuilder builder = new StringBuilder();
+            for (ProductItem item : productItems) {
+               builder.append(item.getId()).append(",");
+            }
+            return builder.toString().substring(0, builder.lastIndexOf(","));
+         }
+      };
+   }
 }

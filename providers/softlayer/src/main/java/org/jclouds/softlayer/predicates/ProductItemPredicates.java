@@ -52,6 +52,59 @@ public class ProductItemPredicates {
          }
       };
    }
+   
+   /**
+    * Tests if the ProductItem contains the required item id.
+    * 
+    * @param item id
+    * @return true if it does, otherwise false.
+    */
+   public static Predicate<ProductItem> itemId(final String itemId) {
+	   checkNotNull(itemId, "item id cannot be null");
+	   return new Predicate<ProductItem>() {
+		   @Override
+		   public boolean apply(ProductItem productItem) {
+			   checkNotNull(productItem, "productItem cannot be null");
+			   if (Integer.toString(productItem.getId()).equals(itemId)) {
+				   return true;
+			   }
+
+			   return false;
+		   }
+
+		   @Override
+		   public String toString() {
+			   return "itemId(" + itemId + ")";
+		   }
+	   };
+   }
+   
+   /**
+    * Tests if the ProductItem contains the required price id.
+    * 
+    * @param price id
+    * @return true if it does, otherwise false.
+    */
+   public static Predicate<ProductItem> priceId(final String priceId) {
+	   checkNotNull(priceId, "price id cannot be null");
+	   return new Predicate<ProductItem>() {
+		   @Override
+		   public boolean apply(ProductItem productItem) {
+			   checkNotNull(productItem, "productItem cannot be null");
+			   if (productItem.getPrices().iterator().hasNext()) {
+				   if (Integer.toString(productItem.getPrices().iterator().next().getId()).equals(priceId)) {
+					   return true;
+				   }
+			   }
+			   return false;
+		   }
+
+		   @Override
+		   public String toString() {
+			   return "priceId(" + priceId + ")";
+		   }
+	   };
+   }
 
    /**
     * Tests if the ProductItem contains a category that matches the supplied Pattern

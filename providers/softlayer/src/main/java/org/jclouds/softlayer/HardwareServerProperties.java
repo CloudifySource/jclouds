@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 import java.util.Properties;
 
 import static org.jclouds.compute.config.ComputeServiceProperties.TEMPLATE;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PRICES;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY;
@@ -64,7 +65,8 @@ public class HardwareServerProperties implements PropertiesProvider {
       properties.setProperty(PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY, "" + 10 * 60 * 60 * 1000);
       properties.setProperty(PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY, "" + 10 * 60 * 60 * 1000);
       properties.setProperty(PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY, "" + 10 * 60 * 60 * 1000);
-      properties.setProperty(PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY, "" + 10 * 60 * 60 * 1000);
+      properties.setProperty(PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY, "" + 10 * 10 * 60 * 60 * 1000);
+      properties.setProperty(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS, "");
       return properties;
    }
 }

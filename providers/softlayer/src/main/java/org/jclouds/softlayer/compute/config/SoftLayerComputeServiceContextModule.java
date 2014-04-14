@@ -16,17 +16,25 @@
  */
 package org.jclouds.softlayer.compute.config;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Splitter;
-import com.google.common.base.Supplier;
-import com.google.common.collect.Iterables;
-import com.google.inject.Provides;
-import com.google.inject.TypeLiteral;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.find;
+import static org.jclouds.Constants.PROPERTY_SESSION_INTERVAL;
+import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withId;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PRICES;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.config.ComputeServiceAdapterContextModule;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Location;
 import org.jclouds.rest.AuthorizationException;
@@ -37,6 +45,7 @@ import org.jclouds.softlayer.compute.functions.SoftLayerNodeToNodeMetaData;
 import org.jclouds.softlayer.compute.functions.datacenter.DatacenterToLocation;
 import org.jclouds.softlayer.compute.functions.product.ProductItemToImage;
 import org.jclouds.softlayer.compute.functions.product.ProductItemsToHardware;
+import org.jclouds.softlayer.compute.internal.SoftLayerTemplateBuilderImpl;
 import org.jclouds.softlayer.compute.options.SoftLayerTemplateOptions;
 import org.jclouds.softlayer.compute.strategy.SoftLayerComputeServiceAdapter;
 import org.jclouds.softlayer.domain.Datacenter;
@@ -47,18 +56,13 @@ import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.jclouds.softlayer.features.account.AccountClient;
 import org.jclouds.softlayer.features.product.ProductPackageClient;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Iterables.find;
-import static org.jclouds.Constants.PROPERTY_SESSION_INTERVAL;
-import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withId;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PRICES;
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Splitter;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Iterables;
+import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 
 /**
  * 
@@ -81,6 +85,7 @@ public class SoftLayerComputeServiceContextModule extends
       bind(new TypeLiteral<Function<Datacenter, Location>>() {
       }).to(DatacenterToLocation.class);
       bind(TemplateOptions.class).to(SoftLayerTemplateOptions.class);
+      bind(TemplateBuilder.class).to(SoftLayerTemplateBuilderImpl.class);
       // to have the compute service adapter override default locations
       install(new LocationsFromComputeServiceAdapterModule<SoftLayerNode, Iterable<ProductItem>, ProductItem, Datacenter>(){});
    }

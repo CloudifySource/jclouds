@@ -27,6 +27,11 @@ public interface SoftLayerConstants {
     * package id of the requested package to work with.
     */
    public static final String PROPERTY_SOFTLAYER_PACKAGE_ID = "jclouds.softlayer.package-id";
+   
+   /**
+    * package id of the external disks.
+    */
+   public static final String PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS = "jclouds.softlayer.external-disks-ids";
 
    /**
     * Flex image id.

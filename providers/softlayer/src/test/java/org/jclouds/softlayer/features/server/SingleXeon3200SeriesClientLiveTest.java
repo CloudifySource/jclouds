@@ -18,6 +18,7 @@
 package org.jclouds.softlayer.features.server;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.jclouds.compute.domain.Template;
@@ -75,8 +76,8 @@ public class SingleXeon3200SeriesClientLiveTest extends HardwareServerClientLive
       assertEquals(order.getPrices(), order2.getPrices());
    }
 
-   protected Iterable<ProductItemPrice> getPrices(Template template) {
-      ImmutableSet.Builder<ProductItemPrice> result = ImmutableSet.builder();
+   protected ImmutableList<ProductItemPrice> getPrices(Template template) {
+	   ImmutableList.Builder<ProductItemPrice> result = ImmutableList.builder();
 
       int imageId = Integer.parseInt(template.getImage().getId());
       result.add(ProductItemPrice.builder().id(imageId).build());

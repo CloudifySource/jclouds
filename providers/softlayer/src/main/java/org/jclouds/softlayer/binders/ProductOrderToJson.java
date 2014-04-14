@@ -16,11 +16,13 @@
  */
 package org.jclouds.softlayer.binders;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.LinkedList;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.jclouds.http.HttpRequest;
 import org.jclouds.json.Json;
 import org.jclouds.rest.Binder;
@@ -29,10 +31,12 @@ import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.server.HardwareServer;
 
-import javax.inject.Inject;
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Converts a ProductOrder into a json string valid for placing an order via the softlayer api The
@@ -88,7 +92,7 @@ public class ProductOrderToJson implements Binder {
                  }
               });
 
-      OrderData data = new OrderData(order.getPackageId(), order.getLocation(), Sets.newLinkedHashSet(prices), Sets
+      OrderData data = new OrderData(order.getPackageId(), order.getLocation(), Lists.newLinkedList(prices), Sets
                .newLinkedHashSet(virtualHosts), Sets.newLinkedHashSet(hardwareServers), order.getQuantity(), order.getUseHourlyPricing(), order.getImageTemplateGlobalIdentifier(), order.getImageTemplateId());
 
       return json.toJson(ImmutableMap.of("parameters", ImmutableList.<OrderData> of(data)));
@@ -99,7 +103,7 @@ public class ProductOrderToJson implements Binder {
       private String complexType = "SoftLayer_Container_Product_Order";
       private long packageId = -1;
       private String location;
-      private Set<Price> prices;
+      private LinkedList<Price> prices;
       private Set<HostnameAndDomain> virtualGuests;
       private Set<HostnameAndDomain> hardware;
       private long quantity;
@@ -107,11 +111,11 @@ public class ProductOrderToJson implements Binder {
       private String imageTemplateGlobalIdentifier;
       private String imageTemplateId;
 
-      public OrderData(long packageId, String location, Set<Price> prices, Set<HostnameAndDomain> virtualGuests,
+      public OrderData(long packageId, String location, LinkedList<Price> linkedList, Set<HostnameAndDomain> virtualGuests,
                        Set<HostnameAndDomain> hardwareServers, long quantity, boolean useHourlyPricing, String imageTemplateGlobalIdentifier, String imageTemplateId) {
          this.packageId = packageId;
          this.location = location;
-         this.prices = prices;
+         this.prices = linkedList;
          this.virtualGuests = virtualGuests;
          this.hardware = hardwareServers;
          this.quantity = quantity;

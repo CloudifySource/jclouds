@@ -16,10 +16,11 @@
  */
 package org.jclouds.softlayer.parse.order;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import static org.testng.Assert.assertEquals;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.core.MediaType;
+
 import org.jclouds.http.HttpResponse;
 import org.jclouds.json.BaseItemParserTest;
 import org.jclouds.json.config.GsonModule;
@@ -28,11 +29,11 @@ import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
-import java.util.Set;
-
-import static org.testng.Assert.assertEquals;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 /**
  * 
@@ -50,7 +51,7 @@ public class ParseProductOrderTest extends BaseItemParserTest<ProductOrder> {
    @Consumes(MediaType.APPLICATION_JSON)
    public ProductOrder expected() {
 
-      Set<ProductItemPrice> prices = ImmutableSet.<ProductItemPrice>builder()
+	   ImmutableList<ProductItemPrice> prices = ImmutableList.<ProductItemPrice>builder()
          .add(ProductItemPrice.builder().id(1962).itemId(1045).recurringFee(0F).hourlyRecurringFee(0F).build())
          .add(ProductItemPrice.builder().id(1644).itemId(861).recurringFee(0F).hourlyRecurringFee(0F).build())
          .add(ProductItemPrice.builder().id(905).itemId(503).recurringFee(0F).hourlyRecurringFee(0F).build())

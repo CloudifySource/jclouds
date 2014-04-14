@@ -19,11 +19,34 @@
 
 package org.jclouds.softlayer.compute.strategy.guest;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Predicates.and;
+import static com.google.common.collect.Iterables.contains;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.get;
+import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
+import static org.jclouds.softlayer.predicates.ProductItemPredicates.matches;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_FLEX_IMAGE_GLOBAL_IDENTIFIER;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_FLEX_IMAGE_ID;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_ENDED_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_STARTED_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_DISK0_TYPE;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_LOGIN_DETAILS_DELAY;
+import static org.jclouds.util.Predicates2.retry;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
@@ -39,24 +62,19 @@ import org.jclouds.softlayer.domain.Password;
 import org.jclouds.softlayer.domain.SoftLayerNode;
 import org.jclouds.softlayer.domain.Transaction;
 import org.jclouds.softlayer.domain.guest.VirtualGuest;
-import org.jclouds.softlayer.domain.product.*;
+import org.jclouds.softlayer.domain.product.ProductItem;
+import org.jclouds.softlayer.domain.product.ProductItemPrice;
+import org.jclouds.softlayer.domain.product.ProductOrder;
+import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
+import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import static com.google.common.base.Preconditions.*;
-import static com.google.common.base.Predicates.and;
-import static com.google.common.collect.Iterables.*;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.matches;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.*;
-import static org.jclouds.util.Predicates2.retry;
+import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 /**
  * defines the connection between the {@link org.jclouds.softlayer.SoftLayerClient#getVirtualGuestClient} implementation and
@@ -164,8 +182,8 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
               pw.getPassword()).build());
    }
 
-   private Iterable<ProductItemPrice> getPrices(Template template) {
-      ImmutableSet.Builder<ProductItemPrice> result = ImmutableSet.builder();
+   private ImmutableList<ProductItemPrice> getPrices(Template template) {
+      ImmutableList.Builder<ProductItemPrice> result = ImmutableList.builder();
 
       int imageId = Integer.parseInt(template.getImage().getId());
       result.add(ProductItemPrice.builder().id(imageId).build());
@@ -208,7 +226,8 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
          @Override
          public boolean apply(ProductItem input) {
-            return ProductItemToImage.imageId().apply(input).equals(id);
+            return ProductItemToImage.imageId().apply(input).equals(id)
+            		|| ProductItemToImage.imageItemId().apply(input).equals(id);
          }
 
       }, null);

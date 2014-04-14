@@ -67,6 +67,7 @@ public class VirtualGuestProperties implements PropertiesProvider {
       properties.setProperty(PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX, "[0-9]+ x ([0-9.]+) GHz Core[s]?");
       // SAN or LOCAL
       properties.setProperty(PROPERTY_SOFTLAYER_VIRTUALGUEST_DISK0_TYPE, "LOCAL");
+      properties.setProperty(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS, "");
 
       return properties;
 

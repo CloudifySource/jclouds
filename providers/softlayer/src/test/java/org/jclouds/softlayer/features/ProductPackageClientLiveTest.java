@@ -77,6 +77,8 @@ public class ProductPackageClientLiveTest extends BaseSoftLayerClientLiveTest {
     */
 
    public static final String SINGLE_XEON_3200_DEDICATED_SERVER_PACKAGE_NAME = "Single Xeon 3200 Series";
+   public static final String DUAL_XEON_5500_DEDICATED_SERVER_PACKAGE_NAME = "Dual Xeon 5500 Series (Nehalem)";
+   public static final String DUAL_XEON_5500_DEDICATED_SERVER_MULTI_DISK_PACKAGE_NAME = "Specialty Server: Mass Storage: Xeon 5500 (Nehalem) Series";
 
 
    @BeforeGroups(groups = { "live" })
