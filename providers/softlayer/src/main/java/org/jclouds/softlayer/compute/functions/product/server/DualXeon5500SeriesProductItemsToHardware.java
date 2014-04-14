@@ -96,11 +96,6 @@ public class DualXeon5500SeriesProductItemsToHardware extends HardwareServerProd
 		
 		hardwareItems.addAll(additionalDisks);
 		
-		Iterable<ProductItem> powerSupply = filter(items, categoryCode("power_supply"));
-		if (powerSupply.iterator().hasNext()) {
-			hardwareItems.add(get(powerSupply, 0));
-		}
-		
 		Iterable<ProductItem> diskController = filter(items, categoryCode("disk_controller"));
 		if (diskController.iterator().hasNext()) {
 			hardwareItems.add(get(diskController, 0));

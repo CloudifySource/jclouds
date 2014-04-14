@@ -42,6 +42,7 @@ public class DualXeon5500SeriesMultipleDisksProperties implements PropertiesProv
 	      properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_ID, "44");
 
 	      ImmutableSet.Builder<String> prices = ImmutableSet.builder();
+	      prices.add("792"); //one power supplier for additional disks
 	      prices.add("21"); // 1 IP Address
 	      prices.add("55"); // Host Ping: categoryCode: monitoring, notification
 	      prices.add("57"); // Email and Ticket: categoryCode: notification

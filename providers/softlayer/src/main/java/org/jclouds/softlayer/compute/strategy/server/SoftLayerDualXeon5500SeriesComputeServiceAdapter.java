@@ -83,7 +83,7 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 
 	@Override
 	public Iterable<Iterable<ProductItem>> listHardwareProfiles() {
-	
+
 		logger.info("Now looky here:" + this.externalDisksId);
 		ImmutableSet.Builder<Iterable<ProductItem>> result = ImmutableSet.builder();
 		ProductPackage productPackage = productPackageSupplier.get();
@@ -95,23 +95,11 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 				for (ProductItem firstDiskItem : filter(items, categoryCode("disk0"))) {
 					for (ProductItem uplinkItem : filter(items, categoryCode("port_speed"))) {
 						for (ProductItem bandwidth : filter(items, categoryCode("bandwidth"))) {
-							
-							if (!disks.isEmpty()) {
-								//TODO(adaml): power supply may return none depending on package used.
-								// a power adapter is only required if external disks are defined.
-								for (ProductItem powerSupply : filter(items, categoryCode("power_supply"))) {
-									Builder<ProductItem> hardwareBuilder = ImmutableList.builder();
-									hardwareBuilder.add(powerSupply);
-									hardwareBuilder.add(cpuItem, ramItem,firstDiskItem, uplinkItem, bandwidth);
-									hardwareBuilder.addAll(disks);
-									result.add(hardwareBuilder.build());
-								}
-							} else {
-								// no disks defined.
-								Builder<ProductItem> hardwareBuilder = ImmutableList.builder();
-								hardwareBuilder.add(cpuItem, ramItem,firstDiskItem, uplinkItem, bandwidth);
-								result.add(hardwareBuilder.build());
-							}
+
+							Builder<ProductItem> hardwareBuilder = ImmutableList.builder();
+							hardwareBuilder.add(cpuItem, ramItem,firstDiskItem, uplinkItem, bandwidth);
+							hardwareBuilder.addAll(disks);
+							result.add(hardwareBuilder.build());
 						}
 					}
 				}
