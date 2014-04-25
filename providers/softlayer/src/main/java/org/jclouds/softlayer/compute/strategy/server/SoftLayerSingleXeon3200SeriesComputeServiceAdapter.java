@@ -35,6 +35,7 @@ import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCod
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY;
 
 /**
@@ -56,11 +57,12 @@ public class SoftLayerSingleXeon3200SeriesComputeServiceAdapter extends SoftLaye
                                                              @Named(PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY) long serverLoginDelay,
                                                              @Named(PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY) long activeTransactionsEndedDelay,
                                                              @Named(PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY) long activeTransactionsStartedDelay,
-                                                             @Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY) long hardwareApprovedDelay) {
+                                                             @Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY) long hardwareApprovedDelay,
+                                                             @Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING) boolean useHourlyPricing) {
       super(client, serverHasLoginDetailsPresent, serverHasNoActiveTransactionsTester,
               serverHasActiveTransactionsTester,
               hardwareProductOrderApprovedAndServerIsPresent, productPackageSupplier, prices, serverLoginDelay,
-              activeTransactionsEndedDelay, activeTransactionsStartedDelay, hardwareApprovedDelay);
+              activeTransactionsEndedDelay, activeTransactionsStartedDelay, hardwareApprovedDelay, useHourlyPricing);
    }
 
    @Override

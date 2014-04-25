@@ -66,9 +66,10 @@ public class DualXeon5500SeriesProductItemsToHardware extends HardwareServerProd
 		final ProductItem volumeItem = get(filter(items, categoryCode("disk0")), 0);
 		final ProductItem uplinkItem = get(filter(items, categoryCode("port_speed")), 0);
 		final ProductItem bandwidth = get(filter(items, categoryCode("bandwidth")), 0);
+		final ProductItem diskController = get(filter(items, categoryCode("disk_controller")), 0);
 
 		ImmutableList<ProductItem> immutableHardwareItems = createImmutableHardwareItemList(items,
-				serverItem, ramItem, volumeItem, uplinkItem, bandwidth);
+				serverItem, ramItem, volumeItem, uplinkItem, bandwidth, diskController);
 		
 		String pricesId = ProductItemsToHardware.hardwareId().apply(immutableHardwareItems);
 
@@ -92,12 +93,13 @@ public class DualXeon5500SeriesProductItemsToHardware extends HardwareServerProd
 	private ImmutableList<ProductItem> createImmutableHardwareItemList(Iterable<ProductItem> items,
 			final ProductItem serverItem, final ProductItem ramItem,
 			final ProductItem volumeItem, final ProductItem uplinkItem,
-			final ProductItem bandwidth) {
-		Builder<ProductItem> hardwareItems = ImmutableList.builder();
+			final ProductItem bandwidth, final ProductItem diskController) {
 		
-		hardwareItems.add(serverItem, ramItem, volumeItem, uplinkItem, bandwidth);
+		final Builder<ProductItem> hardwareItems = ImmutableList.builder();
 		
-		Iterable<ProductItem> additionalDisks = creareAdditionalDisksList(items);
+		hardwareItems.add(serverItem, ramItem, volumeItem, uplinkItem, bandwidth, diskController);
+		
+		final Iterable<ProductItem> additionalDisks = creareAdditionalDisksList(items);
 		
 		hardwareItems.addAll(additionalDisks);
 		

@@ -91,7 +91,7 @@ public interface HardwareServerAsyncClient {
     * @see HardwareServerClient#listHardwareServers()
     */
    @GET
-   @Path("/SoftLayer_Account/getHardware")
+   @Path("/SoftLayer_Account/getHardware.json")
    @QueryParams(keys = "objectMask", values = LIST_HARDWARE_MASK)
    @Consumes(MediaType.APPLICATION_JSON)
    @Fallback(Fallbacks.EmptySetOnNotFoundOr404.class)
@@ -130,6 +130,7 @@ public interface HardwareServerAsyncClient {
     * @see org.jclouds.softlayer.features.server.HardwareServerClient#getOrderTemplate
     * @throws org.jclouds.http.HttpResponseException if called with a 'bad' order.
     */
+   //TODO(adaml): fix or remove. This api call is not valid for hardware servers
    @GET
    @Path("SoftLayer_Hardware_Server/{id}/getOrderTemplate/MONTHLY.json")
    @Consumes(MediaType.APPLICATION_JSON)

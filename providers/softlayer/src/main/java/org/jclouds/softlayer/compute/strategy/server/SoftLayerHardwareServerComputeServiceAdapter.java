@@ -16,13 +16,31 @@
  */
 package org.jclouds.softlayer.compute.strategy.server;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
-import com.google.common.collect.Maps;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Iterables.contains;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.get;
+import static com.google.common.collect.Iterables.tryFind;
+import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY;
+import static org.jclouds.util.Predicates2.retry;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.jclouds.collect.Memoized;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
@@ -33,24 +51,26 @@ import org.jclouds.logging.Logger;
 import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.compute.functions.product.ProductItemToImage;
 import org.jclouds.softlayer.compute.options.SoftLayerTemplateOptions;
-import org.jclouds.softlayer.domain.*;
-import org.jclouds.softlayer.domain.product.*;
+import org.jclouds.softlayer.domain.BillingOrder;
+import org.jclouds.softlayer.domain.Datacenter;
+import org.jclouds.softlayer.domain.Password;
+import org.jclouds.softlayer.domain.SoftLayerNode;
+import org.jclouds.softlayer.domain.Transaction;
+import org.jclouds.softlayer.domain.product.ProductItem;
+import org.jclouds.softlayer.domain.product.ProductItemPrice;
+import org.jclouds.softlayer.domain.product.ProductOrder;
+import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
+import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.*;
-import static com.google.common.collect.Iterables.*;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.*;
-import static org.jclouds.util.Predicates2.retry;
+import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
+import com.google.common.collect.Maps;
 
 
 /**
@@ -78,6 +98,7 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
    private final long serverLoginDelay;
    private final long serverTransactionsDelay;
    private final Iterable<ProductItemPrice> prices;
+private boolean useHourlyPricing;
 
    @Inject
    public SoftLayerHardwareServerComputeServiceAdapter(SoftLayerClient client,
@@ -90,18 +111,20 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
                                                        @Named(PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY) long serverLoginDelay,
                                                        @Named(PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY) long activeTransactionsEndedDelay,
                                                        @Named(PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY) long activeTransactionsStartedDelay,
-                                                       @Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY) long hardwareApprovedDelay) {
+                                                       @Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY) long hardwareApprovedDelay,
+                                                       @Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING) boolean useHourlyPricing) {
       this.client = checkNotNull(client, "client");
       this.serverLoginDelay = serverLoginDelay;
       this.serverTransactionsDelay = activeTransactionsEndedDelay;
       this.productPackageSupplier = checkNotNull(productPackageSupplier, "productPackageSupplier");
-      this.orderApprovedAndServerIsDiscoveredTester = retry(hardwareProductOrderApprovedAndServerIsPresent, hardwareApprovedDelay, 5000, 1000000);
+      this.orderApprovedAndServerIsDiscoveredTester = retry(hardwareProductOrderApprovedAndServerIsPresent, hardwareApprovedDelay, 5000, 10000);
       this.orderApprovedAndServerIsDiscoveredDelay = hardwareApprovedDelay;
       this.activeTransactionsStartedDelay = activeTransactionsStartedDelay;
       this.serverHasActiveTransactionsTester = retry(serverHasActiveTransactionsTester, activeTransactionsStartedDelay, 5000, 10000);
       checkArgument(serverLoginDelay > 500, "guestOrderDelay must be in milliseconds and greater than 500");
       this.loginDetailsTester = retry(serverHasLoginDetailsPresent, serverLoginDelay);
       this.prices = checkNotNull(prices, "prices");
+      this.useHourlyPricing = useHourlyPricing;
       this.serverHasNoActiveTransactionsTester = retry(serverHasNoActiveTransactionsTester, activeTransactionsEndedDelay, 5000, 10000);
    }
 
@@ -121,7 +144,7 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
       // TODO(adaml): monthly billing should be injected and set to false by default.
       // we use monthly pricing for bear metal instances
       ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
-            .location(template.getLocation().getId()).quantity(1).useHourlyPricing(false).prices(getPrices(template))
+            .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template))
             .hardwareServers(newServer).build();
 
       logger.debug(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, name);
@@ -372,7 +395,8 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
 
    public static class HardwareProductOrderApprovedAndServerIsPresent implements Predicate<ProductOrderReceipt> {
 
-	   @Resource
+	   private static final int STATE_CHECK_NUM_RETRIES = 10;
+	@Resource
 	   @Named(ComputeServiceConstants.COMPUTE_LOGGER)
 	   protected Logger logger = Logger.NULL;
 	private final SoftLayerClient client;
@@ -384,19 +408,35 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
 
       @Override
       public boolean apply(@Nullable ProductOrderReceipt input) {
-
+    	  Throwable t = null; 
+    	  logger.info("Checking order state for order with ID: " + input.getOrderId());
+    	  for (int i = 0; i < STATE_CHECK_NUM_RETRIES; i++) {
+    		  try {
+    			  boolean serverPresent = false;
     			  BillingOrder orderStatus = client.getAccountClient()
     					  .getBillingOrder(input.getOrderId());
     			  boolean orderApproved = BillingOrder.Status.APPROVED.equals(orderStatus.getStatus());
-
-    			  boolean serverPresent = tryFind(client.getHardwareServerClient().listHardwareServers(),
-    					  SoftLayerHardwareServerComputeServiceAdapter
-    					  .hostNamePredicate(input.getOrderDetails()
-    							  .getHardwareServers().iterator().next().getHostname())).isPresent();
-
+    			  
+    			  if (orderApproved) {
+    				  serverPresent = tryFind(client.getHardwareServerClient().listHardwareServers(),
+    						  SoftLayerHardwareServerComputeServiceAdapter
+    						  .hostNamePredicate(input.getOrderDetails()
+    								  .getHardwareServers().iterator().next().getHostname())).isPresent();
+    			  }
+    			  
     			  return orderApproved && serverPresent;
+    		  } catch (final Exception e) {
+    			  logger.info("Failed getting server order status. Error was: " + e.getMessage());
+    			  t = e;
+    			  //TODO(adaml): remove this
+    			  throw new RuntimeException("Failed getting server order status after " 
+    	    			  	+ STATE_CHECK_NUM_RETRIES + " retries.", t);
     		  }
     	  }
+    	  throw new RuntimeException("Failed getting server order status after " 
+    			  	+ STATE_CHECK_NUM_RETRIES + " retries.", t);
+      }
+   }
 
    public static class HardwareServerStartedTransactions implements Predicate<HardwareServer> {
 

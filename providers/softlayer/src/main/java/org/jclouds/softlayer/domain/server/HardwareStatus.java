@@ -81,7 +81,7 @@ public class HardwareStatus {
    }
 
    /**
-    * Maps onto {@code VirtualGuest.State}
+    * Maps onto {@code HardwareServer.State}
     *
     * @return The key name of a power state.
     */

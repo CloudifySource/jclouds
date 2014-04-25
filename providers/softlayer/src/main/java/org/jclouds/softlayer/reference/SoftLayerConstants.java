@@ -29,9 +29,14 @@ public interface SoftLayerConstants {
    public static final String PROPERTY_SOFTLAYER_PACKAGE_ID = "jclouds.softlayer.package-id";
    
    /**
-    * package id of the external disks.
+    * hardware id of external disks to be attached.
     */
    public static final String PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS = "jclouds.softlayer.external-disks-ids";
+   
+   /**
+    * hardware id for required disk controller.
+    */
+   public static final String PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID = "jclouds.softlayer.hardware.disk-controller";
 
    /**
     * Flex image id.
@@ -97,4 +102,9 @@ public interface SoftLayerConstants {
     * Transactions logger for reporting order transactions.
     */
    public static final String TRANSACTION_LOGGER = "jclouds.softlayer.transaction";
+   
+   /**
+    * Boolean property for setting order pricing
+    */
+   public static final String PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING = "jclouds.softlayer.order.useHourlyPricing";
 }

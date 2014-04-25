@@ -27,7 +27,9 @@ import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLA
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -51,6 +53,7 @@ import com.google.common.collect.ImmutableList.Builder;
 
 
 /**
+ * Hardware adapter with multiple disk and RAID support.
  * 
  * @author adaml
  *
@@ -61,6 +64,7 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 	private static final String SERVER_DISK_CATEGORY_REGEX = "disk[1-11]";
 	private final Pattern serverDiskCategoryRegex;
 	private String externalDisksId;
+	private String diskControllerId;
 
 	@Inject
 	public SoftLayerDualXeon5500SeriesComputeServiceAdapter(SoftLayerClient client,
@@ -74,26 +78,26 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 			@Named(PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY) long activeTransactionsEndedDelay,
 			@Named(PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY) long activeTransactionsStartedDelay,
 			@Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY) long hardwareApprovedDelay,
-			@Named(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS) String multipleDisksHardwareId) {
+			@Named(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS) String multipleDisksHardwareId,
+			@Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID) String diskControllerHardwareId,
+			@Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING) boolean useHourlyPricing) {
 		super(client, serverHasLoginDetailsPresent, serverHasNoActiveTransactionsTester,
 				serverHasActiveTransactionsTester,
 				hardwareProductOrderApprovedAndServerIsPresent, productPackageSupplier, prices, serverLoginDelay,
-				activeTransactionsEndedDelay, activeTransactionsStartedDelay, hardwareApprovedDelay);
+				activeTransactionsEndedDelay, activeTransactionsStartedDelay, hardwareApprovedDelay, useHourlyPricing);
 		this.serverDiskCategoryRegex = checkNotNull(Pattern.compile(SERVER_DISK_CATEGORY_REGEX), "serverDiskCategoryRegex");
 		this.externalDisksId = multipleDisksHardwareId;
+		this.diskControllerId = diskControllerHardwareId;
 	}
-
-
 
 	@Override
 	public Iterable<Iterable<ProductItem>> listHardwareProfiles() {
 
-		logger.info("Now looky here:" + this.externalDisksId);
-		ImmutableSet.Builder<Iterable<ProductItem>> result = ImmutableSet.builder();
-		ProductPackage productPackage = productPackageSupplier.get();
-		Set<ProductItem> items = productPackage.getItems();
-		ImmutableList<ProductItem> disks = listDisks(items);
-
+		final ImmutableSet.Builder<Iterable<ProductItem>> result = ImmutableSet.builder();
+		final ProductPackage productPackage = productPackageSupplier.get();
+		final Set<ProductItem> items = productPackage.getItems();
+		final ImmutableList<ProductItem> disks = listDisksAndControllers(items);
+		
 		for (ProductItem cpuItem : filter(items, categoryCode("server"))) {
 			for (ProductItem ramItem : filter(items, categoryCode("ram"))) {
 				for (ProductItem firstDiskItem : filter(items, categoryCode("disk0"))) {
@@ -113,31 +117,45 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 		return result.build();
 	}
 
-	private ImmutableList<ProductItem> listDisks(Set<ProductItem> items) {
+	private ImmutableList<ProductItem> listDisksAndControllers(Set<ProductItem> items) {
+		
+		Builder<ProductItem> disksAndControllerListBuilder = ImmutableList.builder();
+		
+		// There could only be one disk controller. RAID/NON-RAID.
+		ProductItem diskControllerItem = get(filter(items, priceId(this.diskControllerId)), 0, null);
+		if (diskControllerItem == null) {
+			diskControllerItem = get(filter(items, itemId(this.diskControllerId)), 0, null);
+		}
+		if (diskControllerItem == null) {
+			throw new NoSuchElementException("Failed listing hardwares having disk controller with ID: " 
+					+ this.diskControllerId);
+		}
+		
+		disksAndControllerListBuilder.add(diskControllerItem);
 		
 		if (!this.externalDisksId.equals("")) {
 			Iterable<ProductItem> allDiskItems = filter(items, categoryCodeMatches(serverDiskCategoryRegex));
-			ImmutableList<ProductItem> diskItems = listDisksByPrice(allDiskItems);
+			ImmutableList<ProductItem> diskItemsList = listDisksByPrice(allDiskItems);
 			
-			if (diskItems == null) {
-				diskItems = listDisksByItemId(allDiskItems);
+			if (diskItemsList == null) {
+				diskItemsList = listDisksByItemId(allDiskItems);
 			}
 			
-			if (diskItems == null) {
-				throw new NoSuchElementException("Failed listing hardwares having additional disk items with ids: " + this.externalDisksId
-						+ ". disk items could not be resolved by item or price id.");
+			if (diskItemsList == null) {
+				throw new NoSuchElementException("Failed listing hardwares having additional disk items with ids: " 
+						+ this.externalDisksId + ". disk items could not be resolved by item or price id.");
 			}
 			
-			return diskItems;
+			disksAndControllerListBuilder.addAll(diskItemsList);
 		}
-		
-		return ImmutableList.of();
+
+		return disksAndControllerListBuilder.build();
 	}
 
 	private ImmutableList<ProductItem> listDisksByPrice(
 			final Iterable<ProductItem> diskItems) {
 		
-		Builder<ProductItem> diskSet = ImmutableList.builder();
+		Builder<ProductItem> diskList = ImmutableList.builder();
 		Iterable<String> pricesId = Splitter.on(",").split(this.externalDisksId);
 		
 		for (String priceId : pricesId) {
@@ -150,10 +168,10 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 				return null;
 			}
 			
-			diskSet.add(get(diskByPriceId, 0));
+			diskList.add(get(diskByPriceId, 0));
 		}
 		
-		return diskSet.build();
+		return diskList.build();
 	}
 	
 	private ImmutableList<ProductItem> listDisksByItemId(

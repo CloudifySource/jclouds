@@ -18,10 +18,12 @@ package org.jclouds.softlayer.features.server;
 
 import static org.jclouds.softlayer.predicates.ProductPackagePredicates.named;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 
 import org.jclouds.compute.domain.Template;
 import org.jclouds.softlayer.DualXeon5500SeriesMultipleDisksProperties;
@@ -52,6 +54,7 @@ public class DualXeon5500SeriesClientWithMultipleDisksLiveTest extends HardwareS
 	      properties.putAll(new DualXeon5500SeriesMultipleDisksProperties().sharedProperties());
 	      //14, 471
 	      properties.setProperty(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS, "14,471,471,471,471,471,471,471");
+	      properties.setProperty(PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID, "489");
 	      return properties;
 	   }
 

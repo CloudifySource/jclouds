@@ -148,7 +148,7 @@ public class HardwareServer extends SoftLayerNode {
    })
    protected HardwareServer(int accountId, @Nullable String domain,
                           @Nullable String fullyQualifiedDomainName, @Nullable String hostname, int id,
-                          @Nullable String notes, boolean privateNetworkOnly, int hardwareStatusId, @Nullable String primaryBackendIpAddress,
+                          @Nullable String notes, @Nullable boolean privateNetworkOnly, @Nullable int hardwareStatusId, @Nullable String primaryBackendIpAddress,
                           @Nullable String primaryIpAddress, @Nullable BillingItem billingItem,
                           @Nullable OperatingSystem operatingSystem, @Nullable Datacenter datacenter, @Nullable HardwareStatus hardwareStatus) {
       super(accountId, domain, fullyQualifiedDomainName, hostname, id, notes, primaryBackendIpAddress, primaryIpAddress,
@@ -161,6 +161,7 @@ public class HardwareServer extends SoftLayerNode {
    /**
     * @return Whether the computing instance only has access to the private network.
     */
+   @Nullable
    public boolean isPrivateNetworkOnly() {
       return this.privateNetworkOnly;
    }
@@ -168,6 +169,7 @@ public class HardwareServer extends SoftLayerNode {
    /**
     * @return A computing instances status ID
     */
+   @Nullable
    public int getHardwareStatusId() {
       return this.hardwareStatusId;
    }

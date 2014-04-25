@@ -16,11 +16,11 @@
  */
 package org.jclouds.softlayer;
 
-import org.jclouds.providers.ProviderMetadata;
-import org.jclouds.providers.internal.BaseProviderMetadata;
-
 import java.net.URI;
 import java.util.Properties;
+
+import org.jclouds.providers.ProviderMetadata;
+import org.jclouds.providers.internal.BaseProviderMetadata;
 
 /**
  * Implementation of {@link org.jclouds.providers.ProviderMetadata} for SoftLayer.
@@ -53,6 +53,8 @@ public class SoftLayerProviderMetadata extends BaseProviderMetadata {
               SingleXeon3200SeriesProperties();
       DualXeon5500SeriesProperties dualXeon5500SeriesProperties = new 
     		  DualXeon5500SeriesProperties();
+      DualXeon5500SeriesMultipleDisksProperties dualXeon5500SeriesMultipleDisksProperties = new 
+    		  DualXeon5500SeriesMultipleDisksProperties();
 
       Properties properties = new Properties();
 
@@ -61,6 +63,7 @@ public class SoftLayerProviderMetadata extends BaseProviderMetadata {
       properties.putAll(virtualGuestDefaultProperties.customProperties());
       properties.putAll(singleXeon3200SeriesDefaultProperties.customProperties());
       properties.putAll(dualXeon5500SeriesProperties.customProperties());
+      properties.putAll(dualXeon5500SeriesMultipleDisksProperties.customProperties());
 
       // use virtual guest as default provisioning.
       properties.putAll(virtualGuestDefaultProperties.sharedProperties());
