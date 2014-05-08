@@ -144,7 +144,7 @@ private boolean useHourlyPricing;
       String domainName = template.getOptions().as(SoftLayerTemplateOptions.class).getDomainName();
       
       // we add a unique id to the server name since we might need to poll for its state according to the name.
-      final String serverName = name + "_" + UUID.randomUUID().getMostSignificantBits();
+      final String serverName = name + "-" + UUID.randomUUID().getMostSignificantBits();
       
       HardwareServer newServer = HardwareServer.builder().domain(domainName).hostname(serverName).build();
 
@@ -152,7 +152,7 @@ private boolean useHourlyPricing;
             .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template))
             .hardwareServers(newServer).build();
 
-      logger.debug(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, serverName);
+      logger.info(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, serverName);
       ProductOrderReceipt hardwareProductOrderReceipt = client.getHardwareServerClient().orderHardwareServer(order);
 
       logger.debug(">> awaiting order approval for hardwareServer(%s)", serverName);
