@@ -35,6 +35,7 @@ import static org.jclouds.util.Predicates2.retry;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -83,7 +84,7 @@ import com.google.common.collect.Maps;
 public class SoftLayerHardwareServerComputeServiceAdapter implements
       ComputeServiceAdapter<SoftLayerNode, Iterable<ProductItem>, ProductItem, Datacenter> {
 
-   @Resource
+	@Resource
    @Named(ComputeServiceConstants.COMPUTE_LOGGER)
    protected Logger logger = Logger.NULL;
    private final SoftLayerClient client;
@@ -93,6 +94,7 @@ public class SoftLayerHardwareServerComputeServiceAdapter implements
    private final Predicate<HardwareServer> serverHasNoActiveTransactionsTester;
    private final Predicate<HardwareServer> serverHasActiveTransactionsTester;
    private final Predicate<ProductOrderReceipt> orderApprovedAndServerIsDiscoveredTester;
+   private final Predicate<String> orderApprovedAndServerIsDiscoveredByNameTester;
    private final long activeTransactionsStartedDelay;
    private final long orderApprovedAndServerIsDiscoveredDelay;
    private final long serverLoginDelay;
@@ -106,6 +108,7 @@ private boolean useHourlyPricing;
                                                        HardwareServerHasNoRunningTransactions serverHasNoActiveTransactionsTester,
                                                        HardwareServerStartedTransactions serverHasActiveTransactionsTester,
                                                        HardwareProductOrderApprovedAndServerIsPresent hardwareProductOrderApprovedAndServerIsPresent,
+                                                       HardwareProductOrderApprovedAndServerIsPresentAccordingToServerName hardwareProductOrderApprovedAndServerIsPresentByName,
                                                        @Memoized Supplier<ProductPackage> productPackageSupplier,
                                                        Iterable<ProductItemPrice> prices,
                                                        @Named(PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY) long serverLoginDelay,
@@ -118,6 +121,7 @@ private boolean useHourlyPricing;
       this.serverTransactionsDelay = activeTransactionsEndedDelay;
       this.productPackageSupplier = checkNotNull(productPackageSupplier, "productPackageSupplier");
       this.orderApprovedAndServerIsDiscoveredTester = retry(hardwareProductOrderApprovedAndServerIsPresent, hardwareApprovedDelay, 5000, 10000);
+      this.orderApprovedAndServerIsDiscoveredByNameTester = retry(hardwareProductOrderApprovedAndServerIsPresentByName, hardwareApprovedDelay, 5000, 10000);
       this.orderApprovedAndServerIsDiscoveredDelay = hardwareApprovedDelay;
       this.activeTransactionsStartedDelay = activeTransactionsStartedDelay;
       this.serverHasActiveTransactionsTester = retry(serverHasActiveTransactionsTester, activeTransactionsStartedDelay, 5000, 10000);
@@ -138,24 +142,31 @@ private boolean useHourlyPricing;
                   .getClass());
 
       String domainName = template.getOptions().as(SoftLayerTemplateOptions.class).getDomainName();
+      
+      // we add a unique id to the server name since we might need to poll for its state according to the name.
+      final String serverName = name + "_" + UUID.randomUUID().getMostSignificantBits();
+      
+      HardwareServer newServer = HardwareServer.builder().domain(domainName).hostname(serverName).build();
 
-      HardwareServer newServer = HardwareServer.builder().domain(domainName).hostname(name).build();
-
-      // TODO(adaml): monthly billing should be injected and set to false by default.
-      // we use monthly pricing for bear metal instances
       ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
             .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template))
             .hardwareServers(newServer).build();
 
-      logger.debug(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, name);
+      logger.debug(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, serverName);
       ProductOrderReceipt hardwareProductOrderReceipt = client.getHardwareServerClient().orderHardwareServer(order);
 
-      logger.debug(">> awaiting order approval for hardwareServer(%s)", name);
-      logger.info("Waiting for server (%s) order to be approved", name);
-      boolean orderApproved = orderApprovedAndServerIsDiscoveredTester.apply(hardwareProductOrderReceipt);
-      logger.debug(">> hardwareServer(%s) order approval result(%s)", name, orderApproved);
+      logger.debug(">> awaiting order approval for hardwareServer(%s)", serverName);
+      logger.info("Waiting for server (%s) order to be approved", serverName);
+      boolean orderApproved;
+      if (hardwareProductOrderReceipt == null) {
+    	  logger.info(">> Order details returned null. Checking order status according to server name: " + serverName);
+    	  orderApproved = orderApprovedAndServerIsDiscoveredByNameTester.apply(serverName);
+      } else {
+    	  orderApproved = orderApprovedAndServerIsDiscoveredTester.apply(hardwareProductOrderReceipt);
+      }
+      logger.debug(">> hardwareServer(%s) order approval result(%s)", serverName, orderApproved);
 
-      checkState(orderApproved, "order for server %s did not finish its transactions within %sms", name,
+      checkState(orderApproved, "order for server %s did not finish its transactions within %sms", serverName,
               Long.toString(orderApprovedAndServerIsDiscoveredDelay));
 
       HardwareServer result = find(client.getHardwareServerClient().listHardwareServers(),
@@ -163,7 +174,7 @@ private boolean useHourlyPricing;
 
       logger.trace("<< hardwareServer(%s)", result.getId());
 
-      logger.info("Waiting for server (%s) transactions to complete", name);
+      logger.info("Waiting for server (%s) transactions to complete", serverName);
 
       logger.debug(">> waiting for server(%s) transactions to start", result.getHostname());
       boolean serverHasActiveTransactions = serverHasActiveTransactionsTester.apply(result);
@@ -395,51 +406,65 @@ private boolean useHourlyPricing;
 
    public static class HardwareProductOrderApprovedAndServerIsPresent implements Predicate<ProductOrderReceipt> {
 
-	   private static final int STATE_CHECK_NUM_RETRIES = 10;
-	@Resource
+	   @Resource
 	   @Named(ComputeServiceConstants.COMPUTE_LOGGER)
 	   protected Logger logger = Logger.NULL;
-	private final SoftLayerClient client;
+	   private final SoftLayerClient client;
 
-      @Inject
-      public HardwareProductOrderApprovedAndServerIsPresent(SoftLayerClient client) {
-         this.client = checkNotNull(client, "client was null");
-      }
+	   @Inject
+	   public HardwareProductOrderApprovedAndServerIsPresent(SoftLayerClient client) {
+		   this.client = checkNotNull(client, "client was null");
+	   }
 
-      @Override
-      public boolean apply(@Nullable ProductOrderReceipt input) {
-    	  Throwable t = null; 
-    	  logger.info("Checking order state for order with ID: " + input.getOrderId());
-    	  for (int i = 0; i < STATE_CHECK_NUM_RETRIES; i++) {
-    		  try {
-    			  boolean serverPresent = false;
-    			  BillingOrder orderStatus = client.getAccountClient()
-    					  .getBillingOrder(input.getOrderId());
-    			  boolean orderApproved = BillingOrder.Status.APPROVED.equals(orderStatus.getStatus());
-    			  
-    			  if (orderApproved) {
-    				  serverPresent = tryFind(client.getHardwareServerClient().listHardwareServers(),
-    						  SoftLayerHardwareServerComputeServiceAdapter
-    						  .hostNamePredicate(input.getOrderDetails()
-    								  .getHardwareServers().iterator().next().getHostname())).isPresent();
-    			  }
-    			  
-    			  return orderApproved && serverPresent;
-    		  } catch (final Exception e) {
-    			  logger.info("Failed getting server order status. Error was: " + e.getMessage());
-    			  t = e;
-    			  //TODO(adaml): remove this
-    			  throw new RuntimeException("Failed getting server order status after " 
-    	    			  	+ STATE_CHECK_NUM_RETRIES + " retries.", t);
-    		  }
-    	  }
-    	  throw new RuntimeException("Failed getting server order status after " 
-    			  	+ STATE_CHECK_NUM_RETRIES + " retries.", t);
-      }
+	   @Override
+	   public boolean apply(@Nullable ProductOrderReceipt input) {
+		   // in some cases, specifically with hardware servers, the order id may return null.
+		   // in that case, we will poll only using #listHardwareServers().
+		   boolean serverPresent = false;
+		   boolean orderApproved = false;
+		   logger.info("Checking order state for order with ID: " + input.getOrderId());
+		   BillingOrder orderStatus = client.getAccountClient()
+				   .getBillingOrder(input.getOrderId());
+		   
+		   orderApproved = BillingOrder.Status.APPROVED.equals(orderStatus.getStatus());
+		   
+		   serverPresent = tryFind(client.getHardwareServerClient().listHardwareServers(),
+				   SoftLayerHardwareServerComputeServiceAdapter
+				   .hostNamePredicate(input.getOrderDetails()
+						   .getHardwareServers().iterator().next().getHostname())).isPresent();
+
+		   return orderApproved && serverPresent;
+	   }
+   }
+   
+   // in some cases, the order id may return null with response code 200. in that case, we will poll only using 
+   // #listHardwareServers() and server name.
+   public static class HardwareProductOrderApprovedAndServerIsPresentAccordingToServerName implements Predicate<String> {
+
+	   @Resource
+	   @Named(ComputeServiceConstants.COMPUTE_LOGGER)
+	   protected Logger logger = Logger.NULL;
+	   private final SoftLayerClient client;
+
+	   @Inject
+	   public HardwareProductOrderApprovedAndServerIsPresentAccordingToServerName(SoftLayerClient client) {
+		   this.client = checkNotNull(client, "client was null");
+	   }
+
+	   @Override
+	   public boolean apply(String serverName) {
+		   
+		   boolean serverPresent = false;
+		   logger.info("Checking order state for server with name: " + serverName);
+		   
+		   serverPresent = tryFind(client.getHardwareServerClient().listHardwareServers(),
+				   SoftLayerHardwareServerComputeServiceAdapter.hostNamePredicate(serverName)).isPresent();
+
+		   return serverPresent;
+	   }
    }
 
    public static class HardwareServerStartedTransactions implements Predicate<HardwareServer> {
-
       private final SoftLayerClient client;
 
       @Resource

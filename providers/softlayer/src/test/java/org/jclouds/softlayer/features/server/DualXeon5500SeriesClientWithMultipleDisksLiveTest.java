@@ -23,11 +23,9 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
 
 import org.jclouds.compute.domain.Template;
 import org.jclouds.softlayer.DualXeon5500SeriesMultipleDisksProperties;
-import org.jclouds.softlayer.DualXeon5500SeriesProperties;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.product.ProductPackage;

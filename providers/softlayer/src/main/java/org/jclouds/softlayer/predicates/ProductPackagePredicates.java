@@ -17,6 +17,8 @@
 package org.jclouds.softlayer.predicates;
 
 import com.google.common.base.Predicate;
+
+import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductPackage;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -47,6 +49,34 @@ public class ProductPackagePredicates {
          public boolean apply(ProductPackage productPackage) {
             checkNotNull(productPackage, "productPackage cannot be null");
             return productPackage.getId() == packageId;
+         }
+      };
+   }
+   
+   /**
+    * Tests if the product item id equals the itemId
+    * @param itemId
+    * @return true if the id is equal, otherwise false.
+    */
+   public static Predicate<ProductItem> withItemId(final int itemId) {
+      return new Predicate<ProductItem>() {
+         public boolean apply(ProductItem productItem) {
+            checkNotNull(productItem, "productItem cannot be null");
+            return productItem.getId() == itemId;
+         }
+      };
+   }
+   
+   /**
+    * Tests if the product item price id equals the priceId
+    * @param priceId
+    * @return true if the id is equal, otherwise false.
+    */
+   public static Predicate<ProductItem> withPriceId(final int priceId) {
+      return new Predicate<ProductItem>() {
+         public boolean apply(ProductItem productItem) {
+            checkNotNull(productItem, "productItem cannot be null");
+            return productItem.getPrices().iterator().next().getId() == priceId;
          }
       };
    }

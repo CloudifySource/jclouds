@@ -21,6 +21,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import org.jclouds.collect.Memoized;
 import org.jclouds.softlayer.SoftLayerClient;
+import org.jclouds.softlayer.compute.strategy.server.SoftLayerHardwareServerComputeServiceAdapter.HardwareProductOrderApprovedAndServerIsPresentAccordingToServerName;
 import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductPackage;
@@ -52,6 +53,7 @@ public class SoftLayerSingleXeon3200SeriesComputeServiceAdapter extends SoftLaye
                                                              HardwareServerHasNoRunningTransactions serverHasNoActiveTransactionsTester,
                                                              HardwareServerStartedTransactions serverHasActiveTransactionsTester,
                                                              HardwareProductOrderApprovedAndServerIsPresent hardwareProductOrderApprovedAndServerIsPresent,
+                                                             HardwareProductOrderApprovedAndServerIsPresentAccordingToServerName hardwareProductOrderApprovedAndServerIsPresentByName,
                                                              @Memoized Supplier<ProductPackage> productPackageSupplier,
                                                              Iterable<ProductItemPrice> prices,
                                                              @Named(PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY) long serverLoginDelay,
@@ -61,7 +63,7 @@ public class SoftLayerSingleXeon3200SeriesComputeServiceAdapter extends SoftLaye
                                                              @Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING) boolean useHourlyPricing) {
       super(client, serverHasLoginDetailsPresent, serverHasNoActiveTransactionsTester,
               serverHasActiveTransactionsTester,
-              hardwareProductOrderApprovedAndServerIsPresent, productPackageSupplier, prices, serverLoginDelay,
+              hardwareProductOrderApprovedAndServerIsPresent, hardwareProductOrderApprovedAndServerIsPresentByName, productPackageSupplier, prices, serverLoginDelay,
               activeTransactionsEndedDelay, activeTransactionsStartedDelay, hardwareApprovedDelay, useHourlyPricing);
    }
 

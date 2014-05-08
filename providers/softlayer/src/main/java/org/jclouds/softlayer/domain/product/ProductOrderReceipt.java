@@ -86,7 +86,7 @@ public class ProductOrderReceipt {
    @ConstructorProperties({
          "orderId", "orderDetails"
    })
-   protected ProductOrderReceipt(int orderId, @Nullable ProductOrder orderDetails) {
+   protected ProductOrderReceipt(@Nullable int orderId, @Nullable ProductOrder orderDetails) {
       this.orderId = orderId;
       this.orderDetails = orderDetails;
    }

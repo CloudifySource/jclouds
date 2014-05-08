@@ -72,6 +72,7 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 			HardwareServerHasNoRunningTransactions serverHasNoActiveTransactionsTester,
 			HardwareServerStartedTransactions serverHasActiveTransactionsTester,
 			HardwareProductOrderApprovedAndServerIsPresent hardwareProductOrderApprovedAndServerIsPresent,
+			HardwareProductOrderApprovedAndServerIsPresentAccordingToServerName hardwareProductOrderApprovedAndServerIsPresentByName,
 			@Memoized Supplier<ProductPackage> productPackageSupplier,
 			Iterable<ProductItemPrice> prices,
 			@Named(PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY) long serverLoginDelay,
@@ -83,7 +84,7 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 			@Named(PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING) boolean useHourlyPricing) {
 		super(client, serverHasLoginDetailsPresent, serverHasNoActiveTransactionsTester,
 				serverHasActiveTransactionsTester,
-				hardwareProductOrderApprovedAndServerIsPresent, productPackageSupplier, prices, serverLoginDelay,
+				hardwareProductOrderApprovedAndServerIsPresent, hardwareProductOrderApprovedAndServerIsPresentByName, productPackageSupplier, prices, serverLoginDelay,
 				activeTransactionsEndedDelay, activeTransactionsStartedDelay, hardwareApprovedDelay, useHourlyPricing);
 		this.serverDiskCategoryRegex = checkNotNull(Pattern.compile(SERVER_DISK_CATEGORY_REGEX), "serverDiskCategoryRegex");
 		this.externalDisksId = multipleDisksHardwareId;

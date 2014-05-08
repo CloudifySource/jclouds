@@ -67,6 +67,11 @@ public interface SoftLayerConstants {
     * standard prices for all new guests.
     */
    public static final String PROPERTY_SOFTLAYER_PRICES = "jclouds.softlayer.virtualguest.prices";
+   
+   /**
+    * standard items for all new guests or hardware servers.
+    */
+   public static final String PROPERTY_SOFTLAYER_ITEMS = "jclouds.softlayer.virtualguest.items";
 
    /**
     * number of milliseconds to wait for an order to be empty of transactions.

@@ -20,9 +20,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.find;
 import static org.jclouds.Constants.PROPERTY_SESSION_INTERVAL;
 import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withId;
+import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withItemId;
+import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withPriceId;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_ITEMS;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PRICES;
 
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -118,21 +124,56 @@ public class SoftLayerComputeServiceContextModule extends
                }, seconds, TimeUnit.SECONDS);
    }
 
-   // TODO: check the prices really do exist
    @Inject
    @Provides
    @Singleton
-   public Iterable<ProductItemPrice> prices(PropertiesProviderFactory defaultPropertiesFactory,
-                                            @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
-      String prices =
+   public Iterable<ProductItemPrice> prices(@Memoized Supplier<ProductPackage> productPackageSupplier,
+		   						PropertiesProviderFactory defaultPropertiesFactory,
+                                @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
+	  
+	  final Set<ProductItem> productItems = productPackageSupplier.get().getItems();
+	  
+	  String prices =
               (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_PRICES);
+      
+      Iterable<ProductItemPrice> transformedPrices = new ArrayList<ProductItemPrice>();
+      if (!isNull(prices)) {
+    	  transformedPrices = Iterables.transform(Splitter.on(',').split(checkNotNull(prices, "prices")),
+    			  new Function<String, ProductItemPrice>() {
+    		  @Override
+    		  public ProductItemPrice apply(String arg0) {
+    			  ProductItem item = find(productItems, withPriceId(Integer.parseInt(arg0)), null);
+    			  if (item == null) {
+    				  throw new NoSuchElementException("Item with pre-determined price ID:" + arg0 
+    						  + " Does not exist in package:" + packageId);
+    			  }
+    			  return ProductItemPrice.builder().id(item.getPrices().iterator().next().getId()).build();
+    		  }
+    	  });
+      }
+      
+      String items = 
+    		  (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_ITEMS);
+      Iterable<ProductItemPrice> transformedItems = new ArrayList<ProductItemPrice>();
+      if (!isNull(items)) {
+    	  transformedItems = Iterables.transform(Splitter.on(',').split(checkNotNull(items, "items")),
+    			  new Function<String, ProductItemPrice>() {
+    		  @Override
+    		  public ProductItemPrice apply(String arg0) {
+    			  ProductItem item = find(productItems, withItemId(Integer.parseInt(arg0)), null);
+    			  if (item == null) {
+    				  throw new NoSuchElementException("Item with pre-determined item ID:" + arg0 
+    						  + " Does not exist in package:" + packageId);
+    			  }
+    			  return ProductItemPrice.builder().id(item.getPrices().iterator().next().getId()).build();
+    		  }
+    	  });
+      }
+      
+      return Iterables.concat(transformedItems, transformedPrices);
+   }
 
-      return Iterables.transform(Splitter.on(',').split(checkNotNull(prices, "prices")),
-               new Function<String, ProductItemPrice>() {
-                  @Override
-                  public ProductItemPrice apply(String arg0) {
-                     return ProductItemPrice.builder().id(Integer.parseInt(arg0)).build();
-                  }
-               });
+   private boolean isNull(String string) {
+	   return string == null || string.equals("");
    }
 }

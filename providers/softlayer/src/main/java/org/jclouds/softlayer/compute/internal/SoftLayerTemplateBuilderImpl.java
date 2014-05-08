@@ -74,12 +74,6 @@ public class SoftLayerTemplateBuilderImpl extends TemplateBuilderImpl {
 				if (!input.getId().startsWith(hardwareId)) {
 					returnVal = false;
 				}
-//				ImmutableSet<String> hardwareIds = ImmutableSet.copyOf(Splitter.on(",").split(hardwareId));
-//				ImmutableSet<String> inputHardwareIds = ImmutableSet.copyOf(Splitter.on(",").split(input.getId()));
-//				if (!inputHardwareIds.containsAll(hardwareIds)) {
-//					returnVal = false;
-//				}
-				// match our input params so that the later predicates pass.
 				if (returnVal) {
 					fromHardware(input);
 				}
@@ -101,11 +95,6 @@ public class SoftLayerTemplateBuilderImpl extends TemplateBuilderImpl {
 				if (!input.getProviderId().startsWith(hardwareId)) {
 					returnVal = false;
 				}
-				//				ImmutableSet<String> hardwareIds = ImmutableSet.copyOf(Splitter.on(",").split(hardwareId));
-				//				ImmutableSet<String> inputHardwareIds = ImmutableSet.copyOf(Splitter.on(",").split(input.getProviderId()));
-				//				if (!inputHardwareIds.containsAll(hardwareIds)) {
-				//					returnVal = false;
-				//				}
 				// match our input params so that the later predicates pass.
 				if (returnVal) {
 					fromHardware(input);
@@ -494,6 +483,7 @@ public class SoftLayerTemplateBuilderImpl extends TemplateBuilderImpl {
 		Hardware hardware;
 		// TODO: switch to GetHardwareStrategy in version 1.5
 		hardware = tryFind(hardwaresToSearch, hardwareIdPredicate).orNull();
+		// TODO(adaml): add logging to say if using item or price id.
 		if (hardware == null)
 			hardware = tryFind(hardwaresToSearch, providerHardwareIdPredicate).orNull();
 		if (hardware == null) {
