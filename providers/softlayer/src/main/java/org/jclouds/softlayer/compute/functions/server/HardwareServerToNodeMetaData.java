@@ -123,11 +123,13 @@ public class HardwareServerToNodeMetaData implements Function<SoftLayerNode, Nod
       }
 
       public Hardware getHardware(HardwareServer server) {
-         ProductOrder order = client.getHardwareServerClient().getOrderTemplate(server.getId());
-         if (order == null)
-            return null;
-         Iterable<ProductItem> items = Iterables.transform(order.getPrices(), ProductItems.item());
-         return productItemsToHardware.apply(items);
+    	  //TODO(adaml): The get method is not available in BMI
+    	  return null;
+//         ProductOrder order = client.getHardwareServerClient().getOrderTemplate(server.getId());
+//         if (order == null)
+//            return null;
+//         Iterable<ProductItem> items = Iterables.transform(order.getPrices(), ProductItems.item());
+//         return productItemsToHardware.apply(items);
       }
    }
 
@@ -142,14 +144,16 @@ public class HardwareServerToNodeMetaData implements Function<SoftLayerNode, Nod
       }
 
       public Image getImage(HardwareServer server) {
-         ProductOrder order = client.getHardwareServerClient().getOrderTemplate(server.getId());
-         if (order == null)
-            return null;
-         Iterable<ProductItem> items = Iterables.transform(order.getPrices(), ProductItems.item());
-         ProductItem os = Iterables.find(items, ProductItemPredicates.categoryCode("os"));
-         if (os.getPrices().isEmpty())
-            return null;
-         return new ProductItemToImage().apply(os);
+    	//TODO(adaml): The get method is not available in BMI
+    	  return null;
+//         ProductOrder order = client.getHardwareServerClient().getOrderTemplate(server.getId());
+//         if (order == null)
+//            return null;
+//         Iterable<ProductItem> items = Iterables.transform(order.getPrices(), ProductItems.item());
+//         ProductItem os = Iterables.find(items, ProductItemPredicates.categoryCode("os"));
+//         if (os.getPrices().isEmpty())
+//            return null;
+//         return new ProductItemToImage().apply(os);
       }
    }
 }

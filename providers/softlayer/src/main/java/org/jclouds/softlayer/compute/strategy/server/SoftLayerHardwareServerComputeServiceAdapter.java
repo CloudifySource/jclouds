@@ -143,30 +143,27 @@ private boolean useHourlyPricing;
 
       String domainName = template.getOptions().as(SoftLayerTemplateOptions.class).getDomainName();
       
-      // we add a unique id to the server name since we might need to poll for its state according to the name.
-      final String serverName = name + "-" + UUID.randomUUID().getMostSignificantBits();
-      
-      HardwareServer newServer = HardwareServer.builder().domain(domainName).hostname(serverName).build();
+      HardwareServer newServer = HardwareServer.builder().domain(domainName).hostname(name).build();
 
       ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
             .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template))
             .hardwareServers(newServer).build();
 
-      logger.info(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, serverName);
+      logger.info(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, name);
       ProductOrderReceipt hardwareProductOrderReceipt = client.getHardwareServerClient().orderHardwareServer(order);
 
-      logger.debug(">> awaiting order approval for hardwareServer(%s)", serverName);
-      logger.info("Waiting for server (%s) order to be approved", serverName);
+      logger.debug(">> awaiting order approval for hardwareServer(%s)", name);
+      logger.info("Waiting for server (%s) order to be approved", name);
       boolean orderApproved;
       if (hardwareProductOrderReceipt == null) {
-    	  logger.info(">> Order details returned null. Checking order status according to server name: " + serverName);
-    	  orderApproved = orderApprovedAndServerIsDiscoveredByNameTester.apply(serverName);
+    	  logger.info(">> Order details returned null. Checking order status according to server name: " + name);
+    	  orderApproved = orderApprovedAndServerIsDiscoveredByNameTester.apply(name);
       } else {
     	  orderApproved = orderApprovedAndServerIsDiscoveredTester.apply(hardwareProductOrderReceipt);
       }
-      logger.debug(">> hardwareServer(%s) order approval result(%s)", serverName, orderApproved);
+      logger.debug(">> hardwareServer(%s) order approval result(%s)", name, orderApproved);
 
-      checkState(orderApproved, "order for server %s did not finish its transactions within %sms", serverName,
+      checkState(orderApproved, "order for server %s did not finish its transactions within %sms", name,
               Long.toString(orderApprovedAndServerIsDiscoveredDelay));
 
       HardwareServer result = find(client.getHardwareServerClient().listHardwareServers(),
@@ -174,7 +171,7 @@ private boolean useHourlyPricing;
 
       logger.trace("<< hardwareServer(%s)", result.getId());
 
-      logger.info("Waiting for server (%s) transactions to complete", serverName);
+      logger.info("Waiting for server (%s) transactions to complete", name);
 
       logger.debug(">> waiting for server(%s) transactions to start", result.getHostname());
       boolean serverHasActiveTransactions = serverHasActiveTransactionsTester.apply(result);
