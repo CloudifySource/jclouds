@@ -99,14 +99,14 @@ public class DualXeon5500SeriesProductItemsToHardware extends HardwareServerProd
 		
 		hardwareItems.add(serverItem, ramItem, volumeItem, uplinkItem, bandwidth, diskController);
 		
-		final Iterable<ProductItem> additionalDisks = creareAdditionalDisksList(items);
+		final Iterable<ProductItem> additionalDisks = createAdditionalDisksList(items);
 		
 		hardwareItems.addAll(additionalDisks);
 		
 		return hardwareItems.build();
 	}
 
-	private Iterable<ProductItem> creareAdditionalDisksList(
+	private Iterable<ProductItem> createAdditionalDisksList(
 			Iterable<ProductItem> items) {
 		Builder<ProductItem> diskItems = ImmutableList.builder();
 		final ProductItem firstDisk = get(filter(items, categoryCode("disk0")), 0);

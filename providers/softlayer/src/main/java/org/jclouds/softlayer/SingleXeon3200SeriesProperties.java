@@ -25,6 +25,7 @@ import java.util.Properties;
 import static org.jclouds.compute.config.ComputeServiceProperties.TEMPLATE;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PRICES;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_ITEMS;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_STARTED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY;
@@ -46,15 +47,17 @@ public class SingleXeon3200SeriesProperties implements PropertiesProvider {
       properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_ID, "23");
 
       ImmutableSet.Builder<String> prices = ImmutableSet.builder();
-      prices.add("21"); // 1 IP Address
-      prices.add("55"); // Host Ping: categoryCode: monitoring, notification
-      prices.add("57"); // Email and Ticket: categoryCode: notification
-      prices.add("58"); // Automated Notification: categoryCode: response
-      prices.add("906"); // Reboot / KVM over IP
-      prices.add("876"); // Disk Controller (Non-RAID)
-      prices.add("418"); // Nessus Vulnerability Assessment & Reporting: categoryCode: // vulnerability_scanner
-      prices.add("420"); // Unlimited SSL VPN Users & 1 PPTP VPN User per account: categoryCode: // vpn_management
+      ImmutableSet.Builder<String> items = ImmutableSet.builder();
+      items.add("15"); // 1 IP Address
+      items.add("49"); // Host Ping: categoryCode: monitoring, notification
+      items.add("51"); // Email and Ticket: categoryCode: notification
+      items.add("52"); // Automated Notification: categoryCode: response
+      items.add("504"); // Reboot / KVM over IP
+      items.add("487"); // Disk Controller (Non-RAID)
+      items.add("307"); // Nessus Vulnerability Assessment & Reporting: categoryCode: // vulnerability_scanner
+      items.add("309"); // Unlimited SSL VPN Users & 1 PPTP VPN User per account: categoryCode: // vpn_management
       properties.setProperty(PROPERTY_SOFTLAYER_PRICES, Joiner.on(',').join(prices.build()));
+      properties.setProperty(PROPERTY_SOFTLAYER_ITEMS, Joiner.on(',').join(items.build()));
       properties.setProperty(TEMPLATE, "osFamily=UBUNTU,osVersionMatches=1[012].[01][04],os64Bit=true,osDescriptionMatches=.*Minimal Install.*");
       properties.setProperty(PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING, "true");
       return properties;

@@ -97,17 +97,19 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 		final ImmutableSet.Builder<Iterable<ProductItem>> result = ImmutableSet.builder();
 		final ProductPackage productPackage = productPackageSupplier.get();
 		final Set<ProductItem> items = productPackage.getItems();
-		final ImmutableList<ProductItem> disks = listDisksAndControllers(items);
+		ProductItem diskControllerItem = getDiskController(items);
+		final ImmutableList<ProductItem> disks = getExternalDisks(items);
 		
 		for (ProductItem cpuItem : filter(items, categoryCode("server"))) {
 			for (ProductItem ramItem : filter(items, categoryCode("ram"))) {
 				for (ProductItem firstDiskItem : filter(items, categoryCode("disk0"))) {
 					for (ProductItem uplinkItem : filter(items, categoryCode("port_speed"))) {
 						for (ProductItem bandwidth : filter(items, categoryCode("bandwidth"))) {
-
 							Builder<ProductItem> hardwareBuilder = ImmutableList.builder();
 							hardwareBuilder.add(cpuItem, ramItem,firstDiskItem, uplinkItem, bandwidth);
+							hardwareBuilder.add(diskControllerItem);
 							hardwareBuilder.addAll(disks);
+							
 							result.add(hardwareBuilder.build());
 						}
 					}
@@ -118,21 +120,9 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 		return result.build();
 	}
 
-	private ImmutableList<ProductItem> listDisksAndControllers(Set<ProductItem> items) {
+	private ImmutableList<ProductItem> getExternalDisks(Set<ProductItem> items) {
 		
-		Builder<ProductItem> disksAndControllerListBuilder = ImmutableList.builder();
-		
-		// There could only be one disk controller. RAID/NON-RAID.
-		ProductItem diskControllerItem = get(filter(items, priceId(this.diskControllerId)), 0, null);
-		if (diskControllerItem == null) {
-			diskControllerItem = get(filter(items, itemId(this.diskControllerId)), 0, null);
-		}
-		if (diskControllerItem == null) {
-			throw new NoSuchElementException("Failed listing hardwares having disk controller with ID: " 
-					+ this.diskControllerId);
-		}
-		
-		disksAndControllerListBuilder.add(diskControllerItem);
+		Builder<ProductItem> disksBuilder = ImmutableList.builder();
 		
 		if (!this.externalDisksId.equals("")) {
 			Iterable<ProductItem> allDiskItems = filter(items, categoryCodeMatches(serverDiskCategoryRegex));
@@ -147,10 +137,23 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 						+ this.externalDisksId + ". disk items could not be resolved by item or price id.");
 			}
 			
-			disksAndControllerListBuilder.addAll(diskItemsList);
+			disksBuilder.addAll(diskItemsList);
 		}
 
-		return disksAndControllerListBuilder.build();
+		return disksBuilder.build();
+	}
+
+	private ProductItem getDiskController(Set<ProductItem> items) {
+		// There could only be one disk controller. RAID/NON-RAID.
+		ProductItem diskControllerItem = get(filter(items, priceId(this.diskControllerId)), 0, null);
+		if (diskControllerItem == null) {
+			diskControllerItem = get(filter(items, itemId(this.diskControllerId)), 0, null);
+		}
+		if (diskControllerItem == null) {
+			throw new NoSuchElementException("Failed listing hardwares having disk controller with ID: " 
+					+ this.diskControllerId);
+		}
+		return diskControllerItem;
 	}
 
 	private ImmutableList<ProductItem> listDisksByPrice(

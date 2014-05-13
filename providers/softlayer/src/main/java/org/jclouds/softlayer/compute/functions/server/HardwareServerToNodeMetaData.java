@@ -19,11 +19,15 @@
 
 package org.jclouds.softlayer.compute.functions.server;
 
-import com.google.common.base.Function;
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.FluentIterable.from;
+
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.jclouds.collect.Memoized;
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.Image;
@@ -33,21 +37,14 @@ import org.jclouds.compute.functions.GroupNamingConvention;
 import org.jclouds.domain.Location;
 import org.jclouds.location.predicates.LocationPredicates;
 import org.jclouds.softlayer.SoftLayerClient;
-import org.jclouds.softlayer.compute.functions.product.ProductItemToImage;
-import org.jclouds.softlayer.compute.functions.product.ProductItems;
 import org.jclouds.softlayer.domain.SoftLayerNode;
 import org.jclouds.softlayer.domain.product.ProductItem;
-import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.server.HardwareServer;
-import org.jclouds.softlayer.predicates.ProductItemPredicates;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.FluentIterable.from;
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Eli Polonsky
@@ -142,7 +139,9 @@ public class HardwareServerToNodeMetaData implements Function<SoftLayerNode, Nod
       public GetImageForHardwareServer(SoftLayerClient client) {
          this.client = client;
       }
-
+      
+      //TODO(adaml): fix or skip. 
+ 	 //getOrderTemplate api call is invalid for BM servers and will always return null.
       public Image getImage(HardwareServer server) {
     	//TODO(adaml): The get method is not available in BMI
     	  return null;
