@@ -28,9 +28,14 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.get;
 import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
+import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCodeMatches;
+import static org.jclouds.softlayer.predicates.ProductItemPredicates.itemId;
 import static org.jclouds.softlayer.predicates.ProductItemPredicates.matches;
+import static org.jclouds.softlayer.predicates.ProductItemPredicates.priceId;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_FLEX_IMAGE_GLOBAL_IDENTIFIER;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_FLEX_IMAGE_ID;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_ENDED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_STARTED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX;
@@ -40,6 +45,7 @@ import static org.jclouds.util.Predicates2.retry;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -75,6 +81,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableList.Builder;
 
 /**
  * defines the connection between the {@link org.jclouds.softlayer.SoftLayerClient#getVirtualGuestClient} implementation and
@@ -101,6 +108,10 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
    private final Iterable<ProductItemPrice> prices;
    private final String imageTemplateId;
    private final String imageTemplateGlobalIdentifier;
+   
+   private Pattern serverDiskCategoryRegex;
+   private String externalDisksId;
+   private static final String SERVER_DISK_CATEGORY_REGEX = "guest_disk[1-5]";
 
    @Inject
    public SoftLayerVirtualGuestComputeServiceAdapter(SoftLayerClient client,
@@ -114,7 +125,8 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
                                          @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_DISK0_TYPE) String disk0Type,
                                          @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_LOGIN_DETAILS_DELAY) long guestLoginDelay,
                                          @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_ENDED_DELAY) long transactionsEndedDelay,
-                                         @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_STARTED_DELAY) long transactionsStartedDelay) {
+                                         @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_STARTED_DELAY) long transactionsStartedDelay,
+                                         @Named(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS) String multipleDisksHardwareId) {
       this.client = checkNotNull(client, "client");
       this.guestLoginDelay = guestLoginDelay;
       this.transactionsStartedDelay = transactionsStartedDelay;
@@ -124,11 +136,13 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       this.loginDetailsTester = retry(virtualGuestHasLoginDetailsPresent, guestLoginDelay);
       this.cpuPattern = Pattern.compile(checkNotNull(cpuRegex, "cpuRegex"));
       this.prices = checkNotNull(prices, "prices");
-      this.disk0Type = Pattern.compile(".*" + checkNotNull(disk0Type, "disk0Type") + ".*");
+      this.disk0Type = Pattern.compile(".*" + checkNotNull(disk0Type, "disk0Type") + ".*" + "|.*SAN.*");
       this.guestHasNoActiveTransactionsTester = retry(guestHasNoActiveTransactionsTester, transactionsEndedDelay, 100, 1000);
       this.guestHasActiveTransactionsTester = retry(guestHasActiveTransactionsTester, transactionsStartedDelay, 100, 1000);
       this.imageTemplateId = imageTemplateId;
       this.imageTemplateGlobalIdentifier = imageTemplateGlobalIdentifier;
+      this.serverDiskCategoryRegex = checkNotNull(Pattern.compile(SERVER_DISK_CATEGORY_REGEX), "serverDiskCategoryRegex");
+		this.externalDisksId = multipleDisksHardwareId;
    }
 
    @Override
@@ -201,18 +215,92 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
    public Iterable<Iterable<ProductItem>> listHardwareProfiles() {
       ProductPackage productPackage = productPackageSupplier.get();
       Set<ProductItem> items = productPackage.getItems();
+      // either default, or passed by named property.
+      final ImmutableList<ProductItem> disks = getExternalDisks(items);
+      
       ImmutableSet.Builder<Iterable<ProductItem>> result = ImmutableSet.builder();
       for (ProductItem cpuItem : filter(items, matches(cpuPattern))) {
-         for (ProductItem ramItem : filter(items, categoryCode("ram"))) {
-            for (ProductItem sanItem : filter(items, and(matches(disk0Type), categoryCode("guest_disk0")))) {
-               for (ProductItem uplinkItem : filter(items, categoryCode("port_speed"))) {
-                  result.add(ImmutableSet.of(cpuItem, ramItem, sanItem, uplinkItem));
-               }
-            }
-         }
+    	  for (ProductItem ramItem : filter(items, categoryCode("ram"))) {
+    		  for (ProductItem sanItem : filter(items, and(matches(disk0Type), categoryCode("guest_disk0")))) {
+    			  for (ProductItem uplinkItem : filter(items, categoryCode("port_speed"))) {
+    				  for (ProductItem bandwidth : filter(items, categoryCode("bandwidth"))) {
+    					  Builder<ProductItem> hardwareBuilder = ImmutableList.builder();
+    					  hardwareBuilder.add(cpuItem, ramItem,sanItem, uplinkItem, bandwidth);
+    					  hardwareBuilder.addAll(disks);
+    					  result.add(hardwareBuilder.build());
+    				  }
+    			  }
+    		  }
+    	  }
       }
       return result.build();
    }
+   
+	private ImmutableList<ProductItem> getExternalDisks(Set<ProductItem> items) {
+		
+		Builder<ProductItem> disksBuilder = ImmutableList.builder();
+		
+		if (!this.externalDisksId.equals("")) {
+			Iterable<ProductItem> allDiskItems = filter(items, categoryCodeMatches(serverDiskCategoryRegex));
+			ImmutableList<ProductItem> diskItemsList = listDisksByPrice(allDiskItems);
+			
+			if (diskItemsList == null) {
+				diskItemsList = listDisksByItemId(allDiskItems);
+			}
+			
+			if (diskItemsList == null) {
+				throw new NoSuchElementException("Failed listing hardwares having additional disk items with ids: " 
+						+ this.externalDisksId + ". disk items could not be resolved by item or price id.");
+			}
+			
+			disksBuilder.addAll(diskItemsList);
+		}
+
+		return disksBuilder.build();
+	}
+
+	private ImmutableList<ProductItem> listDisksByPrice(
+			final Iterable<ProductItem> diskItems) {
+		
+		Builder<ProductItem> diskList = ImmutableList.builder();
+		Iterable<String> pricesId = Splitter.on(",").split(this.externalDisksId);
+		
+		for (String priceId : pricesId) {
+			//price IDs are unique. expecting one result.
+			Iterable<ProductItem> diskByPriceId = filter(diskItems, priceId(priceId));
+			
+			if (!diskByPriceId.iterator().hasNext()) {
+				logger.debug("Additional disk with price id " + priceId + " was not found."
+						+ " Assuming item id is used.");
+				return null;
+			}
+			
+			diskList.add(get(diskByPriceId, 0));
+		}
+		
+		return diskList.build();
+	}
+	
+	private ImmutableList<ProductItem> listDisksByItemId(
+			Iterable<ProductItem> diskItems) {
+		
+		Builder<ProductItem> diskList = ImmutableList.builder();
+		Iterable<String> itemsId = Splitter.on(",").split(this.externalDisksId);;
+		
+		for (String priceId : itemsId) {
+			//item IDs are unique. expecting one result.
+			Iterable<ProductItem> diskByItemId = filter(diskItems, itemId(priceId));
+			
+			if (!diskByItemId.iterator().hasNext()) {
+				logger.warn("Additional disk with item id " + priceId + " was not found.");
+				return null;
+			}
+			
+			diskList.add(get(diskByItemId, 0));
+		}
+		
+		return diskList.build();
+	}
 
    @Override
    public Iterable<ProductItem> listImages() {

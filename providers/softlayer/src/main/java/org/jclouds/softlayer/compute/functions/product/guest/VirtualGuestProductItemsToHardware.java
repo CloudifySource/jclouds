@@ -20,6 +20,8 @@ package org.jclouds.softlayer.compute.functions.product.guest;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList.Builder;
+
 import org.jclouds.compute.domain.Hardware;
 import org.jclouds.compute.domain.HardwareBuilder;
 import org.jclouds.compute.domain.Processor;
@@ -63,7 +65,8 @@ import static org.jclouds.softlayer.predicates.ProductItemPredicates.matches;
 @Singleton
 public class VirtualGuestProductItemsToHardware implements Function<Iterable<ProductItem>, Hardware> {
 
-   private static final String GUEST_CPU_DESCRIPTION_REGEX = "(Private )?[0-9]+ x ([.0-9]+) GHz Core[s]?";
+   private static final String BANDWIDTH = "bandwidth";
+private static final String GUEST_CPU_DESCRIPTION_REGEX = "(Private )?[0-9]+ x ([.0-9]+) GHz Core[s]?";
    private static final String GUEST_DISK_CATEGORY_REGEX =  "guest_disk[0-9]";
    private static final String RAM_CATEGORY = "ram";
    private static final String FIRST_GUEST_DISK = "guest_disk0";
@@ -86,14 +89,18 @@ public class VirtualGuestProductItemsToHardware implements Function<Iterable<Pro
       ProductItem ramItem = getOnlyElement(filter(items, categoryCode(RAM_CATEGORY)));
       ProductItem volumeItem = get(filter(items, categoryCode(FIRST_GUEST_DISK)), 0);
       ProductItem uplinkItem = get(filter(items, categoryCode(PORT_SPEED_CATEGORY)), 0);
+      ProductItem bandwidth = get(filter(items, categoryCode(BANDWIDTH)), 0);
 
-      String hardwareId = ProductItemsToHardware.hardwareId().apply(ImmutableList.of(coresItem, ramItem, volumeItem, uplinkItem));
+		ImmutableList<ProductItem> immutableGuestItems = createImmutableGuestItemList(items,
+				coresItem, ramItem, volumeItem, uplinkItem, bandwidth);
+      String hardwareId = ProductItemsToHardware.hardwareId().apply(immutableGuestItems);
+      String itemsId = ProductItemsToHardware.providerHardwareId().apply(immutableGuestItems);
       double cores = ProductItems.capacity().apply(coresItem).doubleValue();
       Matcher cpuMatcher = guestCpuDescriptionRegex.matcher(coresItem.getDescription());
       double coreSpeed = (cpuMatcher.matches()) ? Double.parseDouble(cpuMatcher.group(cpuMatcher.groupCount())) : DEFAULT_CORE_SPEED;
       int ram = ProductItems.capacity().apply(ramItem).intValue();
 
-      return new HardwareBuilder().ids(hardwareId).processors(ImmutableList.of(new Processor(cores, coreSpeed))).ram(
+      return new HardwareBuilder().ids(hardwareId).providerId(itemsId).processors(ImmutableList.of(new Processor(cores, coreSpeed))).ram(
               ram)
               .hypervisor("XenServer")
               .volumes(
@@ -111,4 +118,38 @@ public class VirtualGuestProductItemsToHardware implements Function<Iterable<Pro
                               })).build();
 
    }
+   
+	private ImmutableList<ProductItem> createImmutableGuestItemList(Iterable<ProductItem> items,
+			final ProductItem coresItem, final ProductItem ramItem,
+			final ProductItem volumeItem, final ProductItem uplinkItem, 
+			final ProductItem bandwidth) {
+		
+		final Builder<ProductItem> hardwareItems = ImmutableList.builder();
+		
+		hardwareItems.add(coresItem, ramItem, volumeItem, uplinkItem, bandwidth);
+		
+		final Iterable<ProductItem> additionalDisks = createAdditionalDisksList(items);
+		
+		hardwareItems.addAll(additionalDisks);
+		
+		return hardwareItems.build();
+	}
+
+	private Iterable<ProductItem> createAdditionalDisksList(
+			Iterable<ProductItem> items) {
+		Builder<ProductItem> diskItems = ImmutableList.builder();
+		final ProductItem firstDisk = get(filter(items, categoryCode("guest_disk0")), 0);
+		Iterable<ProductItem> additionalDisks = filter(items, categoryCodeMatches(guestDiskCategoryRegex));
+		boolean firstDiskFound = false;
+		for (ProductItem productItem : additionalDisks) {
+			if (firstDisk.equals(productItem) && !firstDiskFound) {
+				firstDiskFound = true;
+			} else {
+				diskItems.add(productItem);
+			}
+		}
+		return diskItems.build();
+	}
+   
+   
 }
