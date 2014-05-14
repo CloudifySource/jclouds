@@ -141,9 +141,17 @@ public class VirtualGuestToNodeMetadata implements Function<SoftLayerNode, NodeM
 
       public Image getImage(VirtualGuest guest) {
          // 'bad' orders have no start cpu's and cause the order lookup to fail.
+    	  ProductOrder order = null;
          if (guest.getStartCpus() < 1)
             return null;
-         ProductOrder order = client.getVirtualGuestClient().getOrderTemplate(guest.getId());
+         try {
+        	 // org.jclouds.http.HttpResponseException if called with a 'bad' order.
+        	 // @see org.jclouds.softlayer.features.guest.getOrderTemplate. 
+        	 order = client.getVirtualGuestClient().getOrderTemplate(guest.getId());
+         } catch (Throwable t) {
+        	 return null;
+         }
+         
          if (order == null)
             return null;
          Iterable<ProductItem> items = Iterables.transform(order.getPrices(), ProductItems.item());
