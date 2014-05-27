@@ -58,6 +58,9 @@ public class ProductItemPrice {
       protected Float hourlyRecurringFee;
       protected ProductItem item;
       protected Set<ProductItemCategory> categories = ImmutableSet.of();
+      protected Integer capacityRestrictionMaximum;
+      protected Integer capacityRestrictionMinimum;
+      protected String capacityRestrictionType;
 
       /**
        * @see ProductItemPrice#getId()
@@ -98,6 +101,30 @@ public class ProductItemPrice {
          this.item = item;
          return self();
       }
+      
+      /**
+       * @see ProductItemPrice#getCapacityRestrictionMaximum()
+       */
+      public T capacityRestrictionMaximum(Integer max) {
+         this.capacityRestrictionMaximum = max;
+         return self();
+      }
+      
+      /**
+       * @see ProductItemPrice#getCapacityRestrictionMinimum()
+       */
+      public T capacityRestrictionMinimum(Integer min) {
+         this.capacityRestrictionMinimum = min;
+         return self();
+      }
+      
+      /**
+       * @see ProductItemPrice#getCapacityRestrictionType()
+       */
+      public T capacityRestrictionType(String type) {
+         this.capacityRestrictionType = type;
+         return self();
+      }
 
       /**
        * @see ProductItemPrice#getCategories()
@@ -112,7 +139,7 @@ public class ProductItemPrice {
       }
 
       public ProductItemPrice build() {
-         return new ProductItemPrice(id, itemId, recurringFee, hourlyRecurringFee, item, categories);
+         return new ProductItemPrice(id, itemId, recurringFee, hourlyRecurringFee, item, categories, capacityRestrictionMaximum, capacityRestrictionMinimum, capacityRestrictionType);
       }
 
       public T fromProductItemPrice(ProductItemPrice in) {
@@ -139,17 +166,30 @@ public class ProductItemPrice {
    private final Float hourlyRecurringFee;
    private final ProductItem item;
    private final Set<ProductItemCategory> categories;
+   private final Integer capacityRestrictionMaximum;
+   private final Integer capacityRestrictionMinimum;
+   private final String capacityRestrictionType;
 
    @ConstructorProperties({
-         "id", "itemId", "recurringFee", "hourlyRecurringFee", "item", "categories"
+         "id", "itemId", "recurringFee", "hourlyRecurringFee", "item", "categories", "capacityRestrictionMaximum", "capacityRestrictionMinimum", "capacityRestrictionType"
    })
-   protected ProductItemPrice(int id, long itemId, @Nullable Float recurringFee, @Nullable Float hourlyRecurringFee, @Nullable ProductItem item, @Nullable Set<ProductItemCategory> categories) {
+   protected ProductItemPrice(int id, long itemId, 
+		   @Nullable Float recurringFee, 
+		   @Nullable Float hourlyRecurringFee, 
+		   @Nullable ProductItem item, 
+		   @Nullable Set<ProductItemCategory> categories, 
+		   @Nullable Integer capacityRestrictionMaximum, 
+		   @Nullable Integer capacityRestrictionMinimum,
+		   @Nullable String capacityRestrictionType) {
       this.id = id;
       this.itemId = itemId;
       this.recurringFee = recurringFee;
       this.hourlyRecurringFee = hourlyRecurringFee;
       this.item = item;
       this.categories = categories == null ? ImmutableSet.<ProductItemCategory>of() : ImmutableSet.copyOf(categories);
+      this.capacityRestrictionMaximum = capacityRestrictionMaximum;
+      this.capacityRestrictionMinimum = capacityRestrictionMinimum;
+      this.capacityRestrictionType = capacityRestrictionType;
    }
 
    /**
@@ -215,12 +255,27 @@ public class ProductItemPrice {
 
    protected ToStringHelper string() {
       return Objects.toStringHelper(this)
-            .add("id", id).add("itemId", itemId).add("recurringFee", recurringFee).add("hourlyRecurringFee", hourlyRecurringFee).add("item", item).add("categories", categories);
+            .add("id", id).add("itemId", itemId).add("recurringFee", recurringFee).add("hourlyRecurringFee", hourlyRecurringFee).add("item", item).add("categories", categories)
+            .add("capacityRestrictionMaximum", capacityRestrictionMaximum)
+            .add("capacityRestrictionMinimum", capacityRestrictionMinimum)
+            .add("capacityRestrictionType", capacityRestrictionType);
    }
 
    @Override
    public String toString() {
       return string().toString();
+   }
+
+   public Integer getCapacityRestrictionMaximum() {
+	   return capacityRestrictionMaximum;
+   }
+
+   public Integer getCapacityRestrictionMinimum() {
+	   return capacityRestrictionMinimum;
+   }
+
+   public String getCapacityRestrictionType() {
+	   return capacityRestrictionType;
    }
 
 }

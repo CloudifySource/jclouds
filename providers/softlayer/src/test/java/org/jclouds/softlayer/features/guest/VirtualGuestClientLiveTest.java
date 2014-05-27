@@ -219,7 +219,7 @@ public class VirtualGuestClientLiveTest extends BaseSoftLayerClientLiveTest {
 
       VirtualGuest newGuest = VirtualGuest.builder().domain("jclouds.org").hostname(TEST_HOSTNAME_PREFIX + new Random().nextInt()).build();
       
-      templateBuilder.locationId("3").hardwareId("857,1204,865,186,439");
+      templateBuilder.locationId("3").hardwareId("857,1204,865,186,439").imageId("3839");
       Template template = templateBuilder.build();
 
       ProductOrder order = ProductOrder.builder()

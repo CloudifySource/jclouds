@@ -35,7 +35,6 @@ import static org.jclouds.softlayer.predicates.ProductItemPredicates.priceId;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_FLEX_IMAGE_GLOBAL_IDENTIFIER;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_FLEX_IMAGE_ID;
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_ENDED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_STARTED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_CPU_REGEX;
@@ -79,9 +78,9 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.ImmutableList.Builder;
 
 /**
  * defines the connection between the {@link org.jclouds.softlayer.SoftLayerClient#getVirtualGuestClient} implementation and
@@ -302,10 +301,28 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 		return diskList.build();
 	}
 
-   @Override
-   public Iterable<ProductItem> listImages() {
-      return filter(productPackageSupplier.get().getItems(), categoryCode("os"));
-   }
+	@Override
+	public Iterable<ProductItem> listImages() {
+		ImmutableSet.Builder<ProductItem> result = ImmutableSet.builder();
+		Iterable<ProductItem> images = filter(productPackageSupplier.get().getItems(), categoryCode("os"));
+		for (ProductItem productItem : images) {
+			if (productItem.getPrices().size() > 1) {
+				// we divide image items that have more then one price per image into separate items. 
+				for (ProductItemPrice price : productItem.getPrices()) {
+					ProductItem newItem = ProductItem.builder().id(productItem.getId())
+							.description(productItem.getDescription())
+							.units(productItem.getUnits())
+							.capacity(productItem.getCapacity())
+							.prices(price)
+							.categories(productItem.getCategories()).build();
+					result.add(newItem);
+				}
+			} else {
+				result.add(productItem);
+			}
+		}
+		return result.build();
+	}
 
    // cheat until we have a getProductItem command
    @Override

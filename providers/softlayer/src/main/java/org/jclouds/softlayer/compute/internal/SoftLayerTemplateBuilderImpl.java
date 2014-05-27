@@ -351,20 +351,20 @@ public class SoftLayerTemplateBuilderImpl extends TemplateBuilderImpl {
 		Set<? extends Hardware> hardwaresToSearch = hardwares.get();
 		checkState(hardwaresToSearch.size() > 0, "no hardware profiles present!");
 
-		Image image = null;
-		if (imageId != null) {
-			image = findImageWithId(images);
-			if (currentLocationWiderThan(image.getLocation()))
-				this.location = image.getLocation();
-		}
-
 		Hardware hardware = null;
 		if (hardwareId != null) {
 			hardware = findHardwareWithId(hardwaresToSearch);
 			if (currentLocationWiderThan(hardware.getLocation()))
 				this.location = hardware.getLocation();
 		}
-
+		
+		Image image = null;
+		if (imageId != null) {
+			image = findImageWithIdAndCores(images, hardware.getProcessors().get(0).getCores());
+			if (currentLocationWiderThan(image.getLocation()))
+				this.location = image.getLocation();
+		}
+		
 		// if the user hasn't specified a location id, or an image or hardware
 		// with location, let's search scoped to the implicit one
 		if (location == null)
@@ -385,12 +385,25 @@ public class SoftLayerTemplateBuilderImpl extends TemplateBuilderImpl {
 		return new TemplateImpl(image, hardware, location, options);
 	}
 
-	private Image findImageWithId(Set<? extends Image> images) {
+	private Image findImageWithIdAndCores(Set<? extends Image> images, double cores) {
 		Image image;
-		// TODO: switch to GetImageStrategy in version 1.5
 		image = tryFind(images, idPredicate).orNull();
 		if (image == null) {
-			image = tryFind(images, providerImageIdPredicate).orNull();
+			// There may be several images with the same item id but different price id.
+			Iterable<? extends Image> itemImages = filter(images, providerImageIdPredicate);
+			for (Image itemImage : itemImages) {
+				if (itemImage.getUserMetadata().containsKey("CapacityRestrictionType") &&
+						"CORE".equals(itemImage.getUserMetadata().get("CapacityRestrictionType"))) {
+					int maxCapacity = Integer.parseInt(itemImage.getUserMetadata().get("CapacityRestrictionMaximum"));
+					int minCapacity = Integer.parseInt(itemImage.getUserMetadata().get("CapacityRestrictionMinimum"));
+					// the selected image depends on the number of cores (if specified in the user metadata). 
+					if (cores <= maxCapacity && cores >= minCapacity) {
+						image = itemImage;
+					}
+				} else {
+					image = itemImage;
+				}
+			}
 		}
 		if (image == null)
 			throwNoSuchElementExceptionAfterLoggingImageIds(format("%s, %s not found", idPredicate, providerImageIdPredicate), images);

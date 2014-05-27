@@ -18,6 +18,8 @@ package org.jclouds.softlayer.compute.functions.product;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,6 +85,16 @@ public class ProductItemToImage implements Function<ProductItem, Image> {
             .version(osVersion)
             .is64Bit(Objects.equal(bits, 64))
             .build();
+      
+      final Map<String, String> userMetadata = new HashMap<String, String>();
+      // expecting to have one price per image item. See @SoftLayerVirtualGuestComputeServiceAdapter#listImages()
+      final ProductItemPrice itemPrice = productItem.getPrices().iterator().next();
+      
+      if (itemPrice.getCapacityRestrictionType() != null) {
+    	  userMetadata.put("CapacityRestrictionType", itemPrice.getCapacityRestrictionType());
+    	  userMetadata.put("CapacityRestrictionMaximum", itemPrice.getCapacityRestrictionMaximum().toString());
+    	  userMetadata.put("CapacityRestrictionMinimum", itemPrice.getCapacityRestrictionMinimum().toString());
+      }
 
       return new ImageBuilder()
       		.providerId(imageItemId().apply(productItem))
@@ -90,6 +102,7 @@ public class ProductItemToImage implements Function<ProductItem, Image> {
             .description(description)
             .operatingSystem(os)
             .status(Image.Status.AVAILABLE)
+            .userMetadata(userMetadata)
             .build();
    }
 
