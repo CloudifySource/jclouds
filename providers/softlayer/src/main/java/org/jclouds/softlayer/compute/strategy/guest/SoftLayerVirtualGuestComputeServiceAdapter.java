@@ -303,7 +303,7 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
 	@Override
 	public Iterable<ProductItem> listImages() {
-		ImmutableSet.Builder<ProductItem> result = ImmutableSet.builder();
+		ImmutableList.Builder<ProductItem> result = ImmutableList.builder();
 		Iterable<ProductItem> images = filter(productPackageSupplier.get().getItems(), categoryCode("os"));
 		for (ProductItem productItem : images) {
 			if (productItem.getPrices().size() > 1) {
