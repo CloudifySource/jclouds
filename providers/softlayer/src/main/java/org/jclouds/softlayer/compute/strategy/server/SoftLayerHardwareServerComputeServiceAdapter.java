@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -54,6 +53,7 @@ import org.jclouds.logging.Logger;
 import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.compute.functions.product.ProductItemToImage;
 import org.jclouds.softlayer.compute.options.SoftLayerTemplateOptions;
+import org.jclouds.softlayer.compute.strategy.SoftLayerValidationContainerException;
 import org.jclouds.softlayer.domain.BillingOrder;
 import org.jclouds.softlayer.domain.Datacenter;
 import org.jclouds.softlayer.domain.Password;
@@ -218,7 +218,7 @@ private boolean useHourlyPricing;
 
    private String getValidPriceCombination(Template template, HardwareServer newServer) {
 	   String allPrices = template.getHardware().getId();
-	   RuntimeException lastExeption = new RuntimeException("No valid prices found for price ids: " + allPrices); 
+	   SoftLayerValidationContainerException lastExeption = new SoftLayerValidationContainerException("Failed validating prices: " + allPrices.split(";").toString()); 
 	   for (String pricesId : allPrices.split(";")) {
 		   ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
 				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template, pricesId))
@@ -230,7 +230,7 @@ private boolean useHourlyPricing;
 		   } catch (Exception e) {
 			   logger.info("Failed verifying hardware price ID " + pricesId + ". Retrying with alternative price id."
 					   + " message is " + e.getMessage());
-			   lastExeption = new RuntimeException("No valid prices found for price ids: " + allPrices + "last trace:" + e.getMessage(), e);
+			   lastExeption.add(new RuntimeException("Failed validating prices: " + pricesId + ". Error is:" + e.getMessage(), e));
 		   }
 	   }
 	   throw lastExeption;

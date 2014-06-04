@@ -62,6 +62,7 @@ import org.jclouds.logging.Logger;
 import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.compute.functions.product.ProductItemToImage;
 import org.jclouds.softlayer.compute.options.SoftLayerTemplateOptions;
+import org.jclouds.softlayer.compute.strategy.SoftLayerValidationContainerException;
 import org.jclouds.softlayer.domain.Datacenter;
 import org.jclouds.softlayer.domain.Password;
 import org.jclouds.softlayer.domain.SoftLayerNode;
@@ -198,23 +199,21 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
               pw.getPassword()).build());
    }
 
-   private String getValidPriceCombination(Template template, VirtualGuest newGuest) {
+   private String getValidPriceCombination(Template template, VirtualGuest virtualGuest) {
 	   String allPrices = template.getHardware().getId();
-	   String[] allPricesArray = allPrices.split(";");
-	   NoSuchElementException lastExeption = new NoSuchElementException();
-	   for (String pricesId : allPricesArray) {
-		      ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
-		              .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, pricesId))
-		              .virtualGuests(newGuest)
-		              .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
-		              .imageTemplateId(imageTemplateId).build();
+	   SoftLayerValidationContainerException lastExeption = new SoftLayerValidationContainerException("Failed validating prices: " + allPrices.split(";").toString()); 
+	   for (String pricesId : allPrices.split(";")) {
+		   ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
+				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, pricesId))
+				   .virtualGuests(virtualGuest).build();
 		   try {
+			   @SuppressWarnings({ "unused", "deprecation" })
 			   ProductOrder guestProductOrderReceipt = client.getVirtualGuestClient().verifyVirtualGuestOrder(order);
 			   return pricesId;
 		   } catch (Exception e) {
 			   logger.info("Failed verifying hardware price ID " + pricesId + ". Retrying with alternative price id."
 					   + " message is " + e.getMessage());
-			   lastExeption = new NoSuchElementException(e.getMessage());
+			   lastExeption.add(new RuntimeException("Failed validating prices: " + pricesId + ". Error is:" + e.getMessage(), e));
 		   }
 	   }
 	   throw lastExeption;

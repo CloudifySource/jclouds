@@ -142,7 +142,7 @@ public class ProductItems {
          
          private void getAllReducedCombinations(String[][] sets, int n, String prefix, Set<String> reducedPricesSet){
              if(n >= sets.length){
-            	 System.out.println((prefix.substring(0,prefix.length()-1)));
+//            	 System.out.println((prefix.substring(0,prefix.length()-1)));
             	 reducedPricesSet.add((prefix.substring(0,prefix.length()-1)));
                  return;
              }
