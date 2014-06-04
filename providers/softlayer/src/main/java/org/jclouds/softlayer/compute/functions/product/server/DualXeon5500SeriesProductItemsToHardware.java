@@ -71,11 +71,12 @@ public class DualXeon5500SeriesProductItemsToHardware extends HardwareServerProd
 		ImmutableList<ProductItem> immutableHardwareItems = createImmutableHardwareItemList(items,
 				serverItem, ramItem, volumeItem, uplinkItem, bandwidth, diskController);
 		
-		String pricesId = ProductItemsToHardware.hardwareId().apply(immutableHardwareItems);
+		
+		String pricesIds = ProductItemsToHardware.allHardwareIdPriceCombinations().apply(immutableHardwareItems);
 
 		String itemsId = ProductItemsToHardware.providerHardwareId().apply(immutableHardwareItems);
 		
-		hardwareBuilder.id(pricesId).providerId(itemsId).processor(new Processor(8, 2.4)).ram(ramItem.getCapacity().intValue());
+		hardwareBuilder.id(pricesIds).providerId(itemsId).processor(new Processor(8, 2.4)).ram(ramItem.getCapacity().intValue());
 
 		return hardwareBuilder.volumes(Iterables.transform(filter(items, categoryCodeMatches(serverDiskCategoryRegex)),
 				new Function<ProductItem, Volume>() {

@@ -184,12 +184,12 @@ public class SoftLayerDualXeon5500SeriesComputeServiceAdapter extends SoftLayerH
 		Builder<ProductItem> diskList = ImmutableList.builder();
 		Iterable<String> itemsId = Splitter.on(",").split(this.externalDisksId);;
 		
-		for (String priceId : itemsId) {
+		for (String itemId : itemsId) {
 			//item IDs are unique. expecting one result.
-			Iterable<ProductItem> diskByItemId = filter(diskItems, itemId(priceId));
+			Iterable<ProductItem> diskByItemId = filter(diskItems, itemId(itemId));
 			
 			if (!diskByItemId.iterator().hasNext()) {
-				logger.warn("Additional disk with item id " + priceId + " was not found.");
+				logger.warn("Additional disk with item id " + itemId + " was not found.");
 				return null;
 			}
 			

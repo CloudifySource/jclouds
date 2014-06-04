@@ -69,16 +69,16 @@ public class SoftLayerTemplateBuilderImpl extends TemplateBuilderImpl {
 	private final Predicate<Hardware> hardwareIdPredicate = new Predicate<Hardware>() {
 		@Override
 		public boolean apply(Hardware input) {
-			boolean returnVal = true;
 			if (hardwareId != null) {
-				if (!input.getId().startsWith(hardwareId)) {
-					returnVal = false;
-				}
-				if (returnVal) {
-					fromHardware(input);
+				String[] ids = hardwareId.split(";");
+				for (String id : ids) {
+					if (input.getId().startsWith(id)) {
+						fromHardware(input);
+						return true;
+					}
 				}
 			}
-			return returnVal;
+			return false;
 		}
 
 		@Override

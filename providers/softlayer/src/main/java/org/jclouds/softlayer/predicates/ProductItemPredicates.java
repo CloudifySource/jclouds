@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductItemCategory;
+import org.jclouds.softlayer.domain.product.ProductItemPrice;
 
 import com.google.common.base.Predicate;
 
@@ -65,7 +66,7 @@ public class ProductItemPredicates {
 		   @Override
 		   public boolean apply(ProductItem productItem) {
 			   checkNotNull(productItem, "productItem cannot be null");
-			   if (Integer.toString(productItem.getId()).equals(itemId)) {
+			   if (Integer.toString(productItem.getId()).equals(itemId.trim())) {
 				   return true;
 			   }
 
@@ -92,8 +93,10 @@ public class ProductItemPredicates {
 		   public boolean apply(ProductItem productItem) {
 			   checkNotNull(productItem, "productItem cannot be null");
 			   if (productItem.getPrices().iterator().hasNext()) {
-				   if (Integer.toString(productItem.getPrices().iterator().next().getId()).equals(priceId)) {
-					   return true;
+				   for (ProductItemPrice price : productItem.getPrices()) {
+					   if (Integer.toString(price.getId()).equals(priceId.trim())) {
+						   return true;
+					   }
 				   }
 			   }
 			   return false;

@@ -26,6 +26,7 @@ import java.util.Set;
 import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.softlayer.HardwareServerProperties;
 import org.jclouds.softlayer.SoftLayerClient;
+import org.jclouds.softlayer.compute.strategy.SoftLayerComputeServiceAdapter;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.server.HardwareServer;
@@ -49,6 +50,7 @@ public class HardwareServerClientLiveTest extends BaseSoftLayerClientLiveTest {
 
    private static final String TEST_HOSTNAME_PREFIX = "livetest";
    protected TemplateBuilder templateBuilder;
+   protected SoftLayerComputeServiceAdapter adapter;
 
    @Override
    protected Properties setupProperties() {
@@ -92,6 +94,7 @@ public class HardwareServerClientLiveTest extends BaseSoftLayerClientLiveTest {
    @Override
    protected SoftLayerClient create(Properties props, Iterable<Module> modules) {
       Injector injector = newBuilder().modules(modules).overrides(props).buildInjector();
+      adapter = injector.getInstance(SoftLayerComputeServiceAdapter.class);
       templateBuilder = injector.getInstance(TemplateBuilder.class);
       defaultPrices = injector.getInstance(Key.get(new TypeLiteral<Iterable<ProductItemPrice>>() {
       }));

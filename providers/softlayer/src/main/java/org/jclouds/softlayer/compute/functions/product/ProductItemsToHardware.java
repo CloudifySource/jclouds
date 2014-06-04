@@ -69,6 +69,21 @@ public class ProductItemsToHardware implements Function<Iterable<ProductItem>, H
    }
    
    /**
+    * Generates a hardwareId based on the priceId's of the items in the list
+    *
+    * @return comma separated list of price id sets, seporated by ';'
+    */
+   public static Function<List<ProductItem>, String> allHardwareIdPriceCombinations() {
+      return new Function<List<ProductItem>, String>() {
+         @Override
+         public String apply(List<ProductItem> productItems) {
+            String prices = ProductItems.prices().apply(productItems);
+            return prices;
+         }
+      };
+   }
+   
+   /**
     * Generates a hardwareId based on the itemIds
     *
     * @return comma separated list of item ids

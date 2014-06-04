@@ -20,9 +20,14 @@ import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.softlayer.SoftLayerClient;
+import org.jclouds.softlayer.compute.strategy.guest.SoftLayerVirtualGuestComputeServiceAdapter;
+import org.jclouds.softlayer.compute.strategy.server.SoftLayerHardwareServerComputeServiceAdapter;
 import org.jclouds.softlayer.domain.Datacenter;
 import org.jclouds.softlayer.domain.SoftLayerNode;
+import org.jclouds.softlayer.domain.guest.VirtualGuest;
 import org.jclouds.softlayer.domain.product.ProductItem;
+import org.jclouds.softlayer.domain.product.ProductOrder;
+import org.jclouds.softlayer.domain.server.HardwareServer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -51,6 +56,16 @@ public class SoftLayerComputeServiceAdapter implements
    public NodeAndInitialCredentials<SoftLayerNode> createNodeWithGroupEncodedIntoName(String group, String name,
          Template template) {
       return adapter.createNodeWithGroupEncodedIntoName(group, name, template);
+   }
+   
+   public void validateOrder(Template template, SoftLayerNode newServer) {
+	   if (adapter instanceof SoftLayerHardwareServerComputeServiceAdapter) {
+		   ((SoftLayerHardwareServerComputeServiceAdapter) adapter).validateOrder(template, (HardwareServer)newServer);
+	   } else if (adapter instanceof SoftLayerVirtualGuestComputeServiceAdapter) {
+		   ((SoftLayerVirtualGuestComputeServiceAdapter) adapter).validateOrder(template, (VirtualGuest)newServer);
+	   } else {
+		   throw new UnsupportedOperationException("adapter of type " + adapter.getClass().getName() + " does not support validation");
+	   }
    }
 
    @Override

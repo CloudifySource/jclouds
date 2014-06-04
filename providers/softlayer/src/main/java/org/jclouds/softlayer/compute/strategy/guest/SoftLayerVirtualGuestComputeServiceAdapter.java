@@ -72,6 +72,7 @@ import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
 import org.jclouds.softlayer.domain.product.ProductPackage;
+import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 
 import com.google.common.base.Predicate;
@@ -156,9 +157,11 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       String domainName = template.getOptions().as(SoftLayerTemplateOptions.class).getDomainName();
 
       VirtualGuest newGuest = VirtualGuest.builder().domain(domainName).hostname(name).build();
+      
+      String validGuestHardwarePriceIds = getValidPriceCombination(template, newGuest);
 
       ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
-              .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template))
+              .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, validGuestHardwarePriceIds))
               .virtualGuests(newGuest)
               .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
               .imageTemplateId(imageTemplateId).build();
@@ -195,20 +198,42 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
               pw.getPassword()).build());
    }
 
-   private ImmutableList<ProductItemPrice> getPrices(Template template) {
-      ImmutableList.Builder<ProductItemPrice> result = ImmutableList.builder();
-
-      int imageId = Integer.parseInt(template.getImage().getId());
-      result.add(ProductItemPrice.builder().id(imageId).build());
-
-      Iterable<String> hardwareIds = Splitter.on(",").split(template.getHardware().getId());
-      for (String hardwareId : hardwareIds) {
-         int id = Integer.parseInt(hardwareId);
-         result.add(ProductItemPrice.builder().id(id).build());
-      }
-      result.addAll(prices);
-      return result.build();
+   private String getValidPriceCombination(Template template, VirtualGuest newGuest) {
+	   String allPrices = template.getHardware().getId();
+	   String[] allPricesArray = allPrices.split(";");
+	   NoSuchElementException lastExeption = new NoSuchElementException();
+	   for (String pricesId : allPricesArray) {
+		      ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
+		              .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, pricesId))
+		              .virtualGuests(newGuest)
+		              .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
+		              .imageTemplateId(imageTemplateId).build();
+		   try {
+			   ProductOrder guestProductOrderReceipt = client.getVirtualGuestClient().verifyVirtualGuestOrder(order);
+			   return pricesId;
+		   } catch (Exception e) {
+			   logger.info("Failed verifying hardware price ID " + pricesId + ". Retrying with alternative price id."
+					   + " message is " + e.getMessage());
+			   lastExeption = new NoSuchElementException(e.getMessage());
+		   }
+	   }
+	   throw lastExeption;
    }
+
+private ImmutableList<ProductItemPrice> getPrices(Template template, String validHardwareIds) {
+	      com.google.common.collect.ImmutableList.Builder<ProductItemPrice> result = ImmutableList.builder();
+
+	      int imageId = Integer.parseInt(template.getImage().getId());
+	      result.add(ProductItemPrice.builder().id(imageId).build());
+
+	      Iterable<String> hardwareIds = Splitter.on(",").split(validHardwareIds);
+	      for (String hardwareId : hardwareIds) {
+	         int id = Integer.parseInt(hardwareId);
+	         result.add(ProductItemPrice.builder().id(id).build());
+	      }
+	      result.addAll(prices);
+	      return result.build();
+	   }
 
    @Override
    public Iterable<Iterable<ProductItem>> listHardwareProfiles() {
@@ -500,5 +525,10 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
          return result;
       }
    }
+
+public void validateOrder(Template template, VirtualGuest virtualGuest) {
+	getValidPriceCombination(template, virtualGuest);
+	
+}
 
 }

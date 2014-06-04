@@ -93,7 +93,7 @@ private static final String GUEST_CPU_DESCRIPTION_REGEX = "(Private )?[0-9]+ x (
 
 		ImmutableList<ProductItem> immutableGuestItems = createImmutableGuestItemList(items,
 				coresItem, ramItem, volumeItem, uplinkItem, bandwidth);
-      String hardwareId = ProductItemsToHardware.hardwareId().apply(immutableGuestItems);
+      String hardwareId = ProductItemsToHardware.allHardwareIdPriceCombinations().apply(immutableGuestItems);
       String itemsId = ProductItemsToHardware.providerHardwareId().apply(immutableGuestItems);
       double cores = ProductItems.capacity().apply(coresItem).doubleValue();
       Matcher cpuMatcher = guestCpuDescriptionRegex.matcher(coresItem.getDescription());

@@ -51,7 +51,8 @@ public class DualXeon5500SeriesClientWithMultipleDisksLiveTest extends HardwareS
 	      Properties properties = super.setupProperties();
 	      properties.putAll(new DualXeon5500SeriesMultipleDisksProperties().sharedProperties());
 	      //14, 471
-	      properties.setProperty(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS, "14,471,471,471,471,471,471,471");
+	      //4281,471,471,471,471,4281
+	      properties.setProperty(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS, "3989,3989,3989,3989");
 	      properties.setProperty(PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID, "489");
 	      return properties;
 	   }
@@ -69,17 +70,12 @@ public class DualXeon5500SeriesClientWithMultipleDisksLiveTest extends HardwareS
 	      //"2091,1956,1267,272,36"
 	      templateBuilder.locationId("37473").hardwareId("1111,828,1091,1284,249").imageId("4321");
 	      Template template = templateBuilder.build();
+	      
+	      
 
-	      ProductOrder order = ProductOrder.builder()
-	              .packageId(productPackage.getId())
-	              .quantity(1)
-	              .location(template.getLocation().getId())
-	              .useHourlyPricing(false)
-	              .prices(getPrices(template))
-	              .hardwareServers(server).build();
+	      adapter.validateOrder(template, server);
 
-	      ProductOrder order2 = api().verifyHardwareServerOrder(order);
-	      assertEquals(order.getPrices(), order2.getPrices());
+//	      assertEquals(order.getPrices(), order2.getPrices());
 	   }
 
 	   protected ImmutableList<ProductItemPrice> getPrices(Template template) {

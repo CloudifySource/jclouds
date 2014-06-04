@@ -32,8 +32,10 @@ import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLA
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY;
 import static org.jclouds.util.Predicates2.retry;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -145,8 +147,14 @@ private boolean useHourlyPricing;
       
       HardwareServer newServer = HardwareServer.builder().domain(domainName).hostname(name).build();
 
+      String validHardwarePriceIds = getValidPriceCombination(template, newServer);
+      
+      if ("".equals(validHardwarePriceIds)) {
+			throw new NoSuchElementException("Order with item ids: " + template.getHardware().getId() + " could not be varifyed. "
+					+ "attempted the following price ids: " + Arrays.toString(template.getHardware().getId().split(";")));
+      }
       ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
-            .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template))
+            .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template, validHardwarePriceIds))
             .hardwareServers(newServer).build();
 
       logger.info(">> ordering new hardwareServer domain(%s) hostname(%s)", domainName, name);
@@ -203,14 +211,38 @@ private boolean useHourlyPricing;
               .password(pw.getPassword())
               .build());
    }
+   
+   public void validateOrder(Template template, HardwareServer newServer) {
+	   getValidPriceCombination(template, newServer);
+   }
 
-   private ImmutableList<ProductItemPrice> getPrices(Template template) {
+   private String getValidPriceCombination(Template template, HardwareServer newServer) {
+	   String allPrices = template.getHardware().getId();
+	   RuntimeException lastExeption = new RuntimeException("No valid prices found for price ids: " + allPrices); 
+	   for (String pricesId : allPrices.split(";")) {
+		   ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
+				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template, pricesId))
+				   .hardwareServers(newServer).build();
+		   try {
+			   @SuppressWarnings({ "unused", "deprecation" })
+			   ProductOrder hardwareProductOrderReceipt = client.getHardwareServerClient().verifyHardwareServerOrder(order);
+			   return pricesId;
+		   } catch (Exception e) {
+			   logger.info("Failed verifying hardware price ID " + pricesId + ". Retrying with alternative price id."
+					   + " message is " + e.getMessage());
+			   lastExeption = new RuntimeException("No valid prices found for price ids: " + allPrices + "last trace:" + e.getMessage(), e);
+		   }
+	   }
+	   throw lastExeption;
+   }
+
+   private ImmutableList<ProductItemPrice> getPrices(Template template, String validHardwareIds) {
       com.google.common.collect.ImmutableList.Builder<ProductItemPrice> result = ImmutableList.builder();
 
       int imageId = Integer.parseInt(template.getImage().getId());
       result.add(ProductItemPrice.builder().id(imageId).build());
 
-      Iterable<String> hardwareIds = Splitter.on(",").split(template.getHardware().getId());
+      Iterable<String> hardwareIds = Splitter.on(",").split(validHardwareIds);
       for (String hardwareId : hardwareIds) {
          int id = Integer.parseInt(hardwareId);
          result.add(ProductItemPrice.builder().id(id).build());
