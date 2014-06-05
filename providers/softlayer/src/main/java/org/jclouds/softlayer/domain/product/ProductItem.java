@@ -36,7 +36,7 @@ import com.google.common.collect.ImmutableSet;
 "http://sldn.softlayer.com/reference/datatypes/SoftLayer_Product_Item"
 />
  */
-public class ProductItem {
+public class ProductItem implements Comparable<ProductItem> {
 
    public static Builder<?> builder() {
       return new ConcreteBuilder();
@@ -221,6 +221,11 @@ public class ProductItem {
    @Override
    public String toString() {
       return string().toString();
+   }
+
+   @Override
+   public int compareTo(ProductItem o) {
+	   return this.equals(o) ? 0:-1;
    }
 
 }
