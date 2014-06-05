@@ -42,6 +42,7 @@ import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLA
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_LOGIN_DETAILS_DELAY;
 import static org.jclouds.util.Predicates2.retry;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -201,7 +202,7 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
    private String getValidPriceCombination(Template template, VirtualGuest virtualGuest) {
 	   String allPrices = template.getHardware().getId();
-	   SoftLayerValidationContainerException lastExeption = new SoftLayerValidationContainerException("Failed validating prices: " + allPrices.split(";").toString()); 
+	   SoftLayerValidationContainerException lastExeption = new SoftLayerValidationContainerException("Failed validating prices: " + Arrays.toString(allPrices.split(";")));  
 	   for (String pricesId : allPrices.split(";")) {
 		   ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
 				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, pricesId))

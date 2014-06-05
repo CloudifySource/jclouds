@@ -218,7 +218,7 @@ private boolean useHourlyPricing;
 
    private String getValidPriceCombination(Template template, HardwareServer newServer) {
 	   String allPrices = template.getHardware().getId();
-	   SoftLayerValidationContainerException lastExeption = new SoftLayerValidationContainerException("Failed validating prices: " + allPrices.split(";").toString()); 
+	   SoftLayerValidationContainerException lastExeption = new SoftLayerValidationContainerException("Failed validating prices: " + Arrays.toString(allPrices.split(";"))); 
 	   for (String pricesId : allPrices.split(";")) {
 		   ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
 				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template, pricesId))
