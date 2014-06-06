@@ -200,9 +200,12 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
               pw.getPassword()).build());
    }
 
-   private String getValidPriceCombination(Template template, VirtualGuest virtualGuest) {
+   private String getValidPriceCombination(final Template template, final VirtualGuest virtualGuest) {
+	   
 	   String allPrices = template.getHardware().getId();
-	   SoftLayerValidationContainerException lastExeption = new SoftLayerValidationContainerException("Failed validating prices: " + Arrays.toString(allPrices.split(";")));  
+	   SoftLayerValidationContainerException containerExeption = new SoftLayerValidationContainerException("Failed validating prices combinations for: " + allPrices + " For item IDs: " 
+								+ template.getHardware().getProviderId());  
+	   
 	   for (String pricesId : allPrices.split(";")) {
 		   ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
 				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, pricesId))
@@ -214,10 +217,10 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 		   } catch (Exception e) {
 			   logger.info("Failed verifying hardware price ID " + pricesId + ". Retrying with alternative price id."
 					   + " message is " + e.getMessage());
-			   lastExeption.add(new RuntimeException("Failed validating prices: " + pricesId + ". Error is:" + e.getMessage(), e));
+			   containerExeption.add(new RuntimeException("Failed validating prices: " + pricesId + ". Error is:" + e.getMessage(), e));
 		   }
 	   }
-	   throw lastExeption;
+	   throw containerExeption;
    }
 
 private ImmutableList<ProductItemPrice> getPrices(Template template, String validHardwareIds) {

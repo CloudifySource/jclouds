@@ -217,8 +217,11 @@ private boolean useHourlyPricing;
    }
 
    private String getValidPriceCombination(Template template, HardwareServer newServer) {
+	   
 	   String allPrices = template.getHardware().getId();
-	   SoftLayerValidationContainerException lastExeption = new SoftLayerValidationContainerException("Failed validating prices: " + Arrays.toString(allPrices.split(";"))); 
+	   SoftLayerValidationContainerException containerException = new SoftLayerValidationContainerException("Failed validating prices combinations for: " + allPrices + " For item IDs: " 
+			   															+ template.getHardware().getProviderId());
+	   
 	   for (String pricesId : allPrices.split(";")) {
 		   ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
 				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(useHourlyPricing).prices(getPrices(template, pricesId))
@@ -230,10 +233,10 @@ private boolean useHourlyPricing;
 		   } catch (Exception e) {
 			   logger.info("Failed verifying hardware price ID " + pricesId + ". Retrying with alternative price id."
 					   + " message is " + e.getMessage());
-			   lastExeption.add(new RuntimeException("Failed validating prices: " + pricesId + ". Error is:" + e.getMessage(), e));
+			   containerException.add(new RuntimeException("Failed validating prices: " + pricesId + ". Error is:" + e.getMessage(), e));
 		   }
 	   }
-	   throw lastExeption;
+	   throw containerException;
    }
 
    private ImmutableList<ProductItemPrice> getPrices(Template template, String validHardwareIds) {
