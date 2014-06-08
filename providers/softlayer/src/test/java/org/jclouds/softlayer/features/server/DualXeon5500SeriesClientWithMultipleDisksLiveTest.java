@@ -52,7 +52,7 @@ public class DualXeon5500SeriesClientWithMultipleDisksLiveTest extends HardwareS
 	      properties.putAll(new DualXeon5500SeriesMultipleDisksProperties().sharedProperties());
 	      //14, 471
 	      //4281,471,471,471,471,4281
-	      properties.setProperty(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS, "3989,3989,3989,3989");
+	      properties.setProperty(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS, "916,916,916");
 	      properties.setProperty(PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID, "489");
 	      return properties;
 	   }
@@ -68,7 +68,7 @@ public class DualXeon5500SeriesClientWithMultipleDisksLiveTest extends HardwareS
 	              TEST_HOSTNAME_PREFIX + new Random().nextInt()).build();
 
 	      //"2091,1956,1267,272,36"
-	      templateBuilder.locationId("37473").hardwareId("1111,828,1091,1284,249").imageId("4321");
+	      templateBuilder.locationId("37473").hardwareId("859,1155,865,188,439").imageId("4321");
 	      Template template = templateBuilder.build();
 	      
 	      
