@@ -96,31 +96,35 @@ public class ProductItems {
         	 Set<String> reducedPricesSet = new LinkedHashSet<String>();
         	 getAllReducedCombinations(sets, 0, "", reducedPricesSet);
         	 
-        	 String pricesFinal = getAllProductItemMapping(productItems, reducedPricesSet);
+        	 String pricesFinal = getProductItemToPriceMapping(productItems, reducedPricesSet);
         	 
         	 return pricesFinal;
          }
          
-         private String getAllProductItemMapping(List<ProductItem> productItems,
+         private String getProductItemToPriceMapping(List<ProductItem> productItems,
         		 Set<String> uniqueItems) {
         	 StringBuilder sb = new StringBuilder();
         	 Set<String> allPricesSet = new LinkedHashSet<String>();
         	 for (String uniqueIds : uniqueItems) {
-        		 String tempIds = ProductItemsToHardware.providerHardwareId().apply(productItems);
+        		 final String finalPriceIds;
+        		 // append two marker chars.
+        		 String itemIdTemplate = "," + ProductItemsToHardware.providerHardwareId().apply(productItems) + ",";
         		 for (String id : uniqueIds.split(",")) {
         			 ProductItem productItem = get(filter(productItems, ProductItemPredicates.priceId(id)), 0);
-        			 tempIds = tempIds.replaceAll(Integer.toString(productItem.getId()), id);
-        			 
-				}
-        		 if (!allPricesSet.contains(tempIds)) {
-        			 allPricesSet.add(tempIds);
+        			 // replace according to marker char.
+        			 itemIdTemplate = itemIdTemplate.replaceAll("," + Integer.toString(productItem.getId()) + ",", "," + id + ",");
+
         		 }
-			}
+        		 finalPriceIds = itemIdTemplate.substring(0, itemIdTemplate.length() - 1).replaceFirst(",", "");
+        		 if (!allPricesSet.contains(finalPriceIds)) {
+        			 allPricesSet.add(finalPriceIds);
+        		 }
+        	 }
         	 for (String ids : allPricesSet) {
         		 sb.append(ids).append(";");
-			}
-			return sb.toString().substring(0, sb.toString().length() - 1);
-		}
+        	 }
+        	 return sb.toString().substring(0, sb.toString().length() - 1);
+         }
 
 		private List<ProductItem> getUniqueItems(List<ProductItem> items) {
         	 LinkedHashSet<ProductItem> ids = new LinkedHashSet<ProductItem>();

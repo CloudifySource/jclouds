@@ -49,6 +49,7 @@ public class VirtualGuestProductItemsToHardwareTest {
    private ProductItem ramItem;
    private ProductItem volumeItem;
    private ProductItem uplinkItem;
+   private ProductItem bandwidthItem;
 
    @BeforeMethod
    public void setup() {
@@ -60,20 +61,24 @@ public class VirtualGuestProductItemsToHardwareTest {
               .description("2 x 2.0 GHz Cores")
               .capacity(2F)
               .categories(ProductItemCategory.builder().categoryCode("guest_core").build())
-              .prices(ProductItemPrice.builder().id(123).build())
+              .prices(ProductItemPrice.builder().id(123).itemId(1).build())
               .build();
 
       ramItem = ProductItem.builder().id(2).description("2GB ram").capacity(2F).categories(
               ProductItemCategory.builder().categoryCode("ram").build()).prices(
-              ProductItemPrice.builder().id(456).build()).build();
+              ProductItemPrice.builder().id(456).itemId(2).build()).build();
 
       volumeItem = ProductItem.builder().id(3).description("100 GB (SAN)").capacity(100F).prices(
-              ProductItemPrice.builder().id(789).build()).categories(
+              ProductItemPrice.builder().id(789).itemId(3).build()).categories(
               ProductItemCategory.builder().categoryCode("guest_disk0").build()).build();
 
       uplinkItem = ProductItem.builder().id(4).description("10 Mbps Public & Private Networks").capacity(10F)
-              .prices(ProductItemPrice.builder().id(272).build()).categories(ProductItemCategory.builder().categoryCode
+              .prices(ProductItemPrice.builder().id(272).itemId(4).build()).categories(ProductItemCategory.builder().categoryCode
                       ("port_speed").build()).build();
+      
+      bandwidthItem = ProductItem.builder().id(5).description("Unlimited Bandwidth (10 Mbps Uplink)")
+              .prices(ProductItemPrice.builder().id(30).itemId(5).build()).categories(ProductItemCategory.builder().categoryCode
+                      ("bandwidth").build()).build();
    }
 
    @Test
@@ -89,9 +94,9 @@ public class VirtualGuestProductItemsToHardwareTest {
    @Test
    public void testHardware() {
 
-      Hardware hardware = toHardware.apply(ImmutableSet.of(cpuItem, ramItem, volumeItem, uplinkItem));
+      Hardware hardware = toHardware.apply(ImmutableSet.of(cpuItem, ramItem, volumeItem, uplinkItem, bandwidthItem));
 
-      assertEquals("123,456,789,272", hardware.getId());
+      assertEquals("123,456,789,272,30", hardware.getId());
 
       List<? extends Processor> processors = hardware.getProcessors();
       assertEquals(1, processors.size());
@@ -115,9 +120,9 @@ public class VirtualGuestProductItemsToHardwareTest {
               .description("Private 2 x 2.0 GHz Cores")
               .build();
 
-      Hardware hardware = toHardware.apply(ImmutableSet.of(cpuItem, ramItem, volumeItem, uplinkItem));
+      Hardware hardware = toHardware.apply(ImmutableSet.of(cpuItem, ramItem, volumeItem, uplinkItem, bandwidthItem));
 
-      assertEquals("123,456,789,272", hardware.getId());
+      assertEquals("123,456,789,272,30", hardware.getId());
 
       List<? extends Processor> processors = hardware.getProcessors();
       assertEquals(1, processors.size());
@@ -132,11 +137,11 @@ public class VirtualGuestProductItemsToHardwareTest {
 
    @Test
    public void testHardwareWithTwoDisks() {
-      ProductItem localVolumeItem = ProductItem.builder().id(5).description("25 GB").capacity(25F).prices(
-              ProductItemPrice.builder().id(987).build()).categories(
+      ProductItem localVolumeItem = ProductItem.builder().id(6).description("25 GB").capacity(25F).prices(
+              ProductItemPrice.builder().id(987).itemId(6).build(), ProductItemPrice.builder().id(988).itemId(6).build()).categories(
               ProductItemCategory.builder().categoryCode("guest_disk1").build()).build();
 
-      Hardware hardware = toHardware.apply(ImmutableSet.of(cpuItem, ramItem, volumeItem, localVolumeItem, uplinkItem));
+      Hardware hardware = toHardware.apply(ImmutableSet.of(cpuItem, ramItem, volumeItem, localVolumeItem, uplinkItem, bandwidthItem));
 
       List<? extends Volume> volumes = hardware.getVolumes();
       assertEquals(2, volumes.size());
@@ -149,6 +154,7 @@ public class VirtualGuestProductItemsToHardwareTest {
       assertEquals(25F, volume1.getSize());
       assertEquals(Volume.Type.LOCAL, volume1.getType());
       assertEquals(false, volume1.isBootDevice());
+      assertEquals("123,456,789,272,30,987;123,456,789,272,30,988", hardware.getId());
    }
 
 }

@@ -47,7 +47,7 @@ public class HardwareServerAsyncClientTest extends BaseSoftLayerAsyncClientTest<
 
       assertRequestLineEquals(
             httpRequest,
-            "GET https://api.softlayer.com/rest/v3/SoftLayer_Account/getHardware?objectMask=hardware.hardwareStatus%3Bhardware.operatingSystem.passwords%3Bhardware.datacenter%3Bhardware.billingItem HTTP/1.1");
+            "GET https://api.softlayer.com/rest/v3/SoftLayer_Account/getHardware.json?objectMask=hardware.hardwareStatus%3Bhardware.operatingSystem.passwords%3Bhardware.datacenter%3Bhardware.billingItem HTTP/1.1");
       assertNonPayloadHeadersEqual(httpRequest, "Accept: application/json\n");
       assertPayloadEquals(httpRequest, null, null, false);
 
@@ -57,7 +57,7 @@ public class HardwareServerAsyncClientTest extends BaseSoftLayerAsyncClientTest<
 
       assertRequestLineEquals(
             httpRequest,
-            "GET https://api.softlayer.com/rest/v3/SoftLayer_Account/getHardware?objectMask=hardware.hardwareStatus%3Bhardware.operatingSystem.passwords%3Bhardware.datacenter%3Bhardware.billingItem HTTP/1.1");
+            "GET https://api.softlayer.com/rest/v3/SoftLayer_Account/getHardware.json?objectMask=hardware.hardwareStatus%3Bhardware.operatingSystem.passwords%3Bhardware.datacenter%3Bhardware.billingItem HTTP/1.1");
       // for example, using basic authentication, we should get "only one"
       // header
       assertNonPayloadHeadersEqual(httpRequest,
