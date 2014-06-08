@@ -27,6 +27,7 @@ import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLA
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PRICES;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -128,49 +129,57 @@ public class SoftLayerComputeServiceContextModule extends
    @Provides
    @Singleton
    public Iterable<ProductItemPrice> prices(@Memoized Supplier<ProductPackage> productPackageSupplier,
-		   						PropertiesProviderFactory defaultPropertiesFactory,
-                                @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
-	  
-	  final Set<ProductItem> productItems = productPackageSupplier.get().getItems();
-	  
-	  String prices =
-              (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_PRICES);
-      
-      Iterable<ProductItemPrice> transformedPrices = new ArrayList<ProductItemPrice>();
-      if (!isNull(prices)) {
-    	  transformedPrices = Iterables.transform(Splitter.on(',').split(checkNotNull(prices, "prices")),
-    			  new Function<String, ProductItemPrice>() {
-    		  @Override
-    		  public ProductItemPrice apply(String arg0) {
-    			  ProductItem item = find(productItems, withPriceId(Integer.parseInt(arg0)), null);
-    			  if (item == null) {
-    				  throw new NoSuchElementException("Item with pre-determined price ID:" + arg0 
-    						  + " Does not exist in package:" + packageId);
-    			  }
-    			  return ProductItemPrice.builder().id(item.getPrices().iterator().next().getId()).build();
-    		  }
-    	  });
-      }
-      
-      String items = 
-    		  (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_ITEMS);
-      Iterable<ProductItemPrice> transformedItems = new ArrayList<ProductItemPrice>();
-      if (!isNull(items)) {
-    	  transformedItems = Iterables.transform(Splitter.on(',').split(checkNotNull(items, "items")),
-    			  new Function<String, ProductItemPrice>() {
-    		  @Override
-    		  public ProductItemPrice apply(String arg0) {
-    			  ProductItem item = find(productItems, withItemId(Integer.parseInt(arg0)), null);
-    			  if (item == null) {
-    				  throw new NoSuchElementException("Item with pre-determined item ID:" + arg0 
-    						  + " Does not exist in package:" + packageId);
-    			  }
-    			  return ProductItemPrice.builder().id(item.getPrices().iterator().next().getId()).build();
-    		  }
-    	  });
-      }
-      
-      return Iterables.concat(transformedItems, transformedPrices);
+		   PropertiesProviderFactory defaultPropertiesFactory,
+		   @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
+
+	   ProductPackage ppackage = null;
+	   try {
+
+		   ppackage = productPackageSupplier.get();
+	   } catch (Exception e) {
+		   return new HashSet<ProductItemPrice>();
+	   }
+	   
+	   final Set<ProductItem> productItems = ppackage.getItems();
+
+	   String prices =
+			   (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_PRICES);
+
+	   Iterable<ProductItemPrice> transformedPrices = new ArrayList<ProductItemPrice>();
+	   if (!isNull(prices)) {
+		   transformedPrices = Iterables.transform(Splitter.on(',').split(checkNotNull(prices, "prices")),
+				   new Function<String, ProductItemPrice>() {
+			   @Override
+			   public ProductItemPrice apply(String arg0) {
+				   ProductItem item = find(productItems, withPriceId(Integer.parseInt(arg0)), null);
+				   if (item == null) {
+					   throw new NoSuchElementException("Item with pre-determined price ID:" + arg0 
+							   + " Does not exist in package:" + packageId);
+				   }
+				   return ProductItemPrice.builder().id(item.getPrices().iterator().next().getId()).build();
+			   }
+		   });
+	   }
+
+	   String items = 
+			   (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_ITEMS);
+	   Iterable<ProductItemPrice> transformedItems = new ArrayList<ProductItemPrice>();
+	   if (!isNull(items)) {
+		   transformedItems = Iterables.transform(Splitter.on(',').split(checkNotNull(items, "items")),
+				   new Function<String, ProductItemPrice>() {
+			   @Override
+			   public ProductItemPrice apply(String arg0) {
+				   ProductItem item = find(productItems, withItemId(Integer.parseInt(arg0)), null);
+				   if (item == null) {
+					   throw new NoSuchElementException("Item with pre-determined item ID:" + arg0 
+							   + " Does not exist in package:" + packageId);
+				   }
+				   return ProductItemPrice.builder().id(item.getPrices().iterator().next().getId()).build();
+			   }
+		   });
+	   }
+
+	   return Iterables.concat(transformedItems, transformedPrices);
    }
 
    private boolean isNull(String string) {
