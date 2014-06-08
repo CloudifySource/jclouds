@@ -47,7 +47,7 @@ import com.google.common.collect.Iterables;
  */
 public class DualXeon5500SeriesProductItemsToHardware extends HardwareServerProductItemsToHardware {
 	   
-	private static final String SERVER_DISK_CATEGORY_REGEX = "disk[0-11]";
+	private static final String SERVER_DISK_CATEGORY_REGEX = "disk([0-9]|1[0-9]|2[0-4])";
 	private static final String STORAGE_AREA_NETWORK = "SAN";
 
 	private final Pattern serverDiskCategoryRegex;
