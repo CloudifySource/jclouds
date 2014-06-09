@@ -113,8 +113,9 @@ public class ProductItems {
         			 ProductItem productItem = get(filter(productItems, ProductItemPredicates.priceId(id)), 0);
         			 // replace according to marker char.
         			 itemIdTemplate = itemIdTemplate.replaceAll("," + Integer.toString(productItem.getId()) + ",", "," + id + ",");
-
+        			 itemIdTemplate = itemIdTemplate.replaceAll("," + Integer.toString(productItem.getId()) + ",", "," + id + ",");
         		 }
+        		 
         		 finalPriceIds = itemIdTemplate.substring(0, itemIdTemplate.length() - 1).replaceFirst(",", "");
         		 if (!allPricesSet.contains(finalPriceIds)) {
         			 allPricesSet.add(finalPriceIds);
