@@ -162,11 +162,14 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       
       String validGuestHardwarePriceIds = getValidPriceCombination(template, newGuest);
 
-      ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
-              .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, validGuestHardwarePriceIds))
-              .virtualGuests(newGuest)
-              .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
-              .imageTemplateId(imageTemplateId).build();
+       ProductOrder.Builder<?> productOrderBuilder = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
+               .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true)
+               .prices(getPrices(template, validGuestHardwarePriceIds))
+               .virtualGuests(newGuest)
+               .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
+               .imageTemplateId(imageTemplateId);
+
+       ProductOrder order = productOrderBuilder.build();
 
       logger.debug(">> ordering new virtualGuest domain(%s) hostname(%s)", domainName, name);
       ProductOrderReceipt productOrderReceipt = client.getVirtualGuestClient().orderVirtualGuest(order);
@@ -223,20 +226,25 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 	   throw containerExeption;
    }
 
-private ImmutableList<ProductItemPrice> getPrices(Template template, String validHardwareIds) {
-	      com.google.common.collect.ImmutableList.Builder<ProductItemPrice> result = ImmutableList.builder();
+    private ImmutableList<ProductItemPrice> getPrices(Template template, String validHardwareIds) {
 
-	      int imageId = Integer.parseInt(template.getImage().getId());
-	      result.add(ProductItemPrice.builder().id(imageId).build());
+        Builder<ProductItemPrice> result = ImmutableList.builder();
+        if ("".equals(this.imageTemplateGlobalIdentifier) && "".equals(this.imageTemplateId)) {
 
-	      Iterable<String> hardwareIds = Splitter.on(",").split(validHardwareIds);
-	      for (String hardwareId : hardwareIds) {
-	         int id = Integer.parseInt(hardwareId);
-	         result.add(ProductItemPrice.builder().id(id).build());
-	      }
-	      result.addAll(prices);
-	      return result.build();
-	   }
+            // only add an image id if we are not using predefined templates.
+
+            int imageId = Integer.parseInt(template.getImage().getId());
+            result.add(ProductItemPrice.builder().id(imageId).build());
+        }
+
+        Iterable<String> hardwareIds = Splitter.on(",").split(validHardwareIds);
+        for (String hardwareId : hardwareIds) {
+           int id = Integer.parseInt(hardwareId);
+           result.add(ProductItemPrice.builder().id(id).build());
+        }
+        result.addAll(this.prices);
+        return result.build();
+	}
 
    @Override
    public Iterable<Iterable<ProductItem>> listHardwareProfiles() {
