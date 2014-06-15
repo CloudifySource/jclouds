@@ -210,8 +210,9 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 								+ template.getHardware().getProviderId());  
 	   
 	   for (String pricesId : allPrices.split(";")) {
-		   ProductOrder order = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
+		   ProductOrder order = ProductOrder.builder().packageId(this.productPackageSupplier.get().getId())
 				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, pricesId))
+                   .imageTemplateGlobalIdentifier(this.imageTemplateGlobalIdentifier).imageTemplateId(this.imageTemplateId)
 				   .virtualGuests(virtualGuest).build();
 		   try {
 			   @SuppressWarnings({ "unused", "deprecation" })
