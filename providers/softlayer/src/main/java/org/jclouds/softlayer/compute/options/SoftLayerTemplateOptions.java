@@ -16,13 +16,14 @@
  */
 package org.jclouds.softlayer.compute.options;
 
-import com.google.common.net.InternetDomainName;
-import org.jclouds.compute.options.TemplateOptions;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.jclouds.compute.options.TemplateOptions;
+
+import com.google.common.net.InternetDomainName;
 
 /**
  * Contains options supported by the
@@ -48,6 +49,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneable {
 
    protected String domainName = "jclouds.org";
+   protected String networkVlanId = "";
 
    @Override
    public SoftLayerTemplateOptions clone() {
@@ -62,6 +64,7 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
       if (to instanceof SoftLayerTemplateOptions) {
          SoftLayerTemplateOptions eTo = SoftLayerTemplateOptions.class.cast(to);
          eTo.domainName(domainName);
+         eTo.networkVlanId(networkVlanId);
       }
    }
 
@@ -79,9 +82,30 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
       this.domainName = domainName;
       return this;
    }
+   
+   /**
+    * will set a network vlan when ordering virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#orderVirtualGuest
+    */
+   public TemplateOptions networkVlanId(String networkVlanId) {
+      checkNotNull(networkVlanId, "networkVlanId was null");
+      try {
+    	  Integer.valueOf(networkVlanId);
+      } catch (NumberFormatException e) {
+    	  throw new IllegalArgumentException("networkVlanId " + networkVlanId + " is not a number");
+      }
+
+      this.networkVlanId = networkVlanId;
+      return this;
+   }
 
    public String getDomainName() {
       return domainName;
+   }
+   
+   public String getNetworkVlanId() {
+      return networkVlanId;
    }
 
    public static final SoftLayerTemplateOptions NONE = new SoftLayerTemplateOptions();
@@ -94,6 +118,14 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
       public static SoftLayerTemplateOptions domainName(String domainName) {
          SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
          return SoftLayerTemplateOptions.class.cast(options.domainName(domainName));
+      }
+      
+      /**
+       * @see #networkVlanId
+       */
+      public static SoftLayerTemplateOptions networkVlanId(String networkVlanId) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.networkVlanId(networkVlanId));
       }
 
       // methods that only facilitate returning the correct object type

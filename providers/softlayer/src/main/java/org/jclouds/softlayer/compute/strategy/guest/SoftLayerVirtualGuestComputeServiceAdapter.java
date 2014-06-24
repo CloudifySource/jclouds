@@ -42,7 +42,6 @@ import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLA
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_VIRTUALGUEST_LOGIN_DETAILS_DELAY;
 import static org.jclouds.util.Predicates2.retry;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -68,13 +67,14 @@ import org.jclouds.softlayer.domain.Datacenter;
 import org.jclouds.softlayer.domain.Password;
 import org.jclouds.softlayer.domain.SoftLayerNode;
 import org.jclouds.softlayer.domain.Transaction;
+import org.jclouds.softlayer.domain.guest.NetworkVlan;
+import org.jclouds.softlayer.domain.guest.PrimaryBackendNetworkComponent;
 import org.jclouds.softlayer.domain.guest.VirtualGuest;
 import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
 import org.jclouds.softlayer.domain.product.ProductPackage;
-import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 
 import com.google.common.base.Predicate;
@@ -129,6 +129,7 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
                                          @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_ENDED_DELAY) long transactionsEndedDelay,
                                          @Named(PROPERTY_SOFTLAYER_VIRTUALGUEST_ACTIVE_TRANSACTIONS_STARTED_DELAY) long transactionsStartedDelay,
                                          @Named(PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS) String multipleDisksHardwareId) {
+	   
       this.client = checkNotNull(client, "client");
       this.guestLoginDelay = guestLoginDelay;
       this.transactionsStartedDelay = transactionsStartedDelay;
@@ -157,8 +158,17 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
               .getClass());
 
       String domainName = template.getOptions().as(SoftLayerTemplateOptions.class).getDomainName();
-
-      VirtualGuest newGuest = VirtualGuest.builder().domain(domainName).hostname(name).build();
+      String networkVlanId = template.getOptions().as(SoftLayerTemplateOptions.class).getNetworkVlanId();
+      VirtualGuest newGuest = null;
+      if (networkVlanId != null && networkVlanId.trim().length() > 0) {
+    	  // the networkVlanId numeric value is validated already by SoftLayerTemplateOptions.networkVlanId
+    	  NetworkVlan networkVlan = NetworkVlan.builder().id(Integer.valueOf(networkVlanId)).build();
+    	  PrimaryBackendNetworkComponent primaryBackendNetworkComponent = PrimaryBackendNetworkComponent.builder().networkVlan(networkVlan).build();
+    	  newGuest = VirtualGuest.builder().domain(domainName).hostname(name).primaryBackendNetworkComponent(primaryBackendNetworkComponent).build();    	  
+      } else {
+    	  newGuest = VirtualGuest.builder().domain(domainName).hostname(name).build();  
+      }
+      
       
       String validGuestHardwarePriceIds = getValidPriceCombination(template, newGuest);
 

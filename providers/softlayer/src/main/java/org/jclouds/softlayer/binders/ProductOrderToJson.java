@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import org.jclouds.http.HttpRequest;
 import org.jclouds.json.Json;
 import org.jclouds.rest.Binder;
+import org.jclouds.softlayer.domain.guest.PrimaryBackendNetworkComponent;
 import org.jclouds.softlayer.domain.guest.VirtualGuest;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
@@ -76,11 +77,11 @@ public class ProductOrderToJson implements Binder {
          }
       });
 
-      Iterable<HostnameAndDomain> virtualHosts = Iterables.transform(order.getVirtualGuests(),
-               new Function<VirtualGuest, HostnameAndDomain>() {
+      Iterable<VirtualGuestServerProperties> virtualHosts = Iterables.transform(order.getVirtualGuests(),
+               new Function<VirtualGuest, VirtualGuestServerProperties>() {
                   @Override
-                  public HostnameAndDomain apply(VirtualGuest virtualGuest) {
-                     return new HostnameAndDomain(virtualGuest.getHostname(), virtualGuest.getDomain());
+                  public VirtualGuestServerProperties apply(VirtualGuest virtualGuest) {
+                     return new VirtualGuestServerProperties(virtualGuest.getHostname(), virtualGuest.getDomain(), virtualGuest.getPrimaryBackendNetworkComponent());
                   }
                });
 
@@ -104,14 +105,14 @@ public class ProductOrderToJson implements Binder {
       private long packageId = -1;
       private String location;
       private LinkedList<Price> prices;
-      private Set<HostnameAndDomain> virtualGuests;
+      private Set<VirtualGuestServerProperties> virtualGuests;
       private Set<HostnameAndDomain> hardware;
       private long quantity;
       private boolean useHourlyPricing;
       private String imageTemplateGlobalIdentifier;
       private String imageTemplateId;
 
-      public OrderData(long packageId, String location, LinkedList<Price> linkedList, Set<HostnameAndDomain> virtualGuests,
+      public OrderData(long packageId, String location, LinkedList<Price> linkedList, Set<VirtualGuestServerProperties> virtualGuests,
                        Set<HostnameAndDomain> hardwareServers, long quantity, boolean useHourlyPricing, String imageTemplateGlobalIdentifier, String imageTemplateId) {
          this.packageId = packageId;
          this.location = location;
@@ -137,6 +138,21 @@ public class ProductOrderToJson implements Binder {
       }
 
    }
+   
+   @SuppressWarnings("unused")
+   private static class VirtualGuestServerProperties {
+      private String hostname;
+      private String domain;
+      private PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
+
+      public VirtualGuestServerProperties(String hostname, String domain, PrimaryBackendNetworkComponent primaryBackendNetworkComponent) {
+         this.hostname = hostname;
+         this.domain = domain;
+         this.primaryBackendNetworkComponent = primaryBackendNetworkComponent;
+      }
+
+   }
+
 
    @SuppressWarnings("unused")
    private static class Price {
