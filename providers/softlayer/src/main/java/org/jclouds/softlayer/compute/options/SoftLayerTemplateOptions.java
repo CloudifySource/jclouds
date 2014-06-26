@@ -50,6 +50,7 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
 
    protected String domainName = "jclouds.org";
    protected String networkVlanId = "";
+   protected boolean privateNetworkOnly = false;
 
    @Override
    public SoftLayerTemplateOptions clone() {
@@ -65,6 +66,7 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
          SoftLayerTemplateOptions eTo = SoftLayerTemplateOptions.class.cast(to);
          eTo.domainName(domainName);
          eTo.networkVlanId(networkVlanId);
+         eTo.privateNetworkOnly(privateNetworkOnly);
       }
    }
 
@@ -99,6 +101,16 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
       this.networkVlanId = networkVlanId;
       return this;
    }
+   
+   /**
+    * will set the privateNetworkOnly flag when ordering virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#orderVirtualGuest
+    */
+   public TemplateOptions privateNetworkOnly(boolean privateNetworkOnly) {
+      this.privateNetworkOnly = privateNetworkOnly;
+      return this;
+   }
 
    public String getDomainName() {
       return domainName;
@@ -106,6 +118,10 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
    
    public String getNetworkVlanId() {
       return networkVlanId;
+   }
+   
+   public boolean isPrivateNetworkOnly() {
+	   return privateNetworkOnly;
    }
 
    public static final SoftLayerTemplateOptions NONE = new SoftLayerTemplateOptions();
@@ -127,7 +143,15 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
          SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
          return SoftLayerTemplateOptions.class.cast(options.networkVlanId(networkVlanId));
       }
-
+      
+      /**
+       * @see #privateNetworkOnly
+       */
+      public static SoftLayerTemplateOptions privateNetworkOnly(boolean privateNetworkOnly) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.privateNetworkOnly(privateNetworkOnly));
+      }
+      
       // methods that only facilitate returning the correct object type
 
       /**

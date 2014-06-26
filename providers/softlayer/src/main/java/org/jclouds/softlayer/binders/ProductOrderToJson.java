@@ -81,7 +81,7 @@ public class ProductOrderToJson implements Binder {
                new Function<VirtualGuest, VirtualGuestServerProperties>() {
                   @Override
                   public VirtualGuestServerProperties apply(VirtualGuest virtualGuest) {
-                     return new VirtualGuestServerProperties(virtualGuest.getHostname(), virtualGuest.getDomain(), virtualGuest.getPrimaryBackendNetworkComponent());
+                     return new VirtualGuestServerProperties(virtualGuest.getHostname(), virtualGuest.getDomain(), virtualGuest.isPrivateNetworkOnlyFlag(), virtualGuest.getPrimaryBackendNetworkComponent());
                   }
                });
 
@@ -143,11 +143,14 @@ public class ProductOrderToJson implements Binder {
    private static class VirtualGuestServerProperties {
       private String hostname;
       private String domain;
+      private boolean privateNetworkOnlyFlag;
       private PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
 
-      public VirtualGuestServerProperties(String hostname, String domain, PrimaryBackendNetworkComponent primaryBackendNetworkComponent) {
+      public VirtualGuestServerProperties(String hostname, String domain, boolean privateNetworkOnlyFlag, 
+    		  PrimaryBackendNetworkComponent primaryBackendNetworkComponent) {
          this.hostname = hostname;
          this.domain = domain;
+         this.privateNetworkOnlyFlag = privateNetworkOnlyFlag;
          this.primaryBackendNetworkComponent = primaryBackendNetworkComponent;
       }
 

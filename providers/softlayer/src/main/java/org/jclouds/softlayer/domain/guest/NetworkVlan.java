@@ -24,6 +24,13 @@ import org.jclouds.javax.annotation.Nullable;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 
+/**
+ * This class represents the network VLAN setting, which can be set on the primaryNetworkComponent (public IP) 
+ * and on the primaryBackendNetworkComponent (private IP) of a virtual guest.
+ * It currently contains only the VLAN id.
+* @author Noa Kuperberg
+*/
+
 public class NetworkVlan {
 	public static Builder<?> builder() {
 	      return new ConcreteBuilder();

@@ -157,17 +157,21 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
               "options class %s should have been assignable from SoftLayerTemplateOptions", template.getOptions()
               .getClass());
 
-      String domainName = template.getOptions().as(SoftLayerTemplateOptions.class).getDomainName();
-      String networkVlanId = template.getOptions().as(SoftLayerTemplateOptions.class).getNetworkVlanId();
-      VirtualGuest newGuest = null;
+      SoftLayerTemplateOptions templateOptions = template.getOptions().as(SoftLayerTemplateOptions.class);
+      String domainName = templateOptions.getDomainName();
+      String networkVlanId = templateOptions.getNetworkVlanId();
+      boolean isPrivateNetworkOnly = templateOptions.isPrivateNetworkOnly();
+      
+      VirtualGuest.Builder<?> virtualGuestBuilder = VirtualGuest.builder().domain(domainName).hostname(name).privateNetworkOnlyFlag(isPrivateNetworkOnly);
+      
       if (networkVlanId != null && networkVlanId.trim().length() > 0) {
     	  // the networkVlanId numeric value is validated already by SoftLayerTemplateOptions.networkVlanId
     	  NetworkVlan networkVlan = NetworkVlan.builder().id(Integer.valueOf(networkVlanId)).build();
     	  PrimaryBackendNetworkComponent primaryBackendNetworkComponent = PrimaryBackendNetworkComponent.builder().networkVlan(networkVlan).build();
-    	  newGuest = VirtualGuest.builder().domain(domainName).hostname(name).primaryBackendNetworkComponent(primaryBackendNetworkComponent).build();    	  
-      } else {
-    	  newGuest = VirtualGuest.builder().domain(domainName).hostname(name).build();  
+    	  virtualGuestBuilder = virtualGuestBuilder.primaryBackendNetworkComponent(primaryBackendNetworkComponent);
       }
+      
+      VirtualGuest newGuest = virtualGuestBuilder.build();
       
       
       String validGuestHardwarePriceIds = getValidPriceCombination(template, newGuest);

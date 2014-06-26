@@ -97,7 +97,7 @@ public class VirtualGuest extends SoftLayerNode {
       protected int maxMemory;
       protected Date metricPollDate;
       protected Date modifyDate;
-      protected boolean privateNetworkOnly;
+      protected boolean privateNetworkOnlyFlag;
       protected int startCpus;
       protected int statusId;
       protected String uuid;
@@ -169,10 +169,10 @@ public class VirtualGuest extends SoftLayerNode {
       }
 
       /**
-       * @see VirtualGuest#isPrivateNetworkOnly()
+       * @see VirtualGuest#isPrivateNetworkOnlyFlag()
        */
-      public T privateNetworkOnly(boolean privateNetworkOnly) {
-         this.privateNetworkOnly = privateNetworkOnly;
+      public T privateNetworkOnlyFlag(boolean privateNetworkOnlyFlag) {
+         this.privateNetworkOnlyFlag = privateNetworkOnlyFlag;
          return self();
       }
 
@@ -219,7 +219,7 @@ public class VirtualGuest extends SoftLayerNode {
 
       public VirtualGuest build() {
          return new VirtualGuest(accountId, createDate, dedicatedAccountHostOnly, domain, fullyQualifiedDomainName, hostname,
-               id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, metricPollDate, modifyDate, notes, privateNetworkOnly,
+               id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, metricPollDate, modifyDate, notes, privateNetworkOnlyFlag,
                startCpus, statusId, uuid, primaryBackendIpAddress, primaryIpAddress, new BillingItem(billingItemId),
                operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
       }
@@ -245,7 +245,7 @@ public class VirtualGuest extends SoftLayerNode {
                .maxMemory(in.getMaxMemory())
                .metricPollDate(in.getMetricPollDate())
                .modifyDate(in.getModifyDate())
-               .privateNetworkOnly(in.isPrivateNetworkOnly())
+               .privateNetworkOnlyFlag(in.isPrivateNetworkOnlyFlag())
                .startCpus(in.getStartCpus())
                .statusId(in.getStatusId())
                .uuid(in.getUuid())
@@ -269,7 +269,7 @@ public class VirtualGuest extends SoftLayerNode {
    private final int maxMemory;
    private final Date metricPollDate;
    private final Date modifyDate;
-   private final boolean privateNetworkOnly;
+   private final boolean privateNetworkOnlyFlag;
    private final int startCpus;
    private final int statusId;
    private final String uuid;
@@ -282,7 +282,7 @@ public class VirtualGuest extends SoftLayerNode {
    protected VirtualGuest(int accountId, @Nullable Date createDate, boolean dedicatedAccountHostOnly, @Nullable String domain,
                           @Nullable String fullyQualifiedDomainName, @Nullable String hostname, int id, @Nullable Date lastVerifiedDate,
                           int maxCpu, @Nullable String maxCpuUnits, int maxMemory, @Nullable Date metricPollDate, @Nullable Date modifyDate,
-                          @Nullable String notes, boolean privateNetworkOnly, int startCpus, int statusId, @Nullable String uuid,
+                          @Nullable String notes, boolean privateNetworkOnlyFlag, int startCpus, int statusId, @Nullable String uuid,
                           @Nullable String primaryBackendIpAddress, @Nullable String primaryIpAddress, @Nullable BillingItem billingItem,
                           @Nullable OperatingSystem operatingSystem, @Nullable Datacenter datacenter, @Nullable PowerState powerState,
                           @Nullable PrimaryBackendNetworkComponent primaryBackendNetworkComponent) {
@@ -296,7 +296,7 @@ public class VirtualGuest extends SoftLayerNode {
       this.maxMemory = maxMemory;
       this.metricPollDate = metricPollDate;
       this.modifyDate = modifyDate;
-      this.privateNetworkOnly = privateNetworkOnly;
+      this.privateNetworkOnlyFlag = privateNetworkOnlyFlag;
       this.startCpus = startCpus;
       this.statusId = statusId;
       this.uuid = uuid;
@@ -378,8 +378,8 @@ public class VirtualGuest extends SoftLayerNode {
    /**
     * @return Whether the computing instance only has access to the private network.
     */
-   public boolean isPrivateNetworkOnly() {
-      return this.privateNetworkOnly;
+   public boolean isPrivateNetworkOnlyFlag() {
+      return this.privateNetworkOnlyFlag;
    }
 
    /**
@@ -424,7 +424,7 @@ public class VirtualGuest extends SoftLayerNode {
    public int hashCode() {
       return Objects.hashCode(accountId, createDate, dedicatedAccountHostOnly, domain, fullyQualifiedDomainName,
               hostname, id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, metricPollDate, modifyDate, notes,
-              privateNetworkOnly, startCpus, statusId, uuid, primaryBackendIpAddress, primaryIpAddress, billingItemId,
+              privateNetworkOnlyFlag, startCpus, statusId, uuid, primaryBackendIpAddress, primaryIpAddress, billingItemId,
               operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
    }
 
@@ -447,7 +447,7 @@ public class VirtualGuest extends SoftLayerNode {
             && Objects.equal(this.metricPollDate, that.metricPollDate)
             && Objects.equal(this.modifyDate, that.modifyDate)
             && Objects.equal(this.notes, that.notes)
-            && Objects.equal(this.privateNetworkOnly, that.privateNetworkOnly)
+            && Objects.equal(this.privateNetworkOnlyFlag, that.privateNetworkOnlyFlag)
             && Objects.equal(this.startCpus, that.startCpus)
             && Objects.equal(this.statusId, that.statusId)
             && Objects.equal(this.uuid, that.uuid)
@@ -462,7 +462,7 @@ public class VirtualGuest extends SoftLayerNode {
 
    protected ToStringHelper string() {
       return Objects.toStringHelper(this)
-            .add("accountId", accountId).add("createDate", createDate).add("dedicatedAccountHostOnly", dedicatedAccountHostOnly).add("domain", domain).add("fullyQualifiedDomainName", fullyQualifiedDomainName).add("hostname", hostname).add("id", id).add("lastVerifiedDate", lastVerifiedDate).add("maxCpu", maxCpu).add("maxCpuUnits", maxCpuUnits).add("maxMemory", maxMemory).add("metricPollDate", metricPollDate).add("modifyDate", modifyDate).add("notes", notes).add("privateNetworkOnly", privateNetworkOnly).add("startCpus", startCpus).add("statusId", statusId).add("uuid", uuid).add("primaryBackendIpAddress", primaryBackendIpAddress).add("primaryIpAddress", primaryIpAddress).add("billingItemId", billingItemId).add("operatingSystem", operatingSystem).add("datacenter", datacenter).add("powerState", powerState).add("primaryBackendNetworkComponent", primaryBackendNetworkComponent);
+            .add("accountId", accountId).add("createDate", createDate).add("dedicatedAccountHostOnly", dedicatedAccountHostOnly).add("domain", domain).add("fullyQualifiedDomainName", fullyQualifiedDomainName).add("hostname", hostname).add("id", id).add("lastVerifiedDate", lastVerifiedDate).add("maxCpu", maxCpu).add("maxCpuUnits", maxCpuUnits).add("maxMemory", maxMemory).add("metricPollDate", metricPollDate).add("modifyDate", modifyDate).add("notes", notes).add("privateNetworkOnlyFlag", privateNetworkOnlyFlag).add("startCpus", startCpus).add("statusId", statusId).add("uuid", uuid).add("primaryBackendIpAddress", primaryBackendIpAddress).add("primaryIpAddress", primaryIpAddress).add("billingItemId", billingItemId).add("operatingSystem", operatingSystem).add("datacenter", datacenter).add("powerState", powerState).add("primaryBackendNetworkComponent", primaryBackendNetworkComponent);
    }
 
    @Override

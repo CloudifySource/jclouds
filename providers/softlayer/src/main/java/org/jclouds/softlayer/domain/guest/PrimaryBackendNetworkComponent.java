@@ -24,6 +24,11 @@ import org.jclouds.javax.annotation.Nullable;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 
+/**
+ * This object represents the PrimaryBackendNetworkComponent of a virtual guest.
+ * It currently contains only the Network VLAN setting, which here sets the VLAN of the private IP.
+* @author Noa Kuperberg
+*/
 public class PrimaryBackendNetworkComponent {
 
 
