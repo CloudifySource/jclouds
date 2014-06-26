@@ -45,7 +45,7 @@ public class ProductOrderToJsonTest {
                          "'packageId':%d," +
                          "'location':'%s'," +
                          "'prices':[{'id':%d},{'id':%d}]," +
-                         "'virtualGuests':[{'hostname':'%s','domain':'%s'}]," +
+                         "'virtualGuests':[{'hostname':'%s','domain':'%s','privateNetworkOnlyFlag':%b}]," +
                          "'hardware':[{'hostname':'%s','domain':'%s'}]," +
                          "'quantity':%d," +
                          "'useHourlyPricing':%b}" +
@@ -91,7 +91,7 @@ public class ProductOrderToJsonTest {
                                        .build();
       
       String expected = String.format(FORMAT.replaceAll("'","\""),
-                                      123,"loc456",100,101,"myhost","mydomain", "myserver", "mydomain",99,true);
+                                      123,"loc456",100,101,"myhost","mydomain", false, "myserver", "mydomain", 99, true);
 
       HttpRequest req = binder.bindToRequest(request, order);
 
