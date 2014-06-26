@@ -17,20 +17,6 @@
 
 package org.jclouds.softlayer.compute.strategy.server;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableSet;
-import org.jclouds.collect.Memoized;
-import org.jclouds.softlayer.SoftLayerClient;
-import org.jclouds.softlayer.compute.strategy.server.SoftLayerHardwareServerComputeServiceAdapter.HardwareProductOrderApprovedAndServerIsPresentAccordingToServerName;
-import org.jclouds.softlayer.domain.product.ProductItem;
-import org.jclouds.softlayer.domain.product.ProductItemPrice;
-import org.jclouds.softlayer.domain.product.ProductPackage;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.util.Set;
-
 import static com.google.common.collect.Iterables.filter;
 import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_ACTIVE_TRANSACTIONS_ENDED_DELAY;
@@ -38,6 +24,21 @@ import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLA
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_ORDER_APPROVED_DELAY;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_USE_HOURLY_PRICING;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_LOGIN_DETAILS_DELAY;
+
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+import org.jclouds.collect.Memoized;
+import org.jclouds.softlayer.SoftLayerClient;
+import org.jclouds.softlayer.domain.product.ProductItem;
+import org.jclouds.softlayer.domain.product.ProductItemPrice;
+import org.jclouds.softlayer.domain.product.ProductPackage;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Adapter for a specific product package that offers only Single Xeon 3200 Series Servers.

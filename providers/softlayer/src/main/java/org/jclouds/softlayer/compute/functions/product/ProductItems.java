@@ -18,10 +18,8 @@ package org.jclouds.softlayer.compute.functions.product;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.get;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;

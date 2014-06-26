@@ -16,9 +16,10 @@
  */
 package org.jclouds.softlayer.features.server;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.reflect.Invokable;
+import static org.jclouds.reflect.Reflection2.method;
+
+import java.io.IOException;
+
 import org.jclouds.Fallbacks.EmptySetOnNotFoundOr404;
 import org.jclouds.Fallbacks.NullOnNotFoundOr404;
 import org.jclouds.Fallbacks.VoidOnNotFoundOr404;
@@ -26,12 +27,11 @@ import org.jclouds.http.functions.ParseJson;
 import org.jclouds.http.functions.ReleasePayloadAndReturn;
 import org.jclouds.rest.internal.GeneratedHttpRequest;
 import org.jclouds.softlayer.features.BaseSoftLayerAsyncClientTest;
-import org.jclouds.softlayer.features.guest.VirtualGuestAsyncClient;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-
-import static org.jclouds.reflect.Reflection2.method;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.reflect.Invokable;
 
 /**
  * Tests annotation parsing of {@code HardwareServerAsyncClient}

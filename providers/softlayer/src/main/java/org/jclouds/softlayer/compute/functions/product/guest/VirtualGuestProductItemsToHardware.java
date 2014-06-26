@@ -66,7 +66,7 @@ import static org.jclouds.softlayer.predicates.ProductItemPredicates.matches;
 public class VirtualGuestProductItemsToHardware implements Function<Iterable<ProductItem>, Hardware> {
 
    private static final String BANDWIDTH = "bandwidth";
-private static final String GUEST_CPU_DESCRIPTION_REGEX = "(Private )?[0-9]+ x ([.0-9]+) GHz Core[s]?";
+   private static final String GUEST_CPU_DESCRIPTION_REGEX = "(Private )?[0-9]+ x ([.0-9]+) GHz Core[s]?";
    private static final String GUEST_DISK_CATEGORY_REGEX =  "guest_disk[0-9]";
    private static final String RAM_CATEGORY = "ram";
    private static final String FIRST_GUEST_DISK = "guest_disk0";

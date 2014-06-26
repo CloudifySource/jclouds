@@ -19,7 +19,6 @@ package org.jclouds.softlayer.features.server;
 import static org.jclouds.softlayer.predicates.ProductPackagePredicates.named;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_SERVER_HARDWARE_DISK_CONTROLLER_ID;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Properties;
 import java.util.Random;
@@ -27,7 +26,6 @@ import java.util.Random;
 import org.jclouds.compute.domain.Template;
 import org.jclouds.softlayer.DualXeon5500SeriesMultipleDisksProperties;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
-import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.features.ProductPackageClientLiveTest;

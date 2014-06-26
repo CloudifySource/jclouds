@@ -19,17 +19,17 @@
 
 package org.jclouds.softlayer.compute.functions;
 
-import com.google.common.base.Function;
-import com.google.inject.Guice;
-import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.javax.annotation.Nullable;
-import org.jclouds.softlayer.domain.SoftLayerNode;
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
+import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.javax.annotation.Nullable;
+import org.jclouds.softlayer.domain.SoftLayerNode;
+
+import com.google.common.base.Function;
 
 /**
  *

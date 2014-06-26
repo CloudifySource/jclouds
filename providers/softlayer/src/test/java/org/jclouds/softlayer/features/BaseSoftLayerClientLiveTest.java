@@ -16,17 +16,17 @@
  */
 package org.jclouds.softlayer.features;
 
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+
+import java.util.Set;
+
 import org.jclouds.apis.BaseApiLiveTest;
-import org.jclouds.compute.domain.OsFamily;
 import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductItemCategory;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
-import org.testng.annotations.Test;
-
-import java.util.Set;
-
-import static org.testng.Assert.*;
 
 /**
  * Tests behavior of {@code SoftLayerClient}

@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.get;
 import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCode;
-import static org.jclouds.softlayer.predicates.ProductItemPredicates.itemId;
 import static org.jclouds.softlayer.predicates.ProductItemPredicates.categoryCodeMatches;
 
 import java.util.regex.Pattern;

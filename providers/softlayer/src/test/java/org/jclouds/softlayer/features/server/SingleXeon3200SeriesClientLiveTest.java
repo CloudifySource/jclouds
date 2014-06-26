@@ -17,10 +17,12 @@
 
 package org.jclouds.softlayer.features.server;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import static org.jclouds.softlayer.predicates.ProductPackagePredicates.named;
+import static org.testng.Assert.assertEquals;
+
+import java.util.Properties;
+import java.util.Random;
+
 import org.jclouds.compute.domain.Template;
 import org.jclouds.softlayer.SingleXeon3200SeriesProperties;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
@@ -30,11 +32,9 @@ import org.jclouds.softlayer.domain.server.HardwareServer;
 import org.jclouds.softlayer.features.ProductPackageClientLiveTest;
 import org.testng.annotations.Test;
 
-import java.util.Properties;
-import java.util.Random;
-
-import static org.jclouds.softlayer.predicates.ProductPackagePredicates.named;
-import static org.testng.Assert.assertEquals;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 /**
  *

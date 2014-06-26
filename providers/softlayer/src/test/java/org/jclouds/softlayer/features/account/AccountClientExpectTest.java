@@ -16,7 +16,8 @@
  */
 package org.jclouds.softlayer.features.account;
 
-import com.google.common.collect.ImmutableSet;
+import static org.testng.Assert.assertEquals;
+
 import org.jclouds.http.HttpRequest;
 import org.jclouds.http.HttpResponse;
 import org.jclouds.rest.internal.BaseRestClientExpectTest;
@@ -24,9 +25,7 @@ import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.testng.annotations.Test;
 
-import java.net.URI;
-
-import static org.testng.Assert.assertEquals;
+import com.google.common.collect.ImmutableSet;
 
 /**
  *

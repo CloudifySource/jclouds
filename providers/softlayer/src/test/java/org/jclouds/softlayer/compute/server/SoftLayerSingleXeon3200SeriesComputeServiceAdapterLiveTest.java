@@ -16,12 +16,12 @@
  */
 package org.jclouds.softlayer.compute.server;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.net.HostAndPort;
-import com.google.common.net.InetAddresses;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+
+import java.util.Properties;
+import java.util.Random;
+
 import org.jclouds.compute.ComputeServiceAdapter.NodeAndInitialCredentials;
 import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.Template;
@@ -29,7 +29,6 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.functions.DefaultCredentialsFromImageOrOverridingCredentials;
 import org.jclouds.compute.strategy.PrioritizeCredentialsFromTemplate;
 import org.jclouds.domain.LoginCredentials;
-import org.jclouds.softlayer.HardwareServerProperties;
 import org.jclouds.softlayer.SingleXeon3200SeriesProperties;
 import org.jclouds.softlayer.SoftLayerClient;
 import org.jclouds.softlayer.compute.options.SoftLayerTemplateOptions;
@@ -43,11 +42,12 @@ import org.jclouds.sshj.config.SshjSshClientModule;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.Test;
 
-import java.util.Properties;
-import java.util.Random;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.net.HostAndPort;
+import com.google.common.net.InetAddresses;
+import com.google.inject.Injector;
+import com.google.inject.Module;
 
 @Test(groups = "live", singleThreaded = true, testName = "SoftLayerComputeServiceAdapterLiveTest")
 public class SoftLayerSingleXeon3200SeriesComputeServiceAdapterLiveTest extends BaseSoftLayerClientLiveTest {

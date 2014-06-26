@@ -16,6 +16,12 @@
  */
 package org.jclouds.softlayer.compute.strategy;
 
+import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.ComputeServiceAdapter;
 import org.jclouds.compute.domain.Template;
@@ -26,14 +32,7 @@ import org.jclouds.softlayer.domain.Datacenter;
 import org.jclouds.softlayer.domain.SoftLayerNode;
 import org.jclouds.softlayer.domain.guest.VirtualGuest;
 import org.jclouds.softlayer.domain.product.ProductItem;
-import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.server.HardwareServer;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-
-import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
 
 /**
  * defines the connection between the {@link SoftLayerClient} implementation and
