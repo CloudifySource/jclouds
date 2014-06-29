@@ -473,6 +473,10 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
    public static class VirtualGuestHasLoginDetailsPresent implements Predicate<VirtualGuest> {
       private final SoftLayerClient client;
+      
+      @Resource
+      @Named(SoftLayerConstants.TRANSACTION_LOGGER)
+      protected Logger logger = Logger.NULL;
 
       @Inject
       public VirtualGuestHasLoginDetailsPresent(SoftLayerClient client) {
@@ -488,8 +492,19 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
          boolean hasPrimaryIp = newGuest.getPrimaryIpAddress() != null;
          boolean hasPasswords = newGuest.getOperatingSystem() != null
                  && newGuest.getOperatingSystem().getPasswords().size() > 0;
-
-         return hasBackendIp && hasPrimaryIp && hasPasswords;
+         
+         logger.debug("VirtualGuestHasLoginDetailsPresent: hasBackendIp: " + hasBackendIp + ", hasPrimaryIp: " 
+        		 + hasPrimaryIp + ", hasPasswords: " + hasPasswords);
+         // TODO noak: currently getting the isPrivateNetworkOnlyFlag property fails, so ignoring the "hasPrimaryIp" 
+         // in order to allow the provisioning process to complete
+         return hasBackendIp && hasPasswords;
+         
+         // should be used:
+         /* if (newGuest.isPrivateNetworkOnlyFlag()) {
+        	 return hasBackendIp && hasPasswords;
+         /*} else {
+        	 return hasBackendIp && hasPrimaryIp && hasPasswords;
+         }*/
       }
    }
 
