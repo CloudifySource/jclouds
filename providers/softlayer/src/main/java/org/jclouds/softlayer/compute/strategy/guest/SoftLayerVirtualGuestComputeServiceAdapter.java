@@ -114,7 +114,9 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
    private Pattern serverDiskCategoryRegex;
    private String externalDisksId;
    private static final String SERVER_DISK_CATEGORY_REGEX = "guest_disk[1-5]";
+   
 
+   
    @Inject
    public SoftLayerVirtualGuestComputeServiceAdapter(SoftLayerClient client,
                                          VirtualGuestHasLoginDetailsPresent virtualGuestHasLoginDetailsPresent,
@@ -493,18 +495,14 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
          boolean hasPasswords = newGuest.getOperatingSystem() != null
                  && newGuest.getOperatingSystem().getPasswords().size() > 0;
          
-         logger.debug("VirtualGuestHasLoginDetailsPresent: hasBackendIp: " + hasBackendIp + ", hasPrimaryIp: " 
-        		 + hasPrimaryIp + ", hasPasswords: " + hasPasswords);
-         // TODO noak: currently getting the isPrivateNetworkOnlyFlag property fails, so ignoring the "hasPrimaryIp" 
-         // in order to allow the provisioning process to complete
-         return hasBackendIp && hasPasswords;
+         logger.debug("VirtualGuestHasLoginDetailsPresent: isPrivateNetworkOnlyFlag: " + newGuest.isPrivateNetworkOnlyFlag() 
+        		 + ", hasBackendIp: " + hasBackendIp + ", hasPrimaryIp: " + hasPrimaryIp + ", hasPasswords: " + hasPasswords);
          
-         // should be used:
-         /* if (newGuest.isPrivateNetworkOnlyFlag()) {
+          if (newGuest.isPrivateNetworkOnlyFlag()) {
         	 return hasBackendIp && hasPasswords;
-         /*} else {
+         } else {
         	 return hasBackendIp && hasPrimaryIp && hasPasswords;
-         }*/
+         }
       }
    }
 
