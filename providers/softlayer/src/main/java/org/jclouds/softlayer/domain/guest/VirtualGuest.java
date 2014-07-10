@@ -101,6 +101,7 @@ public class VirtualGuest extends SoftLayerNode {
       protected int startCpus;
       protected int statusId;
       protected String uuid;
+      protected String postInstallScriptUri;
       protected PowerState powerState;
       protected PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
 
@@ -199,6 +200,16 @@ public class VirtualGuest extends SoftLayerNode {
          this.uuid = uuid;
          return self();
       }
+      
+      
+      /**
+       * @see VirtualGuest#getPostInstallScriptUri()
+       */
+      public T postInstallScriptUri(String postInstallScriptUri) {
+         this.postInstallScriptUri = postInstallScriptUri;
+         return self();
+      }
+      
 
       /**
        * @see VirtualGuest#getPowerState()
@@ -220,8 +231,8 @@ public class VirtualGuest extends SoftLayerNode {
       public VirtualGuest build() {
          return new VirtualGuest(accountId, createDate, dedicatedAccountHostOnly, domain, fullyQualifiedDomainName, hostname,
                id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, metricPollDate, modifyDate, notes, privateNetworkOnlyFlag,
-               startCpus, statusId, uuid, primaryBackendIpAddress, primaryIpAddress, new BillingItem(billingItemId),
-               operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
+               startCpus, statusId, uuid, postInstallScriptUri, primaryBackendIpAddress, primaryIpAddress, 
+               new BillingItem(billingItemId), operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
       }
 
       public T fromVirtualGuest(VirtualGuest in) {
@@ -249,6 +260,7 @@ public class VirtualGuest extends SoftLayerNode {
                .startCpus(in.getStartCpus())
                .statusId(in.getStatusId())
                .uuid(in.getUuid())
+               .postInstallScriptUri(in.getPostInstallScriptUri())
                .powerState(in.getPowerState())
                .primaryBackendNetworkComponent(in.getPrimaryBackendNetworkComponent());
       }
@@ -273,19 +285,20 @@ public class VirtualGuest extends SoftLayerNode {
    private final int startCpus;
    private final int statusId;
    private final String uuid;
+   private final String postInstallScriptUri;
    private final PowerState powerState;
    private final PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
 
    @ConstructorProperties({
-         "accountId", "createDate", "dedicatedAccountHostOnlyFlag", "domain", "fullyQualifiedDomainName", "hostname", "id", "lastVerifiedDate", "maxCpu", "maxCpuUnits", "maxMemory", "metricPollDate", "modifyDate", "notes", "privateNetworkOnlyFlag", "startCpus", "statusId", "uuid", "primaryBackendIpAddress", "primaryIpAddress", "billingItem", "operatingSystem", "datacenter", "powerState", "primaryBackendNetworkComponent"
+         "accountId", "createDate", "dedicatedAccountHostOnlyFlag", "domain", "fullyQualifiedDomainName", "hostname", "id", "lastVerifiedDate", "maxCpu", "maxCpuUnits", "maxMemory", "metricPollDate", "modifyDate", "notes", "privateNetworkOnlyFlag", "startCpus", "statusId", "uuid", "postInstallScriptUri", "primaryBackendIpAddress", "primaryIpAddress", "billingItem", "operatingSystem", "datacenter", "powerState", "primaryBackendNetworkComponent"
    })
    protected VirtualGuest(int accountId, @Nullable Date createDate, boolean dedicatedAccountHostOnly, @Nullable String domain,
                           @Nullable String fullyQualifiedDomainName, @Nullable String hostname, int id, @Nullable Date lastVerifiedDate,
                           int maxCpu, @Nullable String maxCpuUnits, int maxMemory, @Nullable Date metricPollDate, @Nullable Date modifyDate,
                           @Nullable String notes, boolean privateNetworkOnlyFlag, int startCpus, int statusId, @Nullable String uuid,
-                          @Nullable String primaryBackendIpAddress, @Nullable String primaryIpAddress, @Nullable BillingItem billingItem,
-                          @Nullable OperatingSystem operatingSystem, @Nullable Datacenter datacenter, @Nullable PowerState powerState,
-                          @Nullable PrimaryBackendNetworkComponent primaryBackendNetworkComponent) {
+                          @Nullable String postInstallScriptUri, @Nullable String primaryBackendIpAddress, @Nullable String primaryIpAddress, 
+                          @Nullable BillingItem billingItem, @Nullable OperatingSystem operatingSystem, @Nullable Datacenter datacenter, 
+                          @Nullable PowerState powerState, @Nullable PrimaryBackendNetworkComponent primaryBackendNetworkComponent) {
       super(accountId, domain, fullyQualifiedDomainName, hostname, id, notes, primaryBackendIpAddress, primaryIpAddress,
               billingItem, operatingSystem, datacenter);
       this.createDate = createDate;
@@ -300,6 +313,7 @@ public class VirtualGuest extends SoftLayerNode {
       this.startCpus = startCpus;
       this.statusId = statusId;
       this.uuid = uuid;
+      this.postInstallScriptUri = postInstallScriptUri;
       this.powerState = powerState;
       this.primaryBackendNetworkComponent = primaryBackendNetworkComponent;
    }
@@ -403,6 +417,16 @@ public class VirtualGuest extends SoftLayerNode {
    public String getUuid() {
       return this.uuid;
    }
+   
+   /**
+    * @return Post provisioning script URI.
+    * During the provisioning process, scripts associated with an HTTP URL are downloaded to the device and must be 
+    * manually executed. Scripts associated with an HTTPS URL are downloaded and executed.
+    */
+   @Nullable
+   public String getPostInstallScriptUri() {
+      return this.postInstallScriptUri;
+   }
 
    /**
     * @return The current power state of a virtual guest.
@@ -424,8 +448,8 @@ public class VirtualGuest extends SoftLayerNode {
    public int hashCode() {
       return Objects.hashCode(accountId, createDate, dedicatedAccountHostOnly, domain, fullyQualifiedDomainName,
               hostname, id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, metricPollDate, modifyDate, notes,
-              privateNetworkOnlyFlag, startCpus, statusId, uuid, primaryBackendIpAddress, primaryIpAddress, billingItemId,
-              operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
+              privateNetworkOnlyFlag, startCpus, statusId, uuid, postInstallScriptUri, primaryBackendIpAddress, 
+              primaryIpAddress, billingItemId, operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
    }
 
    @Override
@@ -451,6 +475,7 @@ public class VirtualGuest extends SoftLayerNode {
             && Objects.equal(this.startCpus, that.startCpus)
             && Objects.equal(this.statusId, that.statusId)
             && Objects.equal(this.uuid, that.uuid)
+            && Objects.equal(this.postInstallScriptUri, that.postInstallScriptUri)
             && Objects.equal(this.primaryBackendIpAddress, that.primaryBackendIpAddress)
             && Objects.equal(this.primaryIpAddress, that.primaryIpAddress)
             && Objects.equal(this.billingItemId, that.billingItemId)
@@ -462,7 +487,7 @@ public class VirtualGuest extends SoftLayerNode {
 
    protected ToStringHelper string() {
       return Objects.toStringHelper(this)
-            .add("accountId", accountId).add("createDate", createDate).add("dedicatedAccountHostOnly", dedicatedAccountHostOnly).add("domain", domain).add("fullyQualifiedDomainName", fullyQualifiedDomainName).add("hostname", hostname).add("id", id).add("lastVerifiedDate", lastVerifiedDate).add("maxCpu", maxCpu).add("maxCpuUnits", maxCpuUnits).add("maxMemory", maxMemory).add("metricPollDate", metricPollDate).add("modifyDate", modifyDate).add("notes", notes).add("privateNetworkOnlyFlag", privateNetworkOnlyFlag).add("startCpus", startCpus).add("statusId", statusId).add("uuid", uuid).add("primaryBackendIpAddress", primaryBackendIpAddress).add("primaryIpAddress", primaryIpAddress).add("billingItemId", billingItemId).add("operatingSystem", operatingSystem).add("datacenter", datacenter).add("powerState", powerState).add("primaryBackendNetworkComponent", primaryBackendNetworkComponent);
+            .add("accountId", accountId).add("createDate", createDate).add("dedicatedAccountHostOnly", dedicatedAccountHostOnly).add("domain", domain).add("fullyQualifiedDomainName", fullyQualifiedDomainName).add("hostname", hostname).add("id", id).add("lastVerifiedDate", lastVerifiedDate).add("maxCpu", maxCpu).add("maxCpuUnits", maxCpuUnits).add("maxMemory", maxMemory).add("metricPollDate", metricPollDate).add("modifyDate", modifyDate).add("notes", notes).add("privateNetworkOnlyFlag", privateNetworkOnlyFlag).add("startCpus", startCpus).add("statusId", statusId).add("uuid", uuid).add("postInstallScriptUri", postInstallScriptUri).add("primaryBackendIpAddress", primaryBackendIpAddress).add("primaryIpAddress", primaryIpAddress).add("billingItemId", billingItemId).add("operatingSystem", operatingSystem).add("datacenter", datacenter).add("powerState", powerState).add("primaryBackendNetworkComponent", primaryBackendNetworkComponent);
    }
 
    @Override

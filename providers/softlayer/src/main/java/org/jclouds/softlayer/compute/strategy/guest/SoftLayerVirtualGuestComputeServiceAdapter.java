@@ -162,6 +162,7 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       SoftLayerTemplateOptions templateOptions = template.getOptions().as(SoftLayerTemplateOptions.class);
       String domainName = templateOptions.getDomainName();
       String networkVlanId = templateOptions.getNetworkVlanId();
+      String postInstallScriptUri = templateOptions.getPostInstallScriptUri();
       boolean isPrivateNetworkOnly = templateOptions.isPrivateNetworkOnly();
       
       VirtualGuest.Builder<?> virtualGuestBuilder = VirtualGuest.builder().domain(domainName).hostname(name).privateNetworkOnlyFlag(isPrivateNetworkOnly);
@@ -171,6 +172,11 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
     	  NetworkVlan networkVlan = NetworkVlan.builder().id(Integer.valueOf(networkVlanId)).build();
     	  PrimaryBackendNetworkComponent primaryBackendNetworkComponent = PrimaryBackendNetworkComponent.builder().networkVlan(networkVlan).build();
     	  virtualGuestBuilder = virtualGuestBuilder.primaryBackendNetworkComponent(primaryBackendNetworkComponent);
+      }
+      
+      if (postInstallScriptUri != null && postInstallScriptUri.trim().length() > 0) {
+    	  // the validity of the URI was checked already by SoftLayerTemplateOptions.postInstallScriptUri
+    	  virtualGuestBuilder = virtualGuestBuilder.postInstallScriptUri(postInstallScriptUri);
       }
       
       VirtualGuest newGuest = virtualGuestBuilder.build();

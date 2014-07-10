@@ -19,6 +19,7 @@ package org.jclouds.softlayer.compute.options;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.net.URL;
 import java.util.Map;
 
 import org.jclouds.compute.options.TemplateOptions;
@@ -50,6 +51,7 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
 
    protected String domainName = "jclouds.org";
    protected String networkVlanId = "";
+   protected String postInstallScriptUri = "";
    protected boolean privateNetworkOnly = false;
 
    @Override
@@ -66,6 +68,7 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
          SoftLayerTemplateOptions eTo = SoftLayerTemplateOptions.class.cast(to);
          eTo.domainName(domainName);
          eTo.networkVlanId(networkVlanId);
+         eTo.postInstallScriptUri(postInstallScriptUri);
          eTo.privateNetworkOnly(privateNetworkOnly);
       }
    }
@@ -85,6 +88,7 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
       return this;
    }
    
+   
    /**
     * will set a network vlan when ordering virtual guests.
     * 
@@ -102,6 +106,26 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
       return this;
    }
    
+   
+   /**
+    * will set a post-install script URI when ordering virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#orderVirtualGuest
+    */
+   public TemplateOptions postInstallScriptUri(String postInstallScriptUri) {
+      checkNotNull(postInstallScriptUri, "postInstallScriptUri is null");
+      try {
+    	  new URL(postInstallScriptUri);
+      } catch (Exception e) {
+    	  throw new IllegalArgumentException("postInstallScriptUri " + postInstallScriptUri + " is not a valid URI");
+      }
+
+      this.postInstallScriptUri = postInstallScriptUri;
+      return this;
+   }
+   
+   
+   
    /**
     * will set the privateNetworkOnly flag when ordering virtual guests.
     * 
@@ -118,6 +142,10 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
    
    public String getNetworkVlanId() {
       return networkVlanId;
+   }
+   
+   public String getPostInstallScriptUri() {
+      return postInstallScriptUri;
    }
    
    public boolean isPrivateNetworkOnly() {
@@ -142,6 +170,14 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
       public static SoftLayerTemplateOptions networkVlanId(String networkVlanId) {
          SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
          return SoftLayerTemplateOptions.class.cast(options.networkVlanId(networkVlanId));
+      }
+      
+      /**
+       * @see #postInstallScriptUri
+       */
+      public static SoftLayerTemplateOptions postInstallScriptUri(String postInstallScriptUri) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.postInstallScriptUri(postInstallScriptUri));
       }
       
       /**
@@ -236,4 +272,5 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
    public SoftLayerTemplateOptions userMetadata(String key, String value) {
       return SoftLayerTemplateOptions.class.cast(super.userMetadata(key, value));
    }
+
 }
