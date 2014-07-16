@@ -16,12 +16,15 @@
  */
 package org.jclouds.softlayer.features.guest;
 
+import java.util.Set;
+
+import org.jclouds.rest.annotations.BinderParam;
+import org.jclouds.softlayer.binders.VirtualGuestToJson;
 import org.jclouds.softlayer.domain.Transaction;
 import org.jclouds.softlayer.domain.guest.VirtualGuest;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
-
-import java.util.Set;
+import org.jclouds.softlayer.domain.product.ReducedProductOrder;
 
 /**
  * Provides synchronous access to VirtualGuest.
@@ -106,7 +109,7 @@ public interface VirtualGuestClient {
     * @see <a href="http://sldn.softlayer.com/reference/services/SoftLayer_Product_Order/placeOrder" />
     */
    ProductOrderReceipt orderVirtualGuest(ProductOrder order);
-
+   
    /**
     * Use this method for verifying guest orders and additional services orders.
     * @param order
@@ -115,6 +118,24 @@ public interface VirtualGuestClient {
     * @see <a href="http://sldn.softlayer.com/reference/services/SoftLayer_Product_Order/verifyOrder" />
     */
    ProductOrder verifyVirtualGuestOrder(ProductOrder order);
+   
+   /**
+    * Use this method to create virtual guest objects
+    * @param virtualGuestTemplate
+    *             A VirtualGuest template object, containing the relevant parameters to be set in the created instance.
+    * @return A VirtualGuest object
+    * @see <a href="http://sldn.softlayer.com/reference/services/SoftLayer_Virtual_Guest/createObject/" />
+    */
+   VirtualGuest createVirtualGuest(VirtualGuest virtualGuestTemplate);
+   
+   /**
+    * Use this method to verify virtual guest object parameters before creation
+    * @param virtualGuestTemplate
+    *             A VirtualGuest template object, containing the relevant parameters to be verified.
+    * @return The order itself, containing some additional debugging information in case of errors.
+    * @see <a href="http://sldn.softlayer.com/reference/services/SoftLayer_Virtual_Guest/generateOrderTemplate/" />
+    */
+   ReducedProductOrder verifyVirtualGuestTemplate(@BinderParam(VirtualGuestToJson.class)VirtualGuest templateVirtualGuest);
 
    /**
     * Obtain an order container that is ready to be sent to the orderVirtualGuest method.

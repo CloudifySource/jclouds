@@ -28,10 +28,12 @@ import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.QueryParams;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.softlayer.binders.ProductOrderToJson;
+import org.jclouds.softlayer.binders.VirtualGuestToJson;
 import org.jclouds.softlayer.domain.Transaction;
 import org.jclouds.softlayer.domain.guest.VirtualGuest;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
+import org.jclouds.softlayer.domain.product.ReducedProductOrder;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -145,7 +147,7 @@ public interface VirtualGuestAsyncClient {
    @Consumes(MediaType.APPLICATION_JSON)
    @Fallback(NullOnNotFoundOr404.class)
    ListenableFuture<ProductOrderReceipt> orderVirtualGuest(@BinderParam(ProductOrderToJson.class)ProductOrder order);
-
+   
    /**
     * @see VirtualGuestClient#verifyVirtualGuestOrder
     */
@@ -154,6 +156,24 @@ public interface VirtualGuestAsyncClient {
    @Consumes(MediaType.APPLICATION_JSON)
    @Fallback(NullOnNotFoundOr404.class)
    ListenableFuture<ProductOrder> verifyVirtualGuestOrder(@BinderParam(ProductOrderToJson.class)ProductOrder order);
+   
+   /**
+    * @see VirtualGuestClient#createVirtualGuest
+    */
+   @POST
+   @Path("/SoftLayer_Virtual_Guest.json")
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Fallback(NullOnNotFoundOr404.class)
+   ListenableFuture<VirtualGuest> createVirtualGuest(@BinderParam(VirtualGuestToJson.class)VirtualGuest templateVirtualGuest);
+   
+   /**
+    * @see VirtualGuestClient#createVirtualGuest
+    */
+   @POST
+   @Path("/SoftLayer_Virtual_Guest/generateOrderTemplate.json")
+   @Consumes(MediaType.APPLICATION_JSON)
+   @Fallback(NullOnNotFoundOr404.class)
+   ListenableFuture<ReducedProductOrder> verifyVirtualGuestTemplate(@BinderParam(VirtualGuestToJson.class)VirtualGuest templateVirtualGuest);
 
    /**
     * Throws an Internal Server Error if called on bad orders (mapped to HttpResponseException)

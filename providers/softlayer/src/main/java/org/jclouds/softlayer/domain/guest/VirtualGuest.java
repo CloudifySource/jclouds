@@ -16,18 +16,20 @@
  */
 package org.jclouds.softlayer.domain.guest;
 
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.beans.ConstructorProperties;
+import java.util.Date;
+import java.util.List;
+
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.softlayer.domain.Datacenter;
 import org.jclouds.softlayer.domain.OperatingSystem;
 import org.jclouds.softlayer.domain.SoftLayerNode;
 
-import java.beans.ConstructorProperties;
-import java.util.Date;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
 
 /**
  * The virtual guest data type presents the structure in which all virtual guests will be presented.
@@ -94,16 +96,22 @@ public class VirtualGuest extends SoftLayerNode {
       protected Date lastVerifiedDate;
       protected int maxCpu;
       protected String maxCpuUnits;
-      protected int maxMemory;
+      protected long maxMemory;
+      protected String operatingSystemReferenceCode;
       protected Date metricPollDate;
       protected Date modifyDate;
+      protected List<Integer> blockDevicesDiskCapacity;
+      protected boolean localDiskFlag;
       protected boolean privateNetworkOnlyFlag;
+      protected long maxNetworkSpeed;
       protected int startCpus;
       protected int statusId;
       protected String uuid;
       protected String postInstallScriptUri;
       protected PowerState powerState;
       protected PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
+      
+      // protected SupplementalCreateObjectOptions supplementalCreateObjectOptions;
 
       /**
        * @see VirtualGuest#getCreateDate()
@@ -148,7 +156,7 @@ public class VirtualGuest extends SoftLayerNode {
       /**
        * @see VirtualGuest#getMaxMemory()
        */
-      public T maxMemory(int maxMemory) {
+      public T maxMemory(long maxMemory) {
          this.maxMemory = maxMemory;
          return self();
       }
@@ -168,6 +176,22 @@ public class VirtualGuest extends SoftLayerNode {
          this.modifyDate = modifyDate;
          return self();
       }
+      
+      /**
+       * see VirtualGuest#getBlockDevicesDiskCapacity()
+       */
+      public T blockDevicesDiskCapacity(List<Integer> blockDevicesDiskCapacity) {
+    	  this.blockDevicesDiskCapacity = blockDevicesDiskCapacity;
+    	  return self();
+      }
+      
+      /**
+       * see VirtualGuest#getLocalDiskFlag()
+       */
+      public T localDiskFlag(boolean localDiskFlag) {
+    	  this.localDiskFlag = localDiskFlag;
+    	  return self();
+      }
 
       /**
        * @see VirtualGuest#isPrivateNetworkOnlyFlag()
@@ -175,6 +199,22 @@ public class VirtualGuest extends SoftLayerNode {
       public T privateNetworkOnlyFlag(boolean privateNetworkOnlyFlag) {
          this.privateNetworkOnlyFlag = privateNetworkOnlyFlag;
          return self();
+      }
+      
+      /**
+       * @see VirtualGuest#getMaxNetworkSpeed()
+       */
+      public T maxNetworkSpeed(long maxNetworkSpeed) {
+    	  this.maxNetworkSpeed = maxNetworkSpeed;
+    	  return self();
+      }
+      
+      /**
+       * @see VirtualGuest#getOperatingSystemReferenceCode()
+       */
+      public T operatingSystemReferenceCode(String operatingSystemReferenceCode) {
+    	  this.operatingSystemReferenceCode = operatingSystemReferenceCode;
+    	  return self();
       }
 
       /**
@@ -227,13 +267,26 @@ public class VirtualGuest extends SoftLayerNode {
          this.primaryBackendNetworkComponent = primaryBackendNetworkComponent;
          return self();
       }
+      
+      
+//      /**
+//       * @see VirtualGuest#getSupplementalCreateObjectOptions()
+//       */
+//      public T supplementalCreateObjectOptions(SupplementalCreateObjectOptions supplementalCreateObjectOptions) {
+//         this.supplementalCreateObjectOptions = supplementalCreateObjectOptions;
+//         return self();
+//      }
+      
 
       public VirtualGuest build() {
          return new VirtualGuest(accountId, createDate, dedicatedAccountHostOnly, domain, fullyQualifiedDomainName, hostname,
-               id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, metricPollDate, modifyDate, notes, privateNetworkOnlyFlag,
-               startCpus, statusId, uuid, postInstallScriptUri, primaryBackendIpAddress, primaryIpAddress, 
-               new BillingItem(billingItemId), operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
+               id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, operatingSystemReferenceCode, metricPollDate, 
+               modifyDate, blockDevicesDiskCapacity, localDiskFlag, notes, privateNetworkOnlyFlag, maxNetworkSpeed, startCpus, statusId, uuid, 
+               postInstallScriptUri, primaryBackendIpAddress, primaryIpAddress, new BillingItem(billingItemId), operatingSystem, 
+               datacenter, powerState, primaryBackendNetworkComponent
+               );
       }
+
 
       public T fromVirtualGuest(VirtualGuest in) {
          return this
@@ -254,15 +307,20 @@ public class VirtualGuest extends SoftLayerNode {
                .maxCpu(in.getMaxCpu())
                .maxCpuUnits(in.getMaxCpuUnits())
                .maxMemory(in.getMaxMemory())
+               .operatingSystemReferenceCode(in.getOperatingSystemReferenceCode())
                .metricPollDate(in.getMetricPollDate())
                .modifyDate(in.getModifyDate())
+               .blockDevicesDiskCapacity(in.getBlockDevicesDiskCapacity())
+               .localDiskFlag(in.isLocalDiskFlag())
                .privateNetworkOnlyFlag(in.isPrivateNetworkOnlyFlag())
+               .maxNetworkSpeed(in.getMaxNetworkSpeed())
                .startCpus(in.getStartCpus())
                .statusId(in.getStatusId())
                .uuid(in.getUuid())
                .postInstallScriptUri(in.getPostInstallScriptUri())
                .powerState(in.getPowerState())
-               .primaryBackendNetworkComponent(in.getPrimaryBackendNetworkComponent());
+               .primaryBackendNetworkComponent(in.getPrimaryBackendNetworkComponent())
+               /*.supplementalCreateObjectOptions(in.getSupplementalCreateObjectOptions())*/;
       }
    }
 
@@ -278,27 +336,36 @@ public class VirtualGuest extends SoftLayerNode {
    private final Date lastVerifiedDate;
    private final int maxCpu;
    private final String maxCpuUnits;
-   private final int maxMemory;
+   private final long maxMemory;
    private final Date metricPollDate;
    private final Date modifyDate;
+   private final List<Integer> blockDevicesDiskCapacity;
+   private final boolean localDiskFlag;
    private final boolean privateNetworkOnlyFlag;
+   private final long maxNetworkSpeed;
    private final int startCpus;
+   private final String operatingSystemReferenceCode;
    private final int statusId;
    private final String uuid;
    private final String postInstallScriptUri;
    private final PowerState powerState;
    private final PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
+   private final boolean hourlyBillingFlag;
+   // private final SupplementalCreateObjectOptions supplementalCreateObjectOptions;
+   
 
    @ConstructorProperties({
-         "accountId", "createDate", "dedicatedAccountHostOnlyFlag", "domain", "fullyQualifiedDomainName", "hostname", "id", "lastVerifiedDate", "maxCpu", "maxCpuUnits", "maxMemory", "metricPollDate", "modifyDate", "notes", "privateNetworkOnlyFlag", "startCpus", "statusId", "uuid", "postInstallScriptUri", "primaryBackendIpAddress", "primaryIpAddress", "billingItem", "operatingSystem", "datacenter", "powerState", "primaryBackendNetworkComponent"
+         "accountId", "createDate", "dedicatedAccountHostOnlyFlag", "domain", "fullyQualifiedDomainName", "hostname", "id", "lastVerifiedDate", "maxCpu", "maxCpuUnits", "maxMemory", "operatingSystemReferenceCode", "metricPollDate", "modifyDate", "blockDevicesDiskCapacity", "localDiskFlag", "notes", "privateNetworkOnlyFlag", "maxNetworkSpeed", "startCpus", "statusId", "uuid", "postInstallScriptUri", "primaryBackendIpAddress", "primaryIpAddress", "billingItem", "operatingSystem", "datacenter", "powerState", "primaryBackendNetworkComponent"
    })
    protected VirtualGuest(int accountId, @Nullable Date createDate, boolean dedicatedAccountHostOnly, @Nullable String domain,
                           @Nullable String fullyQualifiedDomainName, @Nullable String hostname, int id, @Nullable Date lastVerifiedDate,
-                          int maxCpu, @Nullable String maxCpuUnits, int maxMemory, @Nullable Date metricPollDate, @Nullable Date modifyDate,
-                          @Nullable String notes, boolean privateNetworkOnlyFlag, int startCpus, int statusId, @Nullable String uuid,
+                          int maxCpu, @Nullable String maxCpuUnits, long maxMemory, @Nullable String operatingSystemReferenceCode, @Nullable Date metricPollDate, 
+                          @Nullable Date modifyDate, @Nullable List<Integer> blockDevicesDiskCapacity,@Nullable boolean localDiskFlag, @Nullable String notes, 
+                          boolean privateNetworkOnlyFlag, @Nullable long maxNetworkSpeed, int startCpus, int statusId, @Nullable String uuid, 
                           @Nullable String postInstallScriptUri, @Nullable String primaryBackendIpAddress, @Nullable String primaryIpAddress, 
-                          @Nullable BillingItem billingItem, @Nullable OperatingSystem operatingSystem, @Nullable Datacenter datacenter, 
-                          @Nullable PowerState powerState, @Nullable PrimaryBackendNetworkComponent primaryBackendNetworkComponent) {
+                          @Nullable BillingItem billingItem, @Nullable OperatingSystem operatingSystem, @Nullable Datacenter datacenter, @Nullable PowerState powerState, 
+                          @Nullable PrimaryBackendNetworkComponent primaryBackendNetworkComponent
+                          ) {
       super(accountId, domain, fullyQualifiedDomainName, hostname, id, notes, primaryBackendIpAddress, primaryIpAddress,
               billingItem, operatingSystem, datacenter);
       this.createDate = createDate;
@@ -307,15 +374,21 @@ public class VirtualGuest extends SoftLayerNode {
       this.maxCpu = maxCpu;
       this.maxCpuUnits = maxCpuUnits;
       this.maxMemory = maxMemory;
+      this.operatingSystemReferenceCode = operatingSystemReferenceCode;
       this.metricPollDate = metricPollDate;
       this.modifyDate = modifyDate;
+      this.blockDevicesDiskCapacity = blockDevicesDiskCapacity;
+      this.localDiskFlag = localDiskFlag;
       this.privateNetworkOnlyFlag = privateNetworkOnlyFlag;
+      this.maxNetworkSpeed = maxNetworkSpeed;
       this.startCpus = startCpus;
       this.statusId = statusId;
       this.uuid = uuid;
       this.postInstallScriptUri = postInstallScriptUri;
       this.powerState = powerState;
       this.primaryBackendNetworkComponent = primaryBackendNetworkComponent;
+      this.hourlyBillingFlag = true;
+      // this.supplementalCreateObjectOptions = supplementalCreateObjectOptions;
    }
 
    /**
@@ -361,8 +434,15 @@ public class VirtualGuest extends SoftLayerNode {
    /**
     * @return The maximum amount of memory a computing instance may utilize.
     */
-   public int getMaxMemory() {
+   public long getMaxMemory() {
       return this.maxMemory;
+   }
+   
+   /**
+    * @return The reference code of the operating system installed on this virtual guest
+    */
+   public String getOperatingSystemReferenceCode() {
+	   return this.operatingSystemReferenceCode;
    }
 
    /**
@@ -380,6 +460,16 @@ public class VirtualGuest extends SoftLayerNode {
    public Date getModifyDate() {
       return this.modifyDate;
    }
+   
+   @Nullable
+   public List<Integer> getBlockDevicesDiskCapacity() {
+	   return this.blockDevicesDiskCapacity;
+   }
+   
+   @Nullable
+   public boolean isLocalDiskFlag() {
+	   return this.localDiskFlag;
+   }
 
    /**
     * @return A small note about a cloud instance to use at your discretion.
@@ -394,6 +484,13 @@ public class VirtualGuest extends SoftLayerNode {
     */
    public boolean isPrivateNetworkOnlyFlag() {
       return this.privateNetworkOnlyFlag;
+   }
+   
+   /*
+    * @return the maximum network speed
+    */
+   public long getMaxNetworkSpeed() {
+	   return this.maxNetworkSpeed;
    }
 
    /**
@@ -444,12 +541,22 @@ public class VirtualGuest extends SoftLayerNode {
       return this.primaryBackendNetworkComponent;
    }
 
+//   /**
+//    * @return The supplemental create object options (contains the post install script uri) of a virtual guest.
+//    */
+//   @Nullable
+//   public SupplementalCreateObjectOptions getSupplementalCreateObjectOptions() {
+//      return this.supplementalCreateObjectOptions;
+//   }
+   
+   
    @Override
    public int hashCode() {
       return Objects.hashCode(accountId, createDate, dedicatedAccountHostOnly, domain, fullyQualifiedDomainName,
-              hostname, id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, metricPollDate, modifyDate, notes,
-              privateNetworkOnlyFlag, startCpus, statusId, uuid, postInstallScriptUri, primaryBackendIpAddress, 
-              primaryIpAddress, billingItemId, operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
+              hostname, id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, operatingSystemReferenceCode, metricPollDate, 
+              modifyDate, blockDevicesDiskCapacity, localDiskFlag, notes, privateNetworkOnlyFlag, maxNetworkSpeed, startCpus, statusId, uuid, postInstallScriptUri,
+              primaryBackendIpAddress, primaryIpAddress, billingItemId, operatingSystem, datacenter, powerState, primaryBackendNetworkComponent/*,
+              supplementalCreateObjectOptions*/);
    }
 
    @Override
@@ -468,10 +575,14 @@ public class VirtualGuest extends SoftLayerNode {
             && Objects.equal(this.maxCpu, that.maxCpu)
             && Objects.equal(this.maxCpuUnits, that.maxCpuUnits)
             && Objects.equal(this.maxMemory, that.maxMemory)
+            && Objects.equal(this.operatingSystemReferenceCode, that.operatingSystemReferenceCode)
             && Objects.equal(this.metricPollDate, that.metricPollDate)
             && Objects.equal(this.modifyDate, that.modifyDate)
+            && Objects.equal(this.blockDevicesDiskCapacity, that.blockDevicesDiskCapacity)
+            && Objects.equal(this.localDiskFlag, that.localDiskFlag)
             && Objects.equal(this.notes, that.notes)
             && Objects.equal(this.privateNetworkOnlyFlag, that.privateNetworkOnlyFlag)
+            && Objects.equal(this.maxNetworkSpeed, that.maxNetworkSpeed)
             && Objects.equal(this.startCpus, that.startCpus)
             && Objects.equal(this.statusId, that.statusId)
             && Objects.equal(this.uuid, that.uuid)
@@ -482,12 +593,14 @@ public class VirtualGuest extends SoftLayerNode {
             && Objects.equal(this.operatingSystem, that.operatingSystem)
             && Objects.equal(this.datacenter, that.datacenter)
             && Objects.equal(this.powerState, that.powerState)
-            && Objects.equal(this.primaryBackendNetworkComponent, that.primaryBackendNetworkComponent);
+            && Objects.equal(this.primaryBackendNetworkComponent, that.primaryBackendNetworkComponent)
+            //&& Objects.equal(this.supplementalCreateObjectOptions, that.supplementalCreateObjectOptions)
+            ;
    }
 
    protected ToStringHelper string() {
       return Objects.toStringHelper(this)
-            .add("accountId", accountId).add("createDate", createDate).add("dedicatedAccountHostOnly", dedicatedAccountHostOnly).add("domain", domain).add("fullyQualifiedDomainName", fullyQualifiedDomainName).add("hostname", hostname).add("id", id).add("lastVerifiedDate", lastVerifiedDate).add("maxCpu", maxCpu).add("maxCpuUnits", maxCpuUnits).add("maxMemory", maxMemory).add("metricPollDate", metricPollDate).add("modifyDate", modifyDate).add("notes", notes).add("privateNetworkOnlyFlag", privateNetworkOnlyFlag).add("startCpus", startCpus).add("statusId", statusId).add("uuid", uuid).add("postInstallScriptUri", postInstallScriptUri).add("primaryBackendIpAddress", primaryBackendIpAddress).add("primaryIpAddress", primaryIpAddress).add("billingItemId", billingItemId).add("operatingSystem", operatingSystem).add("datacenter", datacenter).add("powerState", powerState).add("primaryBackendNetworkComponent", primaryBackendNetworkComponent);
+            .add("accountId", accountId).add("createDate", createDate).add("dedicatedAccountHostOnly", dedicatedAccountHostOnly).add("domain", domain).add("fullyQualifiedDomainName", fullyQualifiedDomainName).add("hostname", hostname).add("id", id).add("lastVerifiedDate", lastVerifiedDate).add("maxCpu", maxCpu).add("maxCpuUnits", maxCpuUnits).add("maxMemory", maxMemory).add("operatingSystemReferenceCode", operatingSystemReferenceCode).add("metricPollDate", metricPollDate).add("modifyDate", modifyDate).add("blockDevicesDiskCapacity", blockDevicesDiskCapacity).add("localDiskFlag", localDiskFlag).add("notes", notes).add("privateNetworkOnlyFlag", privateNetworkOnlyFlag).add("maxNetworkSpeed", maxNetworkSpeed).add("startCpus", startCpus).add("statusId", statusId).add("uuid", uuid).add("postInstallScriptUri", postInstallScriptUri).add("primaryBackendIpAddress", primaryBackendIpAddress).add("primaryIpAddress", primaryIpAddress).add("billingItemId", billingItemId).add("operatingSystem", operatingSystem).add("datacenter", datacenter).add("powerState", powerState).add("primaryBackendNetworkComponent", primaryBackendNetworkComponent)/*.add("supplementalCreateObjectOptions", supplementalCreateObjectOptions)*/;
    }
 
    @Override

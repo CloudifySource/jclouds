@@ -43,6 +43,7 @@ import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLA
 import static org.jclouds.util.Predicates2.retry;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -75,6 +76,7 @@ import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductOrder;
 import org.jclouds.softlayer.domain.product.ProductOrderReceipt;
 import org.jclouds.softlayer.domain.product.ProductPackage;
+import org.jclouds.softlayer.domain.product.ReducedProductOrder;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 
 import com.google.common.base.Predicate;
@@ -153,6 +155,8 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
    @Override
    public NodeAndInitialCredentials<SoftLayerNode> createNodeWithGroupEncodedIntoName(String group, String name,
                                                                                      Template template) {
+	   
+	   boolean useCreateObjectApi = false;
       checkNotNull(template, "template was null");
       checkNotNull(template.getOptions(), "template options was null");
       checkArgument(template.getOptions().getClass().isAssignableFrom(SoftLayerTemplateOptions.class),
@@ -161,9 +165,18 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
       SoftLayerTemplateOptions templateOptions = template.getOptions().as(SoftLayerTemplateOptions.class);
       String domainName = templateOptions.getDomainName();
+      
+      int startCpus = templateOptions.getStartCpus();
+      int maxMemory = templateOptions.getMaxMemory();
+      String operatingSystemReferenceCode = templateOptions.getOperatingSystemReferenceCode();
+      List<Integer> blockDevicesDiskCapacity = templateOptions.getBlockDevicesDiskCapacity();
+      boolean localDiskFlag = templateOptions.isLocalDiskFlag();
       String networkVlanId = templateOptions.getNetworkVlanId();
-      String postInstallScriptUri = templateOptions.getPostInstallScriptUri();
       boolean isPrivateNetworkOnly = templateOptions.isPrivateNetworkOnly();
+      int maxNetworkSpeed = templateOptions.getMaxNetworkSpeed();
+      String postInstallScriptUri = templateOptions.getPostInstallScriptUri();
+
+      
       
       VirtualGuest.Builder<?> virtualGuestBuilder = VirtualGuest.builder().domain(domainName).hostname(name).privateNetworkOnlyFlag(isPrivateNetworkOnly);
       
@@ -174,30 +187,80 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
     	  virtualGuestBuilder = virtualGuestBuilder.primaryBackendNetworkComponent(primaryBackendNetworkComponent);
       }
       
+      if (maxNetworkSpeed > 0) {
+    	  virtualGuestBuilder.maxNetworkSpeed(maxNetworkSpeed);
+    	  useCreateObjectApi = true;
+      }
+      
       if (postInstallScriptUri != null && postInstallScriptUri.trim().length() > 0) {
     	  // the validity of the URI was checked already by SoftLayerTemplateOptions.postInstallScriptUri
-    	  virtualGuestBuilder = virtualGuestBuilder.postInstallScriptUri(postInstallScriptUri);
+    	  virtualGuestBuilder.postInstallScriptUri(postInstallScriptUri);
+    	  /*SupplementalCreateObjectOptions supplementalCreateObjectOptions = SupplementalCreateObjectOptions.builder().postInstallScriptUri(postInstallScriptUri).build();
+    	  virtualGuestBuilder = virtualGuestBuilder.supplementalCreateObjectOptions(supplementalCreateObjectOptions);*/
+    	  // need to use the createObject API because placeOrder does not support postInstallScriptUri
+    	  useCreateObjectApi = true;
+      }
+      
+      if (startCpus > 0) {
+    	  virtualGuestBuilder.startCpus(startCpus);
+    	  useCreateObjectApi = true;
+      }
+      
+      if (maxMemory > 0) {
+    	  virtualGuestBuilder.maxMemory(maxMemory);
+    	  useCreateObjectApi = true;
+      }
+      
+      if (operatingSystemReferenceCode != null && operatingSystemReferenceCode.trim().length() > 0) {
+    	  virtualGuestBuilder.operatingSystemReferenceCode(operatingSystemReferenceCode);
+    	  useCreateObjectApi = true;
+      }
+      
+      if (blockDevicesDiskCapacity != null && blockDevicesDiskCapacity.size() > 0) {
+    	  virtualGuestBuilder.blockDevicesDiskCapacity(blockDevicesDiskCapacity);
+    	  virtualGuestBuilder.localDiskFlag(localDiskFlag);
+    	  useCreateObjectApi = true;
+      }
+      
+      if (useCreateObjectApi) {
+    	  Datacenter datacenter = client.getDatacenterClient().getDatacenter(Integer.valueOf(template.getLocation().getId()));
+    	  virtualGuestBuilder.datacenter(datacenter);
       }
       
       VirtualGuest newGuest = virtualGuestBuilder.build();
+      VirtualGuest result;
       
-      
-      String validGuestHardwarePriceIds = getValidPriceCombination(template, newGuest);
+      if (useCreateObjectApi) {
+    	  try {
+    		  ReducedProductOrder verifiedOrder = client.getVirtualGuestClient().verifyVirtualGuestTemplate(newGuest);
+    		  logger.debug(">> verified virtual guest template: " + verifiedOrder);
+    	  } catch (Exception e) {
+    		  throw new IllegalArgumentException("Invalid virtual guest template. Reported error: " + e.getMessage() 
+    				  + "\nTemplate details: " + newGuest, e);
+    	  }
 
-       ProductOrder.Builder<?> productOrderBuilder = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
-               .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true)
-               .prices(getPrices(template, validGuestHardwarePriceIds))
-               .virtualGuests(newGuest)
-               .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
-               .imageTemplateId(imageTemplateId);
+    	  logger.debug(">> creating new virtualGuest domain(%s) hostname(%s)", domainName, name);
+    	  result = client.getVirtualGuestClient().createVirtualGuest(newGuest);
+      } else {
+    	  String validGuestHardwarePriceIds = getValidPriceCombination(template, newGuest);
+    	  
+    	  ProductOrder.Builder<?> productOrderBuilder = ProductOrder.builder().packageId(productPackageSupplier.get().getId())
+    			  .location(template.getLocation().getId())
+    			  .quantity(1)
+    			  .useHourlyPricing(true)
+    			  .prices(getPrices(template, validGuestHardwarePriceIds))
+    			  .virtualGuests(newGuest)
+    			  .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
+    			  .imageTemplateId(imageTemplateId);
+    	  
+    	  ProductOrder order = productOrderBuilder.build();
+    	  
+    	  logger.debug(">> ordering new virtualGuest domain(%s) hostname(%s)", domainName, name);
+    	  ProductOrderReceipt productOrderReceipt = client.getVirtualGuestClient().orderVirtualGuest(order);
+    	  result = get(productOrderReceipt.getOrderDetails().getVirtualGuests(), 0);
+      }
 
-       ProductOrder order = productOrderBuilder.build();
-
-      logger.debug(">> ordering new virtualGuest domain(%s) hostname(%s)", domainName, name);
-      ProductOrderReceipt productOrderReceipt = client.getVirtualGuestClient().orderVirtualGuest(order);
-      VirtualGuest result = get(productOrderReceipt.getOrderDetails().getVirtualGuests(), 0);
       logger.trace("<< virtualGuest(%s)", result.getId());
-
       logger.debug(">> awaiting for transactions on guest(%s) to start", result.getHostname());
       boolean guestHasStartedTransactions = guestHasActiveTransactionsTester.apply(result);
       logger.debug(">> virtualGuest(%s) has started transactions(%s)", result.getId(), guestHasStartedTransactions);

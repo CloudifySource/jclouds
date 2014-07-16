@@ -17,9 +17,10 @@
 package org.jclouds.softlayer.compute.options;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.jclouds.compute.options.TemplateOptions;
@@ -50,9 +51,17 @@ import com.google.common.net.InternetDomainName;
 public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneable {
 
    protected String domainName = "jclouds.org";
-   protected String networkVlanId = "";
-   protected String postInstallScriptUri = "";
+   protected String networkVlanId = "";   
    protected boolean privateNetworkOnly = false;
+   
+   protected int startCpus = -1;
+   protected int maxMemory = -1;
+   protected String operatingSystemReferenceCode = "";
+   protected List<Integer> blockDevicesDiskCapacity = new ArrayList<Integer>();
+   protected boolean localDiskFlag = true;
+   protected int maxNetworkSpeed = -1;
+   protected String postInstallScriptUri = "";   
+   
 
    @Override
    public SoftLayerTemplateOptions clone() {
@@ -70,6 +79,12 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
          eTo.networkVlanId(networkVlanId);
          eTo.postInstallScriptUri(postInstallScriptUri);
          eTo.privateNetworkOnly(privateNetworkOnly);
+         eTo.startCpus(startCpus);
+         eTo.maxMemory(maxMemory);
+         eTo.operatingSystemReferenceCode(operatingSystemReferenceCode);
+         eTo.blockDevicesDiskCapacity(blockDevicesDiskCapacity);
+         eTo.localDiskFlag(localDiskFlag);
+         eTo.maxNetworkSpeed(maxNetworkSpeed);
       }
    }
 
@@ -81,8 +96,12 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
     * @see InternetDomainName#hasPublicSuffix
     */
    public TemplateOptions domainName(String domainName) {
-      checkNotNull(domainName, "domainName was null");
-      checkArgument(InternetDomainName.from(domainName).hasPublicSuffix(), "domainName %s has no public suffix",
+	   
+	  if (domainName == null || domainName.trim().length() == 0) {
+		   throw new NullPointerException("domainName is null or empty");
+	  }
+
+	  checkArgument(InternetDomainName.from(domainName).hasPublicSuffix(), "domainName %s has no public suffix",
             domainName);
       this.domainName = domainName;
       return this;
@@ -95,7 +114,11 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
     * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#orderVirtualGuest
     */
    public TemplateOptions networkVlanId(String networkVlanId) {
-      checkNotNull(networkVlanId, "networkVlanId was null");
+      
+	  if (networkVlanId == null || networkVlanId.trim().length() == 0) {
+		   throw new NullPointerException("networkVlanId is null or empty");
+	  }
+	  
       try {
     	  Integer.valueOf(networkVlanId);
       } catch (NumberFormatException e) {
@@ -108,12 +131,16 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
    
    
    /**
-    * will set a post-install script URI when ordering virtual guests.
+    * will set a post-install script URI when creating virtual guests.
     * 
-    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#orderVirtualGuest
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#createVirtualGuest
     */
    public TemplateOptions postInstallScriptUri(String postInstallScriptUri) {
-      checkNotNull(postInstallScriptUri, "postInstallScriptUri is null");
+	   
+	  if (postInstallScriptUri == null || postInstallScriptUri.trim().length() == 0) {
+		   throw new NullPointerException("postInstallScriptUri is null or empty");
+	  }
+      
       try {
     	  new URL(postInstallScriptUri);
       } catch (Exception e) {
@@ -124,15 +151,82 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
       return this;
    }
    
-   
-   
    /**
-    * will set the privateNetworkOnly flag when ordering virtual guests.
+    * will set the privateNetworkOnly flag when ordering or creating virtual guests.
     * 
     * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#orderVirtualGuest
     */
    public TemplateOptions privateNetworkOnly(boolean privateNetworkOnly) {
       this.privateNetworkOnly = privateNetworkOnly;
+      return this;
+   }
+   
+   /**
+    * will set the starting number of Cpus when creating virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#createVirtualGuest
+    */
+   public TemplateOptions startCpus(int startCpus) {
+	   // TODO : validate number is > 0 and in allowed range
+      this.startCpus = startCpus;
+      return this;
+   }
+   
+   /**
+    * will set the maximum memory (in MB) when creating virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#createVirtualGuest
+    */
+   public TemplateOptions maxMemory(int maxMemory) {
+	   // TODO : validate number is > 0 and in allowed range
+      this.maxMemory = maxMemory;
+      return this;
+   }
+   
+   /**
+    * will set the operating system Code when creating virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#createVirtualGuest
+    */
+   public TemplateOptions operatingSystemReferenceCode(String operatingSystemReferenceCode) {
+	   if (operatingSystemReferenceCode == null || operatingSystemReferenceCode.trim().length() == 0) {
+		   throw new NullPointerException("operatingSystemReferenceCode is null or empty");
+	   }
+
+      this.operatingSystemReferenceCode = operatingSystemReferenceCode;
+      return this;
+   }
+   
+   /**
+    * will set the blockDevices at the specified order, each with its disk capacity, when creating virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#createVirtualGuest
+    */
+   public TemplateOptions blockDevicesDiskCapacity(List blockDevicesDiskCapacity) {
+	   if (blockDevicesDiskCapacity != null) {
+		   this.blockDevicesDiskCapacity = blockDevicesDiskCapacity;
+	   }
+      return this;
+   }
+   
+   /**
+    * will set the localDiskFlag flag when creating virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#createVirtualGuest
+    */
+   public TemplateOptions localDiskFlag(boolean localDiskFlag) {
+      this.localDiskFlag = localDiskFlag;
+      return this;
+   }
+   
+   /**
+    * will set the maximum network speed when creating virtual guests.
+    * 
+    * @see org.jclouds.softlayer.features.guest.VirtualGuestClient#createVirtualGuest
+    */
+   public TemplateOptions maxNetworkSpeed(int maxNetworkSpeed) {
+	   // TODO : validate number is > 0 and in allowed range
+      this.maxNetworkSpeed = maxNetworkSpeed;
       return this;
    }
 
@@ -150,6 +244,30 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
    
    public boolean isPrivateNetworkOnly() {
 	   return privateNetworkOnly;
+   }
+   
+   public int getStartCpus() {
+	   return startCpus;
+   }
+   
+   public int getMaxMemory() {
+	   return maxMemory;
+   }
+   
+   public String getOperatingSystemReferenceCode() {
+	   return operatingSystemReferenceCode;
+   }
+   
+   public List<Integer> getBlockDevicesDiskCapacity() {
+	   return blockDevicesDiskCapacity;
+   }
+
+   public boolean isLocalDiskFlag() {
+	   return localDiskFlag;
+   }
+   
+   public int getMaxNetworkSpeed() {
+	   return maxNetworkSpeed;
    }
 
    public static final SoftLayerTemplateOptions NONE = new SoftLayerTemplateOptions();
@@ -187,6 +305,55 @@ public class SoftLayerTemplateOptions extends TemplateOptions implements Cloneab
          SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
          return SoftLayerTemplateOptions.class.cast(options.privateNetworkOnly(privateNetworkOnly));
       }
+      
+      /**
+       * @see #startCpus
+       */
+      public static SoftLayerTemplateOptions startCpus(int startCpus) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.startCpus(startCpus));
+      }
+      
+      /**
+       * @see #maxMemory
+       */
+      public static SoftLayerTemplateOptions maxMemory(int maxMemory) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.startCpus(maxMemory));
+      }
+      
+      /**
+       * @see #operatingSystemReferenceCode
+       */
+      public static SoftLayerTemplateOptions operatingSystemReferenceCode(String operatingSystemReferenceCode) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.operatingSystemReferenceCode(operatingSystemReferenceCode));
+      }
+      
+      /**
+       * @see #blockDevicesDiskCapacity
+       */
+      public static SoftLayerTemplateOptions blockDevicesDiskCapacity(List<Integer> blockDevicesDiskCapacity) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.blockDevicesDiskCapacity(blockDevicesDiskCapacity));
+      }
+
+      /**
+       * @see #localDiskFlag
+       */
+      public static SoftLayerTemplateOptions localDiskFlag(boolean localDiskFlag) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.localDiskFlag(localDiskFlag));
+      }
+      
+      /**
+       * @see #maxNetworkSpeed
+       */
+      public static SoftLayerTemplateOptions maxNetworkSpeed(int maxNetworkSpeed) {
+         SoftLayerTemplateOptions options = new SoftLayerTemplateOptions();
+         return SoftLayerTemplateOptions.class.cast(options.maxNetworkSpeed(maxNetworkSpeed));
+      }
+      
       
       // methods that only facilitate returning the correct object type
 
