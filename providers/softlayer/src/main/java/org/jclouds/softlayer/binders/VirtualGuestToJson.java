@@ -87,17 +87,18 @@ public class VirtualGuestToJson implements Binder {
  	  List<BlockDevice> blockDevices = new ArrayList<BlockDevice>();
  	  List<Integer> blockDevicesDiskCapacity = templateVirtualGuest.getBlockDevicesDiskCapacity();
  	  int deviceIndex = 0;
- 	  for (Integer diskCapacity : blockDevicesDiskCapacity) {
- 		  DiskImage diskImage = new DiskImage(diskCapacity);
- 		  BlockDevice blockDevice = new BlockDevice(String.valueOf(deviceIndex), diskImage);
- 		  blockDevices.add(blockDevice);
- 		  
- 		  deviceIndex++;
- 		  if (deviceIndex == 1) {	 // deviceIndex cannot be 1, it's reserved for the SWAP disk
- 			 deviceIndex++;
- 		  }
- 	  }
- 	  
+ 	  if (blockDevicesDiskCapacity != null) {
+ 		 for (Integer diskCapacity : blockDevicesDiskCapacity) {
+ 	 		  DiskImage diskImage = new DiskImage(diskCapacity);
+ 	 		  BlockDevice blockDevice = new BlockDevice(String.valueOf(deviceIndex), diskImage);
+ 	 		  blockDevices.add(blockDevice);
+ 	 		  
+ 	 		  deviceIndex++;
+ 	 		  if (deviceIndex == 1) {	 // deviceIndex cannot be 1, it's reserved for the SWAP disk
+ 	 			 deviceIndex++;
+ 	 		  }
+ 	 	  }
+ 	  } 	  
  	  
       VirtualGuestCreateObjectParameters createObjectParameters = new VirtualGuestCreateObjectParameters(templateVirtualGuest.getHostname(), templateVirtualGuest.getDomain(),
     		  templateVirtualGuest.getDatacenter().getName(), true /*hourlyBillingFlag*/, templateVirtualGuest.getStartCpus(), templateVirtualGuest.getMaxMemory(),
