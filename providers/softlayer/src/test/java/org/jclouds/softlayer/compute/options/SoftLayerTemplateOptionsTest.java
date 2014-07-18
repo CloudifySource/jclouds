@@ -62,7 +62,7 @@ public class SoftLayerTemplateOptionsTest {
          new SoftLayerTemplateOptions().domainName(null);
          fail("should NPE");
       } catch (NullPointerException e) {
-         assertEquals(e.getMessage(), "domainName was null");
+         assertEquals(e.getMessage(), "domainName is null or empty");
       }
    }
 
