@@ -155,51 +155,6 @@ public class ProductItems {
          }
       };
    }
-   public static void main(String[] args) {
-	   
-	   List<ProductItem> items = new ArrayList<ProductItem>();
-	   Builder<?> item1 = ProductItem.builder();
-	   item1.id(11);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price1 = ProductItemPrice.builder();
-	   price1.id(1);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price2 = ProductItemPrice.builder();
-	   price2.id(2);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price3 = ProductItemPrice.builder();
-	   price3.id(3);
-	   item1.prices(price1.build(), price2.build(), price3.build());
-	   
-	   Builder<?> item2 = ProductItem.builder();
-	   item2.id(12);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price4 = ProductItemPrice.builder();
-	   price4.id(4);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price5 = ProductItemPrice.builder();
-	   price5.id(5);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price6 = ProductItemPrice.builder();
-	   price6.id(6);
-	   item2.prices(price4.build(), price5.build(), price6.build());
-	   
-	   Builder<?> item3 = ProductItem.builder();
-	   item3.id(13);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price7 = ProductItemPrice.builder();
-	   price7.id(7);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price8 = ProductItemPrice.builder();
-	   price8.id(8);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price9 = ProductItemPrice.builder();
-	   price9.id(9);
-	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price10 = ProductItemPrice.builder();
-	   price10.id(10);
-	   item3.prices(price7.build(), price8.build(), price9.build(), price10.build());
-	   
-	   items.add(item1.build());
-	   items.add(item2.build());
-	   items.add(item3.build());
-	   items.add(item1.build());
-	   
-	   String apply = ProductItemsToHardware.allHardwareIdPriceCombinations().apply(items);
-	   System.out.println(apply);
-	   System.out.println("hold");
-	   
-   }
 
    /**
     * Creates a function to get the ProductItem for the ProductItemPrice. Copies the category
