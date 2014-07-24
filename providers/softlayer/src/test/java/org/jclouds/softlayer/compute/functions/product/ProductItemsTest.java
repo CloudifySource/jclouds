@@ -23,11 +23,18 @@ import static org.jclouds.softlayer.compute.functions.product.ProductItems.price
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.jclouds.softlayer.domain.product.ProductItem;
 import org.jclouds.softlayer.domain.product.ProductItemCategory;
 import org.jclouds.softlayer.domain.product.ProductItemPrice;
+import org.jclouds.softlayer.domain.product.ProductItem.Builder;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -62,6 +69,88 @@ public class ProductItemsTest {
    @Test
    public void testCapacity() {
        assertEquals(capacity().apply(item), 2.0f);
+   }
+   
+   @Test
+   public void testItemIdCombinations() {
+	   List<ProductItem> items = new ArrayList<ProductItem>();
+	   Builder<?> item1 = ProductItem.builder();
+	   item1.id(11);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price1 = ProductItemPrice.builder();
+	   price1.id(1);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price2 = ProductItemPrice.builder();
+	   price2.id(2);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price3 = ProductItemPrice.builder();
+	   price3.id(3);
+	   item1.prices(price1.build(), price2.build(), price3.build());
+	   
+	   Builder<?> item2 = ProductItem.builder();
+	   item2.id(12);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price4 = ProductItemPrice.builder();
+	   price4.id(4);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price5 = ProductItemPrice.builder();
+	   price5.id(5);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price6 = ProductItemPrice.builder();
+	   price6.id(6);
+	   item2.prices(price4.build(), price5.build(), price6.build());
+	   
+	   Builder<?> item3 = ProductItem.builder();
+	   item3.id(13);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price7 = ProductItemPrice.builder();
+	   price7.id(7);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price8 = ProductItemPrice.builder();
+	   price8.id(8);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price9 = ProductItemPrice.builder();
+	   price9.id(9);
+	   org.jclouds.softlayer.domain.product.ProductItemPrice.Builder<?> price10 = ProductItemPrice.builder();
+	   price10.id(10);
+	   item3.prices(price7.build(), price8.build(), price9.build(), price10.build());
+	   
+	   items.add(item1.build());
+	   items.add(item2.build());
+	   items.add(item3.build());
+	   items.add(item1.build());
+	   
+	   String apply = ProductItemsToHardware.allHardwareIdPriceCombinations().apply(items);
+	   Set<String> itemIds = new HashSet<String>(Arrays.asList(apply.split(";")));
+	   Assert.assertTrue(itemIds.contains("1,4,7,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,4,8,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,4,9,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,4,10,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,5,7,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,5,8,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,5,9,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,5,10,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,6,7,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,6,8,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,6,9,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("1,6,10,1"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,4,7,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,4,8,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,4,9,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,4,10,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,5,7,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,5,8,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,5,9,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,5,10,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,6,7,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,6,8,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,6,9,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("2,6,10,2"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,4,7,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,4,8,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,4,9,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,4,10,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,5,7,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,5,8,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,5,9,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,5,10,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,6,7,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,6,8,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,6,9,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   Assert.assertTrue(itemIds.contains("3,6,10,3"), "Expecting hardware ID combination be contained in hardwares list");
+	   
+	   Assert.assertTrue(itemIds.size() == 36, "Expecting 36 different hardware combinations.");
    }
 
    @Test

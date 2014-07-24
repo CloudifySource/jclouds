@@ -122,11 +122,6 @@ public class HardwareServerToNodeMetaData implements Function<SoftLayerNode, Nod
       public Hardware getHardware(HardwareServer server) {
     	  //TODO(adaml): The get method is not available in BMI
     	  return null;
-//         ProductOrder order = client.getHardwareServerClient().getOrderTemplate(server.getId());
-//         if (order == null)
-//            return null;
-//         Iterable<ProductItem> items = Iterables.transform(order.getPrices(), ProductItems.item());
-//         return productItemsToHardware.apply(items);
       }
    }
 
@@ -140,19 +135,9 @@ public class HardwareServerToNodeMetaData implements Function<SoftLayerNode, Nod
          this.client = client;
       }
       
-      //TODO(adaml): fix or skip. 
  	 //getOrderTemplate api call is invalid for BM servers and will always return null.
       public Image getImage(HardwareServer server) {
-    	//TODO(adaml): The get method is not available in BMI
     	  return null;
-//         ProductOrder order = client.getHardwareServerClient().getOrderTemplate(server.getId());
-//         if (order == null)
-//            return null;
-//         Iterable<ProductItem> items = Iterables.transform(order.getPrices(), ProductItems.item());
-//         ProductItem os = Iterables.find(items, ProductItemPredicates.categoryCode("os"));
-//         if (os.getPrices().isEmpty())
-//            return null;
-//         return new ProductItemToImage().apply(os);
       }
    }
 }
