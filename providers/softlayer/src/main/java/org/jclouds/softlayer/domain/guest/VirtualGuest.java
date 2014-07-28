@@ -110,9 +110,8 @@ public class VirtualGuest extends SoftLayerNode {
       protected String postInstallScriptUri;
       protected PowerState powerState;
       protected PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
-      
-      // protected SupplementalCreateObjectOptions supplementalCreateObjectOptions;
 
+      
       /**
        * @see VirtualGuest#getCreateDate()
        */
@@ -268,15 +267,6 @@ public class VirtualGuest extends SoftLayerNode {
          return self();
       }
       
-      
-//      /**
-//       * @see VirtualGuest#getSupplementalCreateObjectOptions()
-//       */
-//      public T supplementalCreateObjectOptions(SupplementalCreateObjectOptions supplementalCreateObjectOptions) {
-//         this.supplementalCreateObjectOptions = supplementalCreateObjectOptions;
-//         return self();
-//      }
-      
 
       public VirtualGuest build() {
          return new VirtualGuest(accountId, createDate, dedicatedAccountHostOnly, domain, fullyQualifiedDomainName, hostname,
@@ -319,8 +309,7 @@ public class VirtualGuest extends SoftLayerNode {
                .uuid(in.getUuid())
                .postInstallScriptUri(in.getPostInstallScriptUri())
                .powerState(in.getPowerState())
-               .primaryBackendNetworkComponent(in.getPrimaryBackendNetworkComponent())
-               /*.supplementalCreateObjectOptions(in.getSupplementalCreateObjectOptions())*/;
+               .primaryBackendNetworkComponent(in.getPrimaryBackendNetworkComponent());
       }
    }
 
@@ -351,7 +340,6 @@ public class VirtualGuest extends SoftLayerNode {
    private final PowerState powerState;
    private final PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
    private final boolean hourlyBillingFlag;
-   // private final SupplementalCreateObjectOptions supplementalCreateObjectOptions;
    
 
    @ConstructorProperties({
@@ -388,7 +376,6 @@ public class VirtualGuest extends SoftLayerNode {
       this.powerState = powerState;
       this.primaryBackendNetworkComponent = primaryBackendNetworkComponent;
       this.hourlyBillingFlag = true;
-      // this.supplementalCreateObjectOptions = supplementalCreateObjectOptions;
    }
 
    /**
@@ -541,22 +528,13 @@ public class VirtualGuest extends SoftLayerNode {
       return this.primaryBackendNetworkComponent;
    }
 
-//   /**
-//    * @return The supplemental create object options (contains the post install script uri) of a virtual guest.
-//    */
-//   @Nullable
-//   public SupplementalCreateObjectOptions getSupplementalCreateObjectOptions() {
-//      return this.supplementalCreateObjectOptions;
-//   }
-   
    
    @Override
    public int hashCode() {
       return Objects.hashCode(accountId, createDate, dedicatedAccountHostOnly, domain, fullyQualifiedDomainName,
               hostname, id, lastVerifiedDate, maxCpu, maxCpuUnits, maxMemory, operatingSystemReferenceCode, metricPollDate, 
               modifyDate, blockDevicesDiskCapacity, localDiskFlag, notes, privateNetworkOnlyFlag, maxNetworkSpeed, startCpus, statusId, uuid, postInstallScriptUri,
-              primaryBackendIpAddress, primaryIpAddress, billingItemId, operatingSystem, datacenter, powerState, primaryBackendNetworkComponent/*,
-              supplementalCreateObjectOptions*/);
+              primaryBackendIpAddress, primaryIpAddress, billingItemId, operatingSystem, datacenter, powerState, primaryBackendNetworkComponent);
    }
 
    @Override
@@ -593,14 +571,12 @@ public class VirtualGuest extends SoftLayerNode {
             && Objects.equal(this.operatingSystem, that.operatingSystem)
             && Objects.equal(this.datacenter, that.datacenter)
             && Objects.equal(this.powerState, that.powerState)
-            && Objects.equal(this.primaryBackendNetworkComponent, that.primaryBackendNetworkComponent)
-            //&& Objects.equal(this.supplementalCreateObjectOptions, that.supplementalCreateObjectOptions)
-            ;
+            && Objects.equal(this.primaryBackendNetworkComponent, that.primaryBackendNetworkComponent);
    }
 
    protected ToStringHelper string() {
       return Objects.toStringHelper(this)
-            .add("accountId", accountId).add("createDate", createDate).add("dedicatedAccountHostOnly", dedicatedAccountHostOnly).add("domain", domain).add("fullyQualifiedDomainName", fullyQualifiedDomainName).add("hostname", hostname).add("id", id).add("lastVerifiedDate", lastVerifiedDate).add("maxCpu", maxCpu).add("maxCpuUnits", maxCpuUnits).add("maxMemory", maxMemory).add("operatingSystemReferenceCode", operatingSystemReferenceCode).add("metricPollDate", metricPollDate).add("modifyDate", modifyDate).add("blockDevicesDiskCapacity", blockDevicesDiskCapacity).add("localDiskFlag", localDiskFlag).add("notes", notes).add("privateNetworkOnlyFlag", privateNetworkOnlyFlag).add("maxNetworkSpeed", maxNetworkSpeed).add("startCpus", startCpus).add("statusId", statusId).add("uuid", uuid).add("postInstallScriptUri", postInstallScriptUri).add("primaryBackendIpAddress", primaryBackendIpAddress).add("primaryIpAddress", primaryIpAddress).add("billingItemId", billingItemId).add("operatingSystem", operatingSystem).add("datacenter", datacenter).add("powerState", powerState).add("primaryBackendNetworkComponent", primaryBackendNetworkComponent)/*.add("supplementalCreateObjectOptions", supplementalCreateObjectOptions)*/;
+            .add("accountId", accountId).add("createDate", createDate).add("dedicatedAccountHostOnly", dedicatedAccountHostOnly).add("domain", domain).add("fullyQualifiedDomainName", fullyQualifiedDomainName).add("hostname", hostname).add("id", id).add("lastVerifiedDate", lastVerifiedDate).add("maxCpu", maxCpu).add("maxCpuUnits", maxCpuUnits).add("maxMemory", maxMemory).add("operatingSystemReferenceCode", operatingSystemReferenceCode).add("metricPollDate", metricPollDate).add("modifyDate", modifyDate).add("blockDevicesDiskCapacity", blockDevicesDiskCapacity).add("localDiskFlag", localDiskFlag).add("notes", notes).add("privateNetworkOnlyFlag", privateNetworkOnlyFlag).add("maxNetworkSpeed", maxNetworkSpeed).add("startCpus", startCpus).add("statusId", statusId).add("uuid", uuid).add("postInstallScriptUri", postInstallScriptUri).add("primaryBackendIpAddress", primaryBackendIpAddress).add("primaryIpAddress", primaryIpAddress).add("billingItemId", billingItemId).add("operatingSystem", operatingSystem).add("datacenter", datacenter).add("powerState", powerState).add("primaryBackendNetworkComponent", primaryBackendNetworkComponent);
    }
 
    @Override

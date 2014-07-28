@@ -43,7 +43,7 @@ import com.google.common.collect.Sets;
  * Converts a ProductOrder into a json string valid for placing an order via the softlayer api The
  * String is set into the payload of the HttpRequest
  * 
- * @author Jason King
+ * @author Jason King, Noa Kuperberg
  */
 public class ProductOrderToJson implements Binder {
 
@@ -82,8 +82,7 @@ public class ProductOrderToJson implements Binder {
                   @Override
                   public VirtualGuestServerProperties apply(VirtualGuest virtualGuest) {
                      return new VirtualGuestServerProperties(virtualGuest.getHostname(), virtualGuest.getDomain(), 
-                    		 virtualGuest.isPrivateNetworkOnlyFlag(), virtualGuest.getPrimaryBackendNetworkComponent()
-                    		 /*, virtualGuest.getSupplementalCreateObjectOptions()*/);
+                    		 virtualGuest.isPrivateNetworkOnlyFlag(), virtualGuest.getPrimaryBackendNetworkComponent());
                   }
                });
 
@@ -145,19 +144,15 @@ public class ProductOrderToJson implements Binder {
    private static class VirtualGuestServerProperties {
       private String hostname;
       private String domain;
-      // private String postInstallScriptUri;
       private boolean privateNetworkOnlyFlag;
       private PrimaryBackendNetworkComponent primaryBackendNetworkComponent;
-      // private SupplementalCreateObjectOptions supplementalCreateObjectOptions;
 
-      public VirtualGuestServerProperties(String hostname, String domain, /*String postInstallScriptUri,*/ boolean privateNetworkOnlyFlag, 
-    		  PrimaryBackendNetworkComponent primaryBackendNetworkComponent/*, SupplementalCreateObjectOptions supplementalCreateObjectOptions*/) {
+      public VirtualGuestServerProperties(String hostname, String domain, boolean privateNetworkOnlyFlag, 
+    		  PrimaryBackendNetworkComponent primaryBackendNetworkComponent) {
          this.hostname = hostname;
          this.domain = domain;
-         // this.postInstallScriptUri = postInstallScriptUri;
          this.privateNetworkOnlyFlag = privateNetworkOnlyFlag;
          this.primaryBackendNetworkComponent = primaryBackendNetworkComponent;
-         // this.supplementalCreateObjectOptions = supplementalCreateObjectOptions;
       }
 
    }

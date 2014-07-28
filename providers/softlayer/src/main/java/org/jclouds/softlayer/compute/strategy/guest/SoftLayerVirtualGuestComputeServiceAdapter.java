@@ -195,8 +195,6 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       if (postInstallScriptUri != null && postInstallScriptUri.trim().length() > 0) {
     	  // the validity of the URI was checked already by SoftLayerTemplateOptions.postInstallScriptUri
     	  virtualGuestBuilder.postInstallScriptUri(postInstallScriptUri);
-    	  /*SupplementalCreateObjectOptions supplementalCreateObjectOptions = SupplementalCreateObjectOptions.builder().postInstallScriptUri(postInstallScriptUri).build();
-    	  virtualGuestBuilder = virtualGuestBuilder.supplementalCreateObjectOptions(supplementalCreateObjectOptions);*/
     	  // need to use the createObject API because placeOrder does not support postInstallScriptUri
     	  useCreateObjectApi = true;
       }

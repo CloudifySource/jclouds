@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GigaSpaces Technologies Ltd. All rights reserved
+ * Copyright (c) 2014 GigaSpaces Technologies Ltd. All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,8 +50,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Converts a ProductOrder into a json string valid for placing an order via the softlayer api The
- * String is set into the payload of the HttpRequest
+ * Converts a VirtualGuest template into a json string valid for placing an create object call via the Softlayer API 
+ * The String is set into the payload of the HttpRequest
  * 
  * @author Noa Kuperberg
  */
