@@ -18,7 +18,6 @@ package org.jclouds.softlayer.compute.config;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.find;
-import static org.jclouds.Constants.PROPERTY_SESSION_INTERVAL;
 import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withId;
 import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withItemId;
 import static org.jclouds.softlayer.predicates.ProductPackagePredicates.withPriceId;
@@ -62,6 +61,7 @@ import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.jclouds.softlayer.features.account.AccountClient;
 import org.jclouds.softlayer.features.product.ProductPackageClient;
+import org.jclouds.softlayer.reference.SoftLayerConstants;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -105,16 +105,17 @@ public class SoftLayerComputeServiceContextModule extends
    @Singleton
    @Memoized
    public Supplier<ProductPackage> getProductPackage(AtomicReference<AuthorizationException> authException,
-            @Named(PROPERTY_SESSION_INTERVAL) long seconds, final SoftLayerClient client,
+		   	@Named(SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_SESSION_INTERVAL_SEC) long seconds,
+            final SoftLayerClient client,
             @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
       return MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier.create(authException,
                new Supplier<ProductPackage>() {
                   @Override
                   public ProductPackage get() {
-                     AccountClient accountClient = client.getAccountClient();
-                     ProductPackageClient productPackageClient = client.getProductPackageClient();
-                     ProductPackage p = find(accountClient.getReducedActivePackages(), withId(packageId));
-                     return productPackageClient.getProductPackage(p.getId());
+                	  AccountClient accountClient = client.getAccountClient();
+                	  ProductPackageClient productPackageClient = client.getProductPackageClient();
+                	  ProductPackage p = find(accountClient.getReducedActivePackages(), withId(packageId));
+                	  return productPackageClient.getProductPackage(p.getId());
                   }
                   
                   @Override

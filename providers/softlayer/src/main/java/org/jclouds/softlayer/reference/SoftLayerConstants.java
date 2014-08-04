@@ -29,6 +29,11 @@ public interface SoftLayerConstants {
    public static final String PROPERTY_SOFTLAYER_PACKAGE_ID = "jclouds.softlayer.package-id";
    
    /**
+    * caching time for package details, in seconds.
+    */
+   public static final String PROPERTY_SOFTLAYER_PACKAGE_SESSION_INTERVAL_SEC = "jclouds.softlayer.package-session-interval-sec";
+   
+   /**
     * hardware id of external disks to be attached.
     */
    public static final String PROPERTY_SOFTLAYER_EXTERNAL_DISKS_IDS = "jclouds.softlayer.external-disks-ids";

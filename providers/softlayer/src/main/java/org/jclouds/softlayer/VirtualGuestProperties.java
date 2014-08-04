@@ -38,6 +38,7 @@ public class VirtualGuestProperties implements PropertiesProvider {
 
       Properties properties = new Properties();
       properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_ID, "46");
+      properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_SESSION_INTERVAL_SEC, "86400");	// defaults to once a day
       ImmutableSet.Builder<String> items = ImmutableSet.builder();
       ImmutableSet.Builder<String> prices = ImmutableSet.builder();
       items.add("15"); // 1 IP Address
