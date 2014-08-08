@@ -56,6 +56,7 @@ public class ProductOrder {
       protected List<ProductItemPrice> prices = ImmutableList.of();
       protected Set<VirtualGuest> virtualGuests = ImmutableSet.of();
       protected Set<HardwareServer> hardwareServers = ImmutableSet.of();
+      protected Set<String> provisionScripts = ImmutableSet.of();;
       protected int quantity;
       protected boolean useHourlyPricing;
       protected String imageTemplateGlobalIdentifier;
@@ -101,7 +102,7 @@ public class ProductOrder {
       public T virtualGuests(VirtualGuest... in) {
          return virtualGuests(ImmutableSet.copyOf(in));
       }
-
+      
       /**
        * @see ProductOrder#getHardwareServers() () ()
        */
@@ -114,6 +115,18 @@ public class ProductOrder {
          return hardwareServers(ImmutableSet.copyOf(in));
       }
 
+      /**
+       * @see ProductOrder#getProvisionScripts()
+       */
+      public T provisionScripts(Set<String> provisionScripts) {
+         this.provisionScripts = ImmutableSet.copyOf(checkNotNull(provisionScripts, "provisionScripts"));
+         return self();
+      }
+
+      public T provisionScripts(String... in) {
+         return provisionScripts(ImmutableSet.copyOf(in));
+      }
+      
       /**
        * @see ProductOrder#getQuantity()
        */
@@ -141,7 +154,7 @@ public class ProductOrder {
       }
 
       public ProductOrder build() {
-         return new ProductOrder(packageId, location, prices, virtualGuests, hardwareServers, quantity, useHourlyPricing, imageTemplateGlobalIdentifier, imageTemplateId);
+         return new ProductOrder(packageId, location, prices, virtualGuests, hardwareServers, provisionScripts, quantity, useHourlyPricing, imageTemplateGlobalIdentifier, imageTemplateId);
       }
 
       public T fromProductOrder(ProductOrder in) {
@@ -152,6 +165,7 @@ public class ProductOrder {
                .virtualGuests(in.getVirtualGuests())
                .quantity(in.getQuantity())
                .useHourlyPricing(in.getUseHourlyPricing())
+               .provisionScripts(in.getProvisionScripts())
                .imageTemplateGlobalIdentifier(in.getImageTemplateGlobalIdentifier())
                .imageTemplateId(in.getImageTemplateId());
       }
@@ -169,22 +183,24 @@ public class ProductOrder {
    private final ImmutableList<ProductItemPrice> prices;
    private final Set<VirtualGuest> virtualGuests;
    private final Set<HardwareServer> hardwareServers;
+   private final Set<String> provisionScripts;
    private final int quantity;
    private final boolean useHourlyPricing;
    private final String imageTemplateGlobalIdentifier;
    private final String imageTemplateId;
 
    @ConstructorProperties({
-      "packageId", "location", "prices", "virtualGuests", "hardware", "quantity", "useHourlyPricing", "imageTemplateGlobalIdentifier", "imageTemplateId"
+      "packageId", "location", "prices", "virtualGuests", "hardware", "provisionScripts", "quantity", "useHourlyPricing", "imageTemplateGlobalIdentifier", "imageTemplateId"
    })
    protected ProductOrder(int packageId, @Nullable String location, @Nullable List<ProductItemPrice> prices, @Nullable Set<VirtualGuest> virtualGuests,
-                          @Nullable Set<HardwareServer> hardwareServers,
+                          @Nullable Set<HardwareServer> hardwareServers, @Nullable Set<String> provisionScripts,
                           int quantity, boolean useHourlyPricing, String imageTemplateGlobalIdentifier, String imageTemplateId) {
       this.packageId = packageId;
       this.location = location;
       this.prices = prices == null ? ImmutableList.<ProductItemPrice>of() : ImmutableList.copyOf(prices);
       this.virtualGuests = virtualGuests == null ? ImmutableSet.<VirtualGuest>of() : ImmutableSet.copyOf(virtualGuests);
       this.hardwareServers = hardwareServers == null ? ImmutableSet.<HardwareServer>of() : ImmutableSet.copyOf(hardwareServers);;
+      this.provisionScripts = provisionScripts == null ? ImmutableSet.<String>of() : ImmutableSet.copyOf(provisionScripts);;
       this.quantity = quantity;
       this.useHourlyPricing = useHourlyPricing;
       this.imageTemplateGlobalIdentifier = imageTemplateGlobalIdentifier;
@@ -228,10 +244,19 @@ public class ProductOrder {
    /**
     * Gets the hardwareServers servers in this order.
     *
-    * @return the the virtual guests.
+    * @return the hardware servers.
     */
    public Set<HardwareServer> getHardwareServers() {
       return this.hardwareServers;
+   }
+   
+   /**
+    * Gets the provisionScripts in this order.
+    *
+    * @return the provision scripts.
+    */
+   public Set<String> getProvisionScripts() {
+      return this.provisionScripts;
    }
 
    public int getQuantity() {
@@ -252,7 +277,7 @@ public class ProductOrder {
 
    @Override
    public int hashCode() {
-      return Objects.hashCode(packageId, location, prices, virtualGuests, hardwareServers, quantity, useHourlyPricing);
+      return Objects.hashCode(packageId, location, prices, virtualGuests, hardwareServers, provisionScripts, quantity, useHourlyPricing);
    }
 
    @Override
@@ -265,6 +290,7 @@ public class ProductOrder {
             && Objects.equal(this.prices, that.prices)
             && Objects.equal(this.virtualGuests, that.virtualGuests)
             && Objects.equal(this.hardwareServers, that.hardwareServers)
+            && Objects.equal(this.provisionScripts, that.provisionScripts)
             && Objects.equal(this.quantity, that.quantity)
             && Objects.equal(this.useHourlyPricing, that.useHourlyPricing)
             && Objects.equal(this.imageTemplateGlobalIdentifier, that.imageTemplateGlobalIdentifier)
@@ -273,9 +299,15 @@ public class ProductOrder {
 
    protected ToStringHelper string() {
       return Objects.toStringHelper(this)
-            .add("packageId", packageId).add("location", location).add("prices", prices)
-            .add("virtualGuests", virtualGuests).add("hardwareServers", hardwareServers)
-            .add("quantity", quantity).add("useHourlyPricing", useHourlyPricing).add("imageTemplateId", imageTemplateId)
+            .add("packageId", packageId)
+            .add("location", location)
+            .add("prices", prices)
+            .add("virtualGuests", virtualGuests)
+            .add("hardwareServers", hardwareServers)
+            .add("provisionScripts", provisionScripts)
+            .add("quantity", quantity)
+            .add("useHourlyPricing", useHourlyPricing)
+            .add("imageTemplateId", imageTemplateId)
             .add("imageTemplateGlobalIdentifier", imageTemplateGlobalIdentifier);
    }
 

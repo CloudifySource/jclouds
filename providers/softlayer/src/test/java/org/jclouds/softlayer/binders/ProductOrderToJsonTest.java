@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 
 /**
@@ -47,6 +48,7 @@ public class ProductOrderToJsonTest {
                          "'prices':[{'id':%d},{'id':%d}]," +
                          "'virtualGuests':[{'hostname':'%s','domain':'%s','privateNetworkOnlyFlag':%b}]," +
                          "'hardware':[{'hostname':'%s','domain':'%s'}]," +
+                         "'provisionScripts':['%s']," +
                          "'quantity':%d," +
                          "'useHourlyPricing':%b}" +
                        "]}";
@@ -85,13 +87,15 @@ public class ProductOrderToJsonTest {
                                        .location("loc456")
                                        .quantity(99)
                                        .useHourlyPricing(true)
+                                       .provisionScripts(ImmutableSet.of("https://192.155.222.130:443/winrmsetup.cmd"))
                                        .prices(ImmutableList.of(price1,price2))
                                        .virtualGuests(guest)
                                        .hardwareServers(server)
                                        .build();
       
       String expected = String.format(FORMAT.replaceAll("'","\""),
-                                      123,"loc456",100,101,"myhost","mydomain", false, "myserver", "mydomain", 99, true);
+                                      123,"loc456",100,101,"myhost","mydomain", false, "myserver", "mydomain", 
+                                      "https://192.155.222.130:443/winrmsetup.cmd", 99, true);
 
       HttpRequest req = binder.bindToRequest(request, order);
 

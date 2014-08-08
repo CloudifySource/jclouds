@@ -165,18 +165,17 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
       SoftLayerTemplateOptions templateOptions = template.getOptions().as(SoftLayerTemplateOptions.class);
       String domainName = templateOptions.getDomainName();
+      String networkVlanId = templateOptions.getNetworkVlanId();
+      boolean isPrivateNetworkOnly = templateOptions.isPrivateNetworkOnly();
+      String postInstallScriptUri = templateOptions.getPostInstallScriptUri();
       
+      // the following settings trigger the usage of the "createObject API" instead of "placeOrder", thus ignoring item/price ids settings
       int startCpus = templateOptions.getStartCpus();
       int maxMemory = templateOptions.getMaxMemory();
       String operatingSystemReferenceCode = templateOptions.getOperatingSystemReferenceCode();
-      List<Integer> blockDevicesDiskCapacity = templateOptions.getBlockDevicesDiskCapacity();
       boolean localDiskFlag = templateOptions.isLocalDiskFlag();
-      String networkVlanId = templateOptions.getNetworkVlanId();
-      boolean isPrivateNetworkOnly = templateOptions.isPrivateNetworkOnly();
+      List<Integer> blockDevicesDiskCapacity = templateOptions.getBlockDevicesDiskCapacity();      
       int maxNetworkSpeed = templateOptions.getMaxNetworkSpeed();
-      String postInstallScriptUri = templateOptions.getPostInstallScriptUri();
-
-      
       
       VirtualGuest.Builder<?> virtualGuestBuilder = VirtualGuest.builder().domain(domainName).hostname(name).privateNetworkOnlyFlag(isPrivateNetworkOnly);
       
@@ -187,18 +186,13 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
     	  virtualGuestBuilder = virtualGuestBuilder.primaryBackendNetworkComponent(primaryBackendNetworkComponent);
       }
       
-      if (maxNetworkSpeed > 0) {
-    	  virtualGuestBuilder.maxNetworkSpeed(maxNetworkSpeed);
-    	  useCreateObjectApi = true;
-      }
-      
       if (postInstallScriptUri != null && postInstallScriptUri.trim().length() > 0) {
     	  // the validity of the URI was checked already by SoftLayerTemplateOptions.postInstallScriptUri
     	  virtualGuestBuilder.postInstallScriptUri(postInstallScriptUri);
-    	  // need to use the createObject API because placeOrder does not support postInstallScriptUri
-    	  useCreateObjectApi = true;
       }
       
+      
+      // the following setting trigger the usage of the "createObject API" instead of "placeOrder", thus ignoring item/price ids settings
       if (startCpus > 0) {
     	  virtualGuestBuilder.startCpus(startCpus);
     	  useCreateObjectApi = true;
@@ -219,6 +213,12 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
     	  virtualGuestBuilder.localDiskFlag(localDiskFlag);
     	  useCreateObjectApi = true;
       }
+
+      if (maxNetworkSpeed > 0) {
+    	  virtualGuestBuilder.maxNetworkSpeed(maxNetworkSpeed);
+    	  useCreateObjectApi = true;
+      }
+
       
       if (useCreateObjectApi) {
     	  Datacenter datacenter = client.getDatacenterClient().getDatacenter(Integer.valueOf(template.getLocation().getId()));
@@ -248,6 +248,7 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
     			  .useHourlyPricing(true)
     			  .prices(getPrices(template, validGuestHardwarePriceIds))
     			  .virtualGuests(newGuest)
+    			  .provisionScripts(ImmutableSet.of(newGuest.getPostInstallScriptUri()))
     			  .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
     			  .imageTemplateId(imageTemplateId);
     	  
@@ -285,26 +286,34 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       return new NodeAndInitialCredentials<SoftLayerNode>(result, result.getId() + "", LoginCredentials.builder().user(pw.getUsername()).password(
               pw.getPassword()).build());
    }
-
    private String getValidPriceCombination(final Template template, final VirtualGuest virtualGuest) {
 	   
-	   String allPrices = template.getHardware().getId();
-	   SoftLayerValidationContainerException containerExeption = new SoftLayerValidationContainerException("Failed validating prices combinations for: " + allPrices + " For item IDs: " 
-								+ template.getHardware().getProviderId());  
+	   String allHardwarePricesSets = template.getHardware().getId();
 	   
-	   for (String pricesId : allPrices.split(";")) {
-		   ProductOrder order = ProductOrder.builder().packageId(this.productPackageSupplier.get().getId())
-				   .location(template.getLocation().getId()).quantity(1).useHourlyPricing(true).prices(getPrices(template, pricesId))
-                   .imageTemplateGlobalIdentifier(this.imageTemplateGlobalIdentifier).imageTemplateId(this.imageTemplateId)
-				   .virtualGuests(virtualGuest).build();
+	   SoftLayerValidationContainerException containerExeption = new SoftLayerValidationContainerException(
+			   		"Failed validating prices combinations for: " + allHardwarePricesSets + " For item IDs: "
+			   		+ template.getHardware().getProviderId());
+	   
+	   for (String hardwarePricesSet : allHardwarePricesSets.split(";")) {
+		   ProductOrder order = ProductOrder.builder()
+				   .packageId(this.productPackageSupplier.get().getId())
+				   .location(template.getLocation().getId())
+				   .quantity(1)
+				   .useHourlyPricing(true)
+				   .prices(getPrices(template, hardwarePricesSet))
+                   .provisionScripts(ImmutableSet.of(virtualGuest.getPostInstallScriptUri()))
+                   .imageTemplateGlobalIdentifier(this.imageTemplateGlobalIdentifier)
+                   .imageTemplateId(this.imageTemplateId)
+				   .virtualGuests(virtualGuest)
+				   .build();
 		   try {
 			   @SuppressWarnings({ "unused", "deprecation" })
 			   ProductOrder guestProductOrderReceipt = client.getVirtualGuestClient().verifyVirtualGuestOrder(order);
-			   return pricesId;
+			   return hardwarePricesSet;
 		   } catch (Exception e) {
-			   logger.info("Failed verifying hardware price ID " + pricesId + ". Retrying with alternative price id."
+			   logger.info("Failed verifying hardware price ID " + hardwarePricesSet + ". Retrying with alternative price id."
 					   + " message is " + e.getMessage());
-			   containerExeption.add(new RuntimeException("Failed validating prices: " + pricesId + ". Error is:" + e.getMessage(), e));
+			   containerExeption.add(new RuntimeException("Failed validating prices: " + hardwarePricesSet + ". Error is:" + e.getMessage(), e));
 		   }
 	   }
 	   throw containerExeption;
@@ -312,22 +321,22 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
     private ImmutableList<ProductItemPrice> getPrices(Template template, String validHardwareIds) {
 
-        Builder<ProductItemPrice> result = ImmutableList.builder();
+        Builder<ProductItemPrice> ProductItemPriceBuilder = ImmutableList.builder();
         if ("".equals(this.imageTemplateGlobalIdentifier) && "".equals(this.imageTemplateId)) {
 
             // only add an image id if we are not using predefined templates.
 
             int imageId = Integer.parseInt(template.getImage().getId());
-            result.add(ProductItemPrice.builder().id(imageId).build());
+            ProductItemPriceBuilder.add(ProductItemPrice.builder().id(imageId).build());
         }
 
         Iterable<String> hardwareIds = Splitter.on(",").split(validHardwareIds);
         for (String hardwareId : hardwareIds) {
            int id = Integer.parseInt(hardwareId);
-           result.add(ProductItemPrice.builder().id(id).build());
+           ProductItemPriceBuilder.add(ProductItemPrice.builder().id(id).build());
         }
-        result.addAll(this.prices);
-        return result.build();
+        ProductItemPriceBuilder.addAll(this.prices);
+        return ProductItemPriceBuilder.build();
 	}
 
    @Override

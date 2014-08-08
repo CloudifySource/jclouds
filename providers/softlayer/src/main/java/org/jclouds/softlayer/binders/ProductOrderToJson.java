@@ -93,9 +93,11 @@ public class ProductOrderToJson implements Binder {
                     return new HostnameAndDomain(hardwareServer.getHostname(), hardwareServer.getDomain());
                  }
               });
-
-      OrderData data = new OrderData(order.getPackageId(), order.getLocation(), Lists.newLinkedList(prices), Sets
-               .newLinkedHashSet(virtualHosts), Sets.newLinkedHashSet(hardwareServers), order.getQuantity(), order.getUseHourlyPricing(), order.getImageTemplateGlobalIdentifier(), order.getImageTemplateId());
+      
+      OrderData data = new OrderData(order.getPackageId(), order.getLocation(), Lists.newLinkedList(prices), 
+    		  Sets.newLinkedHashSet(virtualHosts), Sets.newLinkedHashSet(hardwareServers), order.getProvisionScripts(),
+    		  order.getQuantity(), order.getUseHourlyPricing(), order.getImageTemplateGlobalIdentifier(), 
+    		  order.getImageTemplateId());
 
       return json.toJson(ImmutableMap.of("parameters", ImmutableList.<OrderData> of(data)));
    }
@@ -108,18 +110,21 @@ public class ProductOrderToJson implements Binder {
       private LinkedList<Price> prices;
       private Set<VirtualGuestServerProperties> virtualGuests;
       private Set<HostnameAndDomain> hardware;
+      private Set<String> provisionScripts;
       private long quantity;
       private boolean useHourlyPricing;
       private String imageTemplateGlobalIdentifier;
       private String imageTemplateId;
 
       public OrderData(long packageId, String location, LinkedList<Price> linkedList, Set<VirtualGuestServerProperties> virtualGuests,
-                       Set<HostnameAndDomain> hardwareServers, long quantity, boolean useHourlyPricing, String imageTemplateGlobalIdentifier, String imageTemplateId) {
+                       Set<HostnameAndDomain> hardwareServers, Set<String> provisionScripts, long quantity, boolean useHourlyPricing, 
+                       String imageTemplateGlobalIdentifier, String imageTemplateId) {
          this.packageId = packageId;
          this.location = location;
          this.prices = linkedList;
          this.virtualGuests = virtualGuests;
          this.hardware = hardwareServers;
+         this.provisionScripts = provisionScripts;
          this.quantity = quantity;
          this.useHourlyPricing = useHourlyPricing;
          this.imageTemplateGlobalIdentifier = imageTemplateGlobalIdentifier;
