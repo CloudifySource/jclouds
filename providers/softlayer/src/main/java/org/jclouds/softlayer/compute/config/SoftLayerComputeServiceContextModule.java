@@ -131,7 +131,7 @@ public class SoftLayerComputeServiceContextModule extends
    @Singleton
    public Iterable<ProductItemPrice> prices(@Memoized Supplier<ProductPackage> productPackageSupplier,
 		   PropertiesProviderFactory defaultPropertiesFactory,
-		   @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
+		   @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId, @Named(PROPERTY_SOFTLAYER_ITEMS) final String mandatoryItems) {
 
 	   ProductPackage ppackage = null;
 	   try {
@@ -162,8 +162,11 @@ public class SoftLayerComputeServiceContextModule extends
 		   });
 	   }
 
-	   String items = 
-			   (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_ITEMS);
+	   String items = mandatoryItems;
+	   if (items == null || items.trim().length() == 0) {
+		   items = (String) defaultPropertiesFactory.create(packageId).sharedProperties().get(PROPERTY_SOFTLAYER_ITEMS);
+	   }
+	   
 	   Iterable<ProductItemPrice> transformedItems = new ArrayList<ProductItemPrice>();
 	   if (!isNull(items)) {
 		   transformedItems = Iterables.transform(Splitter.on(',').split(checkNotNull(items, "items")),
