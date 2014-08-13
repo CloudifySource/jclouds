@@ -39,7 +39,7 @@ public class VirtualGuestProperties implements PropertiesProvider {
       Properties properties = new Properties();
       properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_ID, "46");
       properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_SESSION_INTERVAL_SEC, "86400");	// defaults to once a day
-      properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_CACHE_FILE_PATH, "C:/gs-files/product_package_46.json");	// defaults value
+      properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_CACHE_FILE_PATH, "");	// defaults to empty value
       properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_CACHE_TTL_SEC, "18000");	// defaults to 5 hours
       ImmutableSet.Builder<String> items = ImmutableSet.builder();
       ImmutableSet.Builder<String> prices = ImmutableSet.builder();

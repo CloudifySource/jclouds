@@ -122,36 +122,46 @@ public class SoftLayerComputeServiceContextModule extends
                 	  AccountClient accountClient = client.getAccountClient();
                 	  ProductPackageClient productPackageClient = client.getProductPackageClient();
                 	  ProductPackageParser productPackageParser = new ProductPackageParser();
-
                 	  ProductPackage productPackage = null;
                 	  
-                	  File packageCacheFile = new File(cacheFilePath);
-                	  long fileLastModified = packageCacheFile.lastModified();
-                	  long currentTime = System.currentTimeMillis();
-                	  long cacheTTL = cacheTTLSec * 1000;
+                	  boolean cacheToFile = false;
                 	  
-                	  boolean fileExpired = currentTime - fileLastModified > cacheTTL;
+                	  if (cacheFilePath != null && cacheFilePath.trim().length() > 0) {
+                		  // cacheFilePath was set, use a cache file
+                		  cacheToFile = true;
+                	  }
                 	  
-                	  if (packageCacheFile.isFile() && !fileExpired) {
-                		  try {
-                    		  // try to read the package from a file
-                    		  productPackage = productPackageParser.loadFromFile(packageCacheFile);
-                		  } catch (IOException e) {
-                			  // TODO handle exception
-                			  e.printStackTrace();
-                		  }
+                	  if (cacheToFile) {
+                    	  File packageCacheFile = new File(cacheFilePath);
+                    	  long fileLastModified = packageCacheFile.lastModified();
+                    	  long cacheTTL = cacheTTLSec * 1000;
+                    	  boolean fileExpired = System.currentTimeMillis() - fileLastModified > cacheTTL;
+                    	  
+                    	  if (packageCacheFile.isFile() && !fileExpired) {
+                    		  try {
+                        		  // try to read the package from a file
+                        		  productPackage = productPackageParser.loadFromFile(packageCacheFile);
+                    		  } catch (IOException e) {
+                    			  // TODO handle exception
+                    			  e.printStackTrace();
+                    		  }
+                    	  } else {
+                      		// cache file is empty or expired, read package from softlayer
+                    		  ProductPackage foundPackage = find(accountClient.getReducedActivePackages(), withId(packageId));
+                    		  productPackage = productPackageClient.getProductPackage(foundPackage.getId());
+                    		  
+                    		  try {
+                            	  // write package to cache file
+                        		  productPackageParser.writeToFile(packageCacheFile, productPackage);
+                    		  } catch (IOException e) {
+                      			// TODO handle exception
+                    			  e.printStackTrace();
+                    		  }
+                    	  }
                 	  } else {
-                		// cache file is empty or expired, read package from softlayer
+                		  // cache file not used, read package from softlayer
                 		  ProductPackage foundPackage = find(accountClient.getReducedActivePackages(), withId(packageId));
                 		  productPackage = productPackageClient.getProductPackage(foundPackage.getId());
-                		  
-                		  try {
-                        	  // write package to cache file
-                    		  productPackageParser.writeToFile(packageCacheFile, productPackage);
-                		  } catch (IOException e) {
-                  			// TODO handle exception
-                			  e.printStackTrace();
-                		  }
                 	  }
                 	 
                 	  return productPackage;                	  
