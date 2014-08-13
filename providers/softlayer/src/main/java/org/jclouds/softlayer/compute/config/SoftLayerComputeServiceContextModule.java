@@ -25,6 +25,8 @@ import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLA
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_ID;
 import static org.jclouds.softlayer.reference.SoftLayerConstants.PROPERTY_SOFTLAYER_PRICES;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -61,6 +63,7 @@ import org.jclouds.softlayer.domain.product.ProductItemPrice;
 import org.jclouds.softlayer.domain.product.ProductPackage;
 import org.jclouds.softlayer.features.account.AccountClient;
 import org.jclouds.softlayer.features.product.ProductPackageClient;
+import org.jclouds.softlayer.parsers.ProductPackageParser;
 import org.jclouds.softlayer.reference.SoftLayerConstants;
 
 import com.google.common.base.Function;
@@ -107,15 +110,51 @@ public class SoftLayerComputeServiceContextModule extends
    public Supplier<ProductPackage> getProductPackage(AtomicReference<AuthorizationException> authException,
 		   	@Named(SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_SESSION_INTERVAL_SEC) long seconds,
             final SoftLayerClient client,
-            @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId) {
+            @Named(PROPERTY_SOFTLAYER_PACKAGE_ID) final int packageId,
+            @Named(SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_CACHE_FILE_PATH) final String cacheFilePath,
+            @Named(SoftLayerConstants.PROPERTY_SOFTLAYER_PACKAGE_CACHE_TTL_SEC) final int cacheTTLSec) {
+	   
       return MemoizedRetryOnTimeOutButNotOnAuthorizationExceptionSupplier.create(authException,
                new Supplier<ProductPackage>() {
                   @Override
                   public ProductPackage get() {
+                	  
                 	  AccountClient accountClient = client.getAccountClient();
                 	  ProductPackageClient productPackageClient = client.getProductPackageClient();
-                	  ProductPackage p = find(accountClient.getReducedActivePackages(), withId(packageId));
-                	  return productPackageClient.getProductPackage(p.getId());
+                	  ProductPackageParser productPackageParser = new ProductPackageParser();
+
+                	  ProductPackage productPackage = null;
+                	  
+                	  File packageCacheFile = new File(cacheFilePath);
+                	  long fileLastModified = packageCacheFile.lastModified();
+                	  long currentTime = System.currentTimeMillis();
+                	  long cacheTTL = cacheTTLSec * 1000;
+                	  
+                	  boolean fileExpired = currentTime - fileLastModified > cacheTTL;
+                	  
+                	  if (packageCacheFile.isFile() && !fileExpired) {
+                		  try {
+                    		  // try to read the package from a file
+                    		  productPackage = productPackageParser.loadFromFile(packageCacheFile);
+                		  } catch (IOException e) {
+                			  // TODO handle exception
+                			  e.printStackTrace();
+                		  }
+                	  } else {
+                		// cache file is empty or expired, read package from softlayer
+                		  ProductPackage foundPackage = find(accountClient.getReducedActivePackages(), withId(packageId));
+                		  productPackage = productPackageClient.getProductPackage(foundPackage.getId());
+                		  
+                		  try {
+                        	  // write package to cache file
+                    		  productPackageParser.writeToFile(packageCacheFile, productPackage);
+                		  } catch (IOException e) {
+                  			// TODO handle exception
+                			  e.printStackTrace();
+                		  }
+                	  }
+                	 
+                	  return productPackage;                	  
                   }
                   
                   @Override
@@ -189,4 +228,5 @@ public class SoftLayerComputeServiceContextModule extends
    private boolean isNull(String string) {
 	   return string == null || string.equals("");
    }
+   
 }
