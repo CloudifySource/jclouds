@@ -39,6 +39,8 @@ public class VirtualGuestProperties implements PropertiesProvider {
       Properties properties = new Properties();
       properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_ID, "46");
       properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_SESSION_INTERVAL_SEC, "86400");	// defaults to once a day
+      properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_CACHE_FILE_PATH, "C:/gs-files/product_package_46.json");	// defaults value
+      properties.setProperty(PROPERTY_SOFTLAYER_PACKAGE_CACHE_TTL_SEC, "18000");	// defaults to 5 hours
       ImmutableSet.Builder<String> items = ImmutableSet.builder();
       ImmutableSet.Builder<String> prices = ImmutableSet.builder();
       items.add("15"); // 1 IP Address
@@ -54,6 +56,7 @@ public class VirtualGuestProperties implements PropertiesProvider {
       properties.setProperty(TEMPLATE, "osFamily=UBUNTU,osVersionMatches=1[012].[01][04],os64Bit=true,osDescriptionMatches=.*Minimal Install.*");
       properties.setProperty(PROPERTY_SOFTLAYER_FLEX_IMAGE_ID, "");
       properties.setProperty(PROPERTY_SOFTLAYER_FLEX_IMAGE_GLOBAL_IDENTIFIER, "");
+      
       return properties;
    }
 
