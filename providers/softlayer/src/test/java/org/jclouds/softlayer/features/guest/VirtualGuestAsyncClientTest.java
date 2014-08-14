@@ -45,7 +45,7 @@ public class VirtualGuestAsyncClientTest extends BaseSoftLayerAsyncClientTest<Vi
 
       assertRequestLineEquals(
             httpRequest,
-            "GET https://api.softlayer.com/rest/v3/SoftLayer_Account/VirtualGuests.json?objectMask=virtualGuests.accountId%3BvirtualGuests.createDate%3BvirtualGuests.dedicatedAccountHostOnlyFlag%3BvirtualGuests.domain%3BvirtualGuests.fullyQualifiedDomainName%3BvirtualGuests.hostname%3BvirtualGuests.id%3BvirtualGuests.lastPowerStateId%3BvirtualGuests.lastVerifiedDate%3BvirtualGuests.maxCpu%3BvirtualGuests.maxCpuUnits%3BvirtualGuests.maxMemory%3BvirtualGuests.metricPollDate%3BvirtualGuests.modifyDate%3BvirtualGuests.startCpus%3BvirtualGuests.statusId%3BvirtualGuests.uuid%3BvirtualGuests.globalIdentifier%3BvirtualGuests.managedResourceFlag%3BvirtualGuests.primaryIpAddress%3BvirtualGuests.primaryBackendIpAddress%3BvirtualGuests.status%3BvirtualGuests.powerState%3BvirtualGuests.networkVlans%3BvirtualGuests.operatingSystem.passwords%3BvirtualGuests.datacenter%3BvirtualGuests.billingItem%3BvirtualGuests.privateNetworkOnlyFlag HTTP/1.1");
+            "GET https://api.softlayer.com/rest/v3/SoftLayer_Account/VirtualGuests.json?objectMask=virtualGuests.accountId%3BvirtualGuests.domain%3BvirtualGuests.fullyQualifiedDomainName%3BvirtualGuests.hostname%3BvirtualGuests.id HTTP/1.1");
       assertNonPayloadHeadersEqual(httpRequest, "Accept: application/json\n");
       assertPayloadEquals(httpRequest, null, null, false);
 
@@ -55,7 +55,7 @@ public class VirtualGuestAsyncClientTest extends BaseSoftLayerAsyncClientTest<Vi
 
       assertRequestLineEquals(
             httpRequest,
-              "GET https://api.softlayer.com/rest/v3/SoftLayer_Account/VirtualGuests.json?objectMask=virtualGuests.accountId%3BvirtualGuests.createDate%3BvirtualGuests.dedicatedAccountHostOnlyFlag%3BvirtualGuests.domain%3BvirtualGuests.fullyQualifiedDomainName%3BvirtualGuests.hostname%3BvirtualGuests.id%3BvirtualGuests.lastPowerStateId%3BvirtualGuests.lastVerifiedDate%3BvirtualGuests.maxCpu%3BvirtualGuests.maxCpuUnits%3BvirtualGuests.maxMemory%3BvirtualGuests.metricPollDate%3BvirtualGuests.modifyDate%3BvirtualGuests.startCpus%3BvirtualGuests.statusId%3BvirtualGuests.uuid%3BvirtualGuests.globalIdentifier%3BvirtualGuests.managedResourceFlag%3BvirtualGuests.primaryIpAddress%3BvirtualGuests.primaryBackendIpAddress%3BvirtualGuests.status%3BvirtualGuests.powerState%3BvirtualGuests.networkVlans%3BvirtualGuests.operatingSystem.passwords%3BvirtualGuests.datacenter%3BvirtualGuests.billingItem%3BvirtualGuests.privateNetworkOnlyFlag HTTP/1.1");
+            	"GET https://api.softlayer.com/rest/v3/SoftLayer_Account/VirtualGuests.json?objectMask=virtualGuests.accountId%3BvirtualGuests.domain%3BvirtualGuests.fullyQualifiedDomainName%3BvirtualGuests.hostname%3BvirtualGuests.id HTTP/1.1");
       // for example, using basic authentication, we should get "only one"
       // header
       assertNonPayloadHeadersEqual(httpRequest,

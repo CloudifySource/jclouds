@@ -58,9 +58,10 @@ import java.util.Set;
 public interface VirtualGuestAsyncClient {
 
 
-	public static String LIST_GUEST_BASIC_MASK = "virtualGuests.accountId;virtualGuests.createDate;virtualGuests.dedicatedAccountHostOnlyFlag;virtualGuests.domain;virtualGuests.fullyQualifiedDomainName;virtualGuests.hostname;virtualGuests.id;virtualGuests.lastPowerStateId;virtualGuests.lastVerifiedDate;virtualGuests.maxCpu;virtualGuests.maxCpuUnits;virtualGuests.maxMemory;virtualGuests.metricPollDate;virtualGuests.modifyDate;virtualGuests.startCpus;virtualGuests.statusId;virtualGuests.uuid;virtualGuests.globalIdentifier;virtualGuests.managedResourceFlag;virtualGuests.primaryIpAddress;virtualGuests.primaryBackendIpAddress;virtualGuests.status";
-	public static String LIST_GUEST_ADD_MASK = "virtualGuests.powerState;virtualGuests.networkVlans;virtualGuests.operatingSystem.passwords;virtualGuests.datacenter;virtualGuests.billingItem;virtualGuests.privateNetworkOnlyFlag";
-	public static String LIST_GUEST_MASK = LIST_GUEST_BASIC_MASK + ";" + LIST_GUEST_ADD_MASK;
+	public static String LIST_GUEST_MINIMAL_MASK = "virtualGuests.accountId;virtualGuests.domain;virtualGuests.fullyQualifiedDomainName;virtualGuests.hostname;virtualGuests.id";
+	// public static String LIST_GUEST_BASIC_MASK = "virtualGuests.accountId;virtualGuests.createDate;virtualGuests.dedicatedAccountHostOnlyFlag;virtualGuests.domain;virtualGuests.fullyQualifiedDomainName;virtualGuests.hostname;virtualGuests.id;virtualGuests.lastPowerStateId;virtualGuests.lastVerifiedDate;virtualGuests.maxCpu;virtualGuests.maxCpuUnits;virtualGuests.maxMemory;virtualGuests.metricPollDate;virtualGuests.modifyDate;virtualGuests.startCpus;virtualGuests.statusId;virtualGuests.uuid;virtualGuests.globalIdentifier;virtualGuests.managedResourceFlag;virtualGuests.primaryIpAddress;virtualGuests.primaryBackendIpAddress;virtualGuests.status";
+	// public static String LIST_GUEST_ADD_MASK = "virtualGuests.powerState;virtualGuests.networkVlans;virtualGuests.operatingSystem.passwords;virtualGuests.datacenter;virtualGuests.billingItem;virtualGuests.privateNetworkOnlyFlag";
+	// public static String LIST_GUEST_MASK = LIST_GUEST_BASIC_MASK + ";" + LIST_GUEST_ADD_MASK;
 	public static String GUEST_BASIC_MASK = "accountId;createDate;dedicatedAccountHostOnlyFlag;domain;fullyQualifiedDomainName;hostname;id;lastPowerStateId;lastVerifiedDate;maxCpu;maxCpuUnits;maxMemory;metricPollDate;modifyDate;startCpus;statusId;uuid;globalIdentifier;managedResourceFlag;primaryIpAddress;primaryBackendIpAddress;status";
 	public static String GUEST_ADD_MASK = "powerState;networkVlans;operatingSystem.passwords;datacenter;billingItem;privateNetworkOnlyFlag";
 	public static String GUEST_MASK = GUEST_BASIC_MASK + ";" + GUEST_ADD_MASK;
@@ -70,7 +71,8 @@ public interface VirtualGuestAsyncClient {
     */
    @GET
    @Path("/SoftLayer_Account/VirtualGuests.json")
-   @QueryParams(keys = "objectMask", values = LIST_GUEST_MASK)
+   //@QueryParams(keys = "objectMask", values = LIST_GUEST_MASK)
+   @QueryParams(keys = "objectMask", values = LIST_GUEST_MINIMAL_MASK)
    @Consumes(MediaType.APPLICATION_JSON)
    @Fallback(EmptySetOnNotFoundOr404.class)
    ListenableFuture<Set<VirtualGuest>> listVirtualGuests();
