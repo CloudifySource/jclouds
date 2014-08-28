@@ -248,9 +248,14 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
     			  .useHourlyPricing(true)
     			  .prices(getPrices(template, validGuestHardwarePriceIds))
     			  .virtualGuests(newGuest)
-    			  .provisionScripts(ImmutableSet.of(newGuest.getPostInstallScriptUri()))
     			  .imageTemplateGlobalIdentifier(imageTemplateGlobalIdentifier)
     			  .imageTemplateId(imageTemplateId);
+    	  
+    	  // optional, post provisioning script
+		   String postProvScript = newGuest.getPostInstallScriptUri();
+		   if (postProvScript != null && postProvScript.trim().length() > 0) {
+			   productOrderBuilder.provisionScripts(ImmutableSet.of(postProvScript));
+		   }
     	  
     	  ProductOrder order = productOrderBuilder.build();
     	  
@@ -286,6 +291,7 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       return new NodeAndInitialCredentials<SoftLayerNode>(result, result.getId() + "", LoginCredentials.builder().user(pw.getUsername()).password(
               pw.getPassword()).build());
    }
+   
    private String getValidPriceCombination(final Template template, final VirtualGuest virtualGuest) {
 	   
 	   String allHardwarePricesSets = template.getHardware().getId();
@@ -295,17 +301,24 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 			   		+ template.getHardware().getProviderId());
 	   
 	   for (String hardwarePricesSet : allHardwarePricesSets.split(";")) {
-		   ProductOrder order = ProductOrder.builder()
-				   .packageId(this.productPackageSupplier.get().getId())
-				   .location(template.getLocation().getId())
-				   .quantity(1)
-				   .useHourlyPricing(true)
-				   .prices(getPrices(template, hardwarePricesSet))
-                   .provisionScripts(ImmutableSet.of(virtualGuest.getPostInstallScriptUri()))
-                   .imageTemplateGlobalIdentifier(this.imageTemplateGlobalIdentifier)
-                   .imageTemplateId(this.imageTemplateId)
-				   .virtualGuests(virtualGuest)
-				   .build();
+		   ProductOrder.Builder<?> productOrderBuilder = ProductOrder.builder()
+		   .packageId(this.productPackageSupplier.get().getId())
+		   .location(template.getLocation().getId())
+		   .quantity(1)
+		   .useHourlyPricing(true)
+		   .prices(getPrices(template, hardwarePricesSet))
+           .imageTemplateGlobalIdentifier(this.imageTemplateGlobalIdentifier)
+           .imageTemplateId(this.imageTemplateId)
+		   .virtualGuests(virtualGuest);
+		   
+		   // optional, post provisioning script
+		   String postProvScript = virtualGuest.getPostInstallScriptUri();
+		   if (postProvScript != null && postProvScript.trim().length() > 0) {
+			   productOrderBuilder.provisionScripts(ImmutableSet.of(postProvScript));
+		   }
+		   
+		   ProductOrder order = productOrderBuilder.build();
+				  
 		   try {
 			   @SuppressWarnings({ "unused", "deprecation" })
 			   ProductOrder guestProductOrderReceipt = client.getVirtualGuestClient().verifyVirtualGuestOrder(order);
@@ -526,12 +539,12 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
       boolean guestHasStartedTransactions = guestHasActiveTransactionsTester.apply(guest);
       logger.debug(">> virtualGuest(%s) has started transactions(%s)", guest.getId(), guestHasStartedTransactions);
 
-      checkState(guestHasStartedTransactions, "order for host %s did not start its transactions within %sms", guest,
+      checkState(guestHasStartedTransactions, "cancellation of service for host %s did not start its transactions within %sms", guest,
               Long.toString(transactionsStartedDelay));
 
-      logger.debug(">> awaiting transactions for hardwareServer(%s)", guest.getId());
+      logger.debug(">> awaiting transactions for guest(%s)", guest.getId());
       boolean noMoreTransactions = guestHasNoActiveTransactionsTester.apply(guest);
-      logger.debug(">> hardwareServer(%s) complete(%s)", guest.getId(), noMoreTransactions);
+      logger.debug(">> guest(%s) complete(%s)", guest.getId(), noMoreTransactions);
    }
 
    @Override
