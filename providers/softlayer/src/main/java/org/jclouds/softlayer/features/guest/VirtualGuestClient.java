@@ -39,9 +39,15 @@ public interface VirtualGuestClient {
 
    /**
     * 
-    * @return an account's associated virtual guest objects.
+    * @return an account's associated virtual guest objects, populated with on naming and IP details.
     */
    Set<VirtualGuest> listVirtualGuests();
+   
+   /**
+    * 
+    * @return an account's associated virtual guest objects, populated with all details on each guest.
+    */
+   Set<VirtualGuest> listVirtualGuestsDetails();
 
    /**
     * 

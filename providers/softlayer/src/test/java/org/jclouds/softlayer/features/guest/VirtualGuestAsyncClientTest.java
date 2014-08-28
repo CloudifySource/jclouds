@@ -45,7 +45,7 @@ public class VirtualGuestAsyncClientTest extends BaseSoftLayerAsyncClientTest<Vi
 
       assertRequestLineEquals(
             httpRequest,
-            "GET https://api.softlayer.com/rest/v3/SoftLayer_Account/VirtualGuests.json?objectMask=virtualGuests.accountId%3BvirtualGuests.domain%3BvirtualGuests.fullyQualifiedDomainName%3BvirtualGuests.hostname%3BvirtualGuests.id HTTP/1.1");
+      		"GET https://api.softlayer.com/rest/v3/SoftLayer_Account/VirtualGuests.json?objectMask=virtualGuests.accountId%3BvirtualGuests.domain%3BvirtualGuests.fullyQualifiedDomainName%3BvirtualGuests.hostname%3BvirtualGuests.id%3BvirtualGuests.primaryIpAddress%3BvirtualGuests.primaryBackendIpAddress%3BvirtualGuests.status%3BvirtualGuests.powerState%3BvirtualGuests.billingItem HTTP/1.1");
       assertNonPayloadHeadersEqual(httpRequest, "Accept: application/json\n");
       assertPayloadEquals(httpRequest, null, null, false);
 
@@ -55,7 +55,7 @@ public class VirtualGuestAsyncClientTest extends BaseSoftLayerAsyncClientTest<Vi
 
       assertRequestLineEquals(
             httpRequest,
-            	"GET https://api.softlayer.com/rest/v3/SoftLayer_Account/VirtualGuests.json?objectMask=virtualGuests.accountId%3BvirtualGuests.domain%3BvirtualGuests.fullyQualifiedDomainName%3BvirtualGuests.hostname%3BvirtualGuests.id HTTP/1.1");
+  				"GET https://api.softlayer.com/rest/v3/SoftLayer_Account/VirtualGuests.json?objectMask=virtualGuests.accountId%3BvirtualGuests.domain%3BvirtualGuests.fullyQualifiedDomainName%3BvirtualGuests.hostname%3BvirtualGuests.id%3BvirtualGuests.primaryIpAddress%3BvirtualGuests.primaryBackendIpAddress%3BvirtualGuests.status%3BvirtualGuests.powerState%3BvirtualGuests.billingItem HTTP/1.1");
       // for example, using basic authentication, we should get "only one"
       // header
       assertNonPayloadHeadersEqual(httpRequest,
