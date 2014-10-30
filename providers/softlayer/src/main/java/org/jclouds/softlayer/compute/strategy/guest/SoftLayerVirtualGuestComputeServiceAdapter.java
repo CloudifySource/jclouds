@@ -68,6 +68,7 @@ import static org.jclouds.util.Predicates2.retry;
 public class SoftLayerVirtualGuestComputeServiceAdapter implements
         ComputeServiceAdapter<SoftLayerNode, Iterable<ProductItem>, ProductItem, Datacenter> {
 
+    public static final String HALTED = "HALTED";
     @Resource
     @Named(ComputeServiceConstants.COMPUTE_LOGGER)
     protected Logger logger = Logger.NULL;
@@ -641,7 +642,7 @@ public class SoftLayerVirtualGuestComputeServiceAdapter implements
 
             logger.trace(">> guest (%s) power state is (%s)", guest.getId(), state.getKeyName().name());
 
-            boolean result = "HALTED".equalsIgnoreCase(state.getKeyName().name());
+            boolean result = HALTED.equalsIgnoreCase(state.getKeyName().name());
 
             return result;
         }
